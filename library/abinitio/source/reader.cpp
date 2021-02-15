@@ -2,10 +2,6 @@
 
 #include <tchem/chemistry.hpp>
 
-#include <abinitio/DataSet.hpp>
-#include <abinitio/geometry.hpp>
-#include <abinitio/Hamiltonian.hpp>
-
 #include <abinitio/reader.hpp>
 
 namespace abinitio {
@@ -58,43 +54,35 @@ std::vector<size_t> Reader::NData() const {
     NData_[i] = CL::utility::NLines(data_directories_[i] + "energy.data");
     return NData_;
 }
+// Number of data points in this directory
+size_t Reader::NData(const std::string & data_directory) const {
+    return CL::utility::NLines(data_directory + "energy.data");
+}
 // Number of atoms constituting the molecule
 size_t Reader::NAtoms() const {
     size_t NAtoms_ = CL::utility::NLines(data_directories_[0] + "geom.data")
                    / CL::utility::NLines(data_directories_[0] + "energy.data");
     return NAtoms_;
 }
+// Number of electronic states in this directory
+size_t Reader::NStates(const std::string & data_directory) const {
+    std::ifstream ifs; ifs.open(data_directory + "energy.data");
+        std::string line;
+        std::getline(ifs, line);
+        std::vector<std::string> strs = CL::utility::split(line);
+    ifs.close();
+    return strs.size();
+}
 
 // Read geometries
 std::shared_ptr<DataSet<Geometry>> Reader::read_GeomSet() const {
-    // Prepare
-    std::vector<size_t> NData_PerDir = NData();
-    size_t NData_total = std::accumulate(NData_PerDir.begin(), NData_PerDir.end(), 0);
-    size_t NAtoms_ = NAtoms();
-    // Read data files
-    std::vector<std::shared_ptr<Geometry>> pgeoms(NData_total);
-    size_t count = 0;
-    for (size_t id = 0; id < data_directories_.size(); id++) {
-        // Read geometries in to loaders
-        std::vector<GeomLoader> loaders(NData_PerDir[id]);
-        for (auto & loader : loaders) loader.reset(3 * NAtoms_);
-        std::ifstream ifs; ifs.open(data_directories_[id] + "geom.data");
-            for (auto & loader : loaders)
-            for (size_t i = 0; i < NAtoms_; i++) {
-                std::string line; ifs >> line;
-                double dbletemp;
-                ifs >> dbletemp; loader.geom[3 * i    ] = dbletemp;
-                ifs >> dbletemp; loader.geom[3 * i + 1] = dbletemp;
-                ifs >> dbletemp; loader.geom[3 * i + 2] = dbletemp;
-            }
-        ifs.close();
-        // Insert to data set
-        for (auto & loader : loaders) {
-            pgeoms[count] = std::make_shared<Geometry>(loader);
-            count++;
-        }
+    std::vector<std::shared_ptr<Geometry>> pgeoms;
+    for (const std::string & data_directory : data_directories_) {
+        std::vector<GeomLoader> loaders(NData(data_directory));
+        for (auto & loader : loaders) loader.reset(3 * NAtoms());
+        load_geom(loaders, data_directory);
+        for (auto & loader : loaders) pgeoms.push_back(std::make_shared<Geometry>(loader));
     }
-    // Create DataSet with data set loader
     std::shared_ptr<DataSet<Geometry>> GeomSet = std::make_shared<DataSet<Geometry>>(pgeoms);
     return GeomSet;
 }
@@ -102,81 +90,22 @@ std::shared_ptr<DataSet<Geometry>> Reader::read_GeomSet() const {
 // Read Hamiltonians
 std::tuple<std::shared_ptr<DataSet<RegHam>>, std::shared_ptr<DataSet<DegHam>>>
 Reader::read_HamSet() const {
-    // Prepare
-    std::vector<size_t> NData_PerDir = NData();
-    size_t NData_total = std::accumulate(NData_PerDir.begin(), NData_PerDir.end(), 0);
-    size_t NAtoms_ = NAtoms();
-    // Read data files
-    std::vector<std::shared_ptr<RegHam>> pregs(NData_total);
-    std::vector<std::shared_ptr<DegHam>> pdegs(NData_total);
-    size_t NRegData = 0;
-    size_t NDegData = 0;
-    for (size_t id = 0; id < data_directories_.size(); id++) {
-        // for file input
-        std::ifstream ifs;
-        std::string line;
-        std::vector<std::string> strs;
-        // Infer number of electronic states
-        ifs.open(data_directories_[id] + "energy.data");
-        std::getline(ifs, line);
-        ifs.close();
-        CL::utility::split(line, strs);
-        int64_t NStates = strs.size();
-        // Read data in to loaders
-        std::vector<HamLoader> loaders(NData_PerDir[id]);
-        for (auto & loader : loaders) loader.reset(3 * NAtoms_, NStates);
-        // geometry
-        ifs.open(data_directories_[id] + "geom.data");
-            for (auto & loader : loaders)
-            for (size_t j = 0; j < NAtoms_; j++) {
-                std::string line; ifs >> line;
-                double dbletemp;
-                ifs >> dbletemp; loader.geom[3 * j    ] = dbletemp;
-                ifs >> dbletemp; loader.geom[3 * j + 1] = dbletemp;
-                ifs >> dbletemp; loader.geom[3 * j + 2] = dbletemp;
-            }
-        ifs.close();
-        // energy
-        ifs.open(data_directories_[id] + "energy.data");
-            for (auto & loader : loaders) {
-                std::getline(ifs, line);
-                CL::utility::split(line, strs);
-                for (size_t j = 0; j < NStates; j++)
-                loader.energy[j] = std::stod(strs[j]);
-            }
-        ifs.close();
-        // gradient
-        for (size_t istate = 0; istate < NStates; istate++) {
-            ifs.open(data_directories_[id] + "cartgrad-" + std::to_string(istate+1) + ".data");
-                for (auto & loader : loaders)
-                for (size_t j = 0; j < 3 * NAtoms_; j++) {
-                    double dbletemp; ifs >> dbletemp;
-                    loader.dH[istate][istate][j] = dbletemp;
-                }
-            ifs.close();
-        for (size_t jstate = istate + 1; jstate < NStates; jstate++) {
-            ifs.open(data_directories_[id] + "cartgrad-" + std::to_string(istate+1) + "-" + std::to_string(jstate+1) + ".data");
-                for (auto & loader : loaders)
-                for (size_t j = 0; j < 3 * NAtoms_; j++) {
-                    double dbletemp; ifs >> dbletemp;
-                    loader.dH[istate][jstate][j] = dbletemp;
-                }
-            ifs.close();
-        } }
-        // Insert to data set loader
+    std::vector<std::shared_ptr<RegHam>> pregs;
+    std::vector<std::shared_ptr<DegHam>> pdegs;
+    for (const std::string & data_directory : data_directories_) {
+        std::vector<HamLoader> loaders(NData(data_directory));
+        for (auto & loader : loaders) loader.reset(3 * NAtoms(), NStates(data_directory));
+        load_geom(loaders, data_directory);
+        load_energy(loaders, data_directory);
+        load_dH(loaders, data_directory);
         for (auto & loader : loaders) {
             if (tchem::chem::check_degeneracy(loader.energy, deg_thresh_)) {
-                pdegs[NDegData] = std::make_shared<DegHam>(loader);
-                NDegData++;
+                pdegs.push_back(std::make_shared<DegHam>(loader));
             } else {
-                pregs[NRegData] = std::make_shared<RegHam>(loader);
-                NRegData++;
+                pregs.push_back(std::make_shared<RegHam>(loader));
             }
         }
     }
-    // Create DataSet with data set loader
-    pregs.resize(NRegData);
-    pdegs.resize(NDegData);
     std::shared_ptr<DataSet<RegHam>> RegSet = std::make_shared<DataSet<RegHam>>(pregs);
     std::shared_ptr<DataSet<DegHam>> DegSet = std::make_shared<DataSet<DegHam>>(pdegs);
     return std::make_tuple(RegSet, DegSet);

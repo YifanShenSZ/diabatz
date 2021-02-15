@@ -23,6 +23,10 @@ add_library(abinitio STATIC
     source/geometry.cpp
     source/Hamiltonian.cpp
     source/reader.cpp
+    source/SAloader.cpp
+    source/SAgeometry.cpp
+    source/SAHamiltonian.cpp
+    source/SAreader.cpp
 )
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")

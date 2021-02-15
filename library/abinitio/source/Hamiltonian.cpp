@@ -60,7 +60,7 @@ void DegHam::to(const c10::DeviceType & device) {
 // Subtract zero point from energy and H
 void DegHam::subtract_ZeroPoint(const double & zero_point) {
     RegHam::subtract_ZeroPoint(zero_point);
-    H_.diag() -= zero_point * at::eye(H_.size(0), H_.options());
+    H_ -= zero_point * at::eye(H_.size(0), H_.options());
 }
 
 } // namespace abinitio

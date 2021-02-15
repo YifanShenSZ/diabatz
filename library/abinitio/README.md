@@ -20,5 +20,12 @@ Each line of `geom.data` contains `atom symbol, x, y, z`. *abinito* infers the n
 
 Each line of `cartgrad*.data` contains `x, y, z`, so its number of lines must equal to that of `geom.data`
 
+## Symmetry adaptation
+Until now we are using the simplest Cartesian coordinate. However, in many cases we would need symmetry adapted internal coordinate because the molecular properties
+1. are invariant under translation and rotation
+2. carry certain symmetry
+
+A global description is based on CNPI group. For a specific data point, the CNPI group is mapped to point group.
+
 ## Reference
 1. Y. Shen and D. R. Yarkony, J. Phys. Chem. A 2020, 124, 22, 4539–4548 https://doi.org/10.1021/acs.jpca.0c02763

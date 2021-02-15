@@ -1,6 +1,8 @@
 #ifndef abinitio_SAHamiltonian_hpp
 #define abinitio_SAHamiltonian_hpp
 
+#include <CppLibrary/utility.hpp>
+
 #include <abinitio/SAloader.hpp>
 #include <abinitio/SAgeometry.hpp>
 
@@ -9,22 +11,27 @@ namespace abinitio {
 // Store regular Hamiltonian and gradient in adiabatic representation
 class RegSAHam : public SAGeometry {
     protected:
-        // the metric of point group symmetry adapted internal coordinate gradient
-        // S = J . J^T
-        // where J is the Jacobian of internal coordinate over Cartesian coordiate
-        std::vector<at::Tensor> Ss_;
-
         double weight_ = 1.0;
         // By regular Hamiltonian I mean energy
-        at::Tensor energy_, dH_;
+        at::Tensor energy_;
+        // point group irreducible of each matrix element
+        CL::utility::matrix<size_t> irreds_;
+        // nonzero segment of ▽H elements
+        CL::utility::matrix<at::Tensor> dH_;
+
+        // Construct `irreds_` and `dH_`
+        void construct_dH_(const at::Tensor & cartdH);
     public:
         RegSAHam();
-        RegSAHam(const HamLoader & loader);
+        // See the base class constructor for details of `cart2int`
+        RegSAHam(const SAHamLoader & loader,
+        std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2int)(const at::Tensor &));
         ~RegSAHam();
 
         double weight() const;
         at::Tensor energy() const;
-        at::Tensor dH() const;
+        CL::utility::matrix<size_t> irreds() const;
+        CL::utility::matrix<at::Tensor> dH() const;
 
         void to(const c10::DeviceType & device);
 
@@ -35,13 +42,15 @@ class RegSAHam : public SAGeometry {
 };
 
 // Store degenerate Hamiltonian and gradient in composite representation
-class DegHam : public RegHam {
+class DegSAHam : public RegSAHam {
     protected:
         at::Tensor H_;
     public:
-        DegHam();
-        DegHam(const HamLoader & loader);
-        ~DegHam();
+        DegSAHam();
+        // See the base class constructor for details of `cart2int`
+        DegSAHam(const SAHamLoader & loader,
+        std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2int)(const at::Tensor &));
+        ~DegSAHam();
 
         at::Tensor H() const;
 
