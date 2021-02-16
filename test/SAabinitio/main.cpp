@@ -43,10 +43,7 @@ int main() {
     for (auto & data : batch) {
         std::cout << data->qs()[1].norm().item<double>() << '\n';
         std::cout << data->irreds()[0][1] << '\n';
-        for (size_t i = 0; i < data->NPointIrreds(); i++) {
-            std::cout << i << '\n';
-            std::cout << data->dH()[0][1][i] << '\n';
-        }
+        std::cout << data->dH()[0][1].size(0) << '\n';
         std::cout << data->H() << '\n';
         count++;
     }

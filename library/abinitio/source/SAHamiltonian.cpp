@@ -4,6 +4,7 @@
 
 namespace abinitio {
 
+// Transform a Cartesian coordinate ▽H to `dH_`
 void RegSAHam::construct_dH_(const at::Tensor & cartdH) {
     std::vector<at::Tensor> Js_point = cat(Js_);
     std::vector<at::Tensor> cart2int(NPointIrreds());
@@ -13,23 +14,26 @@ void RegSAHam::construct_dH_(const at::Tensor & cartdH) {
         at::Tensor inverse = at::cholesky_inverse(cholesky, true);
         cart2int[i] = inverse.mm(Js_point[i]);
     }
-    irreds_.resize(cartdH.size(0));
     dH_.resize(cartdH.size(0));
+    irreds_.resize(dH_.size(0));
     for (size_t i = 0; i < dH_.size(0); i++) {
         // Diagonals must be totally symmetric
-        irreds_[i][i] = 0;
         dH_[i][i] = cart2int[0].mv(cartdH[i][i]);
+        irreds_[i][i] = 0;
         // Try out every irreducible for off-diagonals
         for (size_t j = i + 1; j < dH_.size(1); j++) {
-            size_t irred;
-            for (irred = 0; irred < NPointIrreds(); irred++) {
-                dH_[i][j] = cart2int[irred].mv(cartdH[i][j]);
-                if (dH_[i][j].norm().item<double>() > 1e-6) {
+            dH_[i][j] = cart2int[0].mv(cartdH[i][j]);
+            double infnorm = at::max(at::abs(dH_[i][j])).item<double>();
+            irreds_[i][j] = 0;
+            for (size_t irred = 1; irred < NPointIrreds(); irred++) {
+                at::Tensor candidate = cart2int[irred].mv(cartdH[i][j]);
+                double cannorm = at::max(at::abs(candidate)).item<double>();
+                if (cannorm > infnorm) {
+                    dH_[i][j] = candidate;
+                    infnorm = cannorm;
                     irreds_[i][j] = irred;
-                    break;
                 }
             }
-            if (irred == NPointIrreds()) throw "Vanishing gradient, cannot tell ▽H irreducible";
         }
     }
 }
@@ -83,14 +87,14 @@ DegSAHam::DegSAHam() {}
 DegSAHam::DegSAHam(const SAHamLoader & loader,
 std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2int)(const at::Tensor &))
 : RegSAHam(loader, cart2int) {
+    // Rebuild Cartesian ▽H from `dH_`, eliminating the symmetry breaking flaw in original data
+    std::vector<at::Tensor> Js_point = cat(Js_);
+    at::Tensor cartdH = loader.dH.new_empty(loader.dH.sizes());
+    for (size_t i = 0; i < cartdH.size(0); i++)
+    for (size_t j = i; j < cartdH.size(1); j++)
+    cartdH[i][j] = Js_point[irreds_[i][j]].transpose(0, 1).mv(dH_[i][j]);
+    // Transform H and ▽H to composite representation
     H_ = energy_.clone();
-    at::Tensor cartdH = loader.dH.clone();
-    for (size_t i = 0    ; i < cartdH.size(0); i++)
-    for (size_t j = i + 1; j < cartdH.size(1); j++)
-    cartdH[i][j] *= energy_[j] - energy_[i];
-
-std::cerr << qs_[1].norm().item<double>() << '\n';
-
     tchem::chem::composite_representation_(H_, cartdH);
     this->construct_dH_(cartdH);
     // point group symmetry consistency check

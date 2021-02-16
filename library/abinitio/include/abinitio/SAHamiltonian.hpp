@@ -14,12 +14,14 @@ class RegSAHam : public SAGeometry {
         double weight_ = 1.0;
         // By regular Hamiltonian I mean energy
         at::Tensor energy_;
-        // point group irreducible of each matrix element
-        CL::utility::matrix<size_t> irreds_;
         // nonzero segment of ▽H elements
         CL::utility::matrix<at::Tensor> dH_;
 
-        // Construct `irreds_` and `dH_`
+        // point group irreducible of each matrix element
+        CL::utility::matrix<size_t> irreds_;
+
+        // Transform a Cartesian coordinate ▽H to `dH_`,
+        // by finding the nonzero segment determine `irreds_`
         void construct_dH_(const at::Tensor & cartdH);
     public:
         RegSAHam();
