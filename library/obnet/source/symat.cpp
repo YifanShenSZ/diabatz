@@ -14,14 +14,14 @@ symat::symat(const std::string & symat_in) {
         std::getline(ifs, line);
         std::getline(ifs, line);
         NStates_ = std::stoul(line);
-        // symmetry (irreducible) of matrix elements
+        // CNPI group irreducible of each matrix element
         std::getline(ifs, line);
-        symmetry_ = CL::utility::matrix<size_t>(NStates_);
+        irreds_ = CL::utility::matrix<size_t>(NStates_);
         for (size_t i = 0; i < NStates_; i++) {
             std::getline(ifs, line);
             auto strs = CL::utility::split(line);
             for (size_t j = 0; j < NStates_; j++)
-            symmetry_[i][j] = std::stoul(strs[j]) - 1;
+            irreds_[i][j] = std::stoul(strs[j]) - 1;
         }
         // elementary network
         std::getline(ifs, line);
@@ -32,14 +32,14 @@ symat::symat(const std::string & symat_in) {
             std::vector<size_t> dimensions(strs.size());
             for (size_t k = 0; k < strs.size(); k++)
             dimensions[k] = std::stoul(strs[k]);
-            elements->push_back(scalar(dimensions, symmetry_[i][j] == 0));
+            elements->push_back(scalar(dimensions, irreds_[i][j] == 0));
         }
     ifs.close();
 }
 symat::~symat() {}
 
 int64_t symat::NStates() const {return NStates_;}
-CL::utility::matrix<size_t> symat::symmetry() const {return symmetry_;}
+CL::utility::matrix<size_t> symat::irreds() const {return irreds_;}
 
 void symat::to(const torch::Dtype & dtype) {
     this->torch::nn::Module::to(dtype);
