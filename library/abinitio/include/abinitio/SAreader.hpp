@@ -14,13 +14,13 @@ class SAReader : public Reader {
     public:
         SAReader();
         // See the base class constructor for details of `user_list`
-        // `cart2int` takes in Cartesian coordinate,
-        // returns symmetry adapted internal coordinates and corresponding Jacobians
+        // `cart2int` takes in Cartesian coordinate r,
+        // returns symmetry adapted internal coordinates and their Jacobians over r
         SAReader(const std::vector<std::string> & user_list,
         std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*_cart2int)(const at::Tensor &));
         ~SAReader();
 
-        template <typename T> void load_CNPI2point(std::vector<T> loaders, const std::string & data_directory) const {
+        template <typename T> void load_CNPI2point(std::vector<T> & loaders, const std::string & data_directory) const {
             std::ifstream ifs; ifs.open(data_directory + "CNPI2point.txt");
                 for (auto & loader : loaders) {
                     std::string line;

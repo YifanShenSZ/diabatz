@@ -18,6 +18,7 @@ void SAGeometry::construct_metric_() {
     at::Tensor J = torch::cat(Js_);
     S_ = J.mm(J.transpose(0, 1));
     Ss_.resize(NPointIrreds());
+    sqrtSs_.resize(Ss_.size());
     std::vector<at::Tensor> Js_point = cat(Js_);
     for (size_t i = 0; i < Ss_.size(); i++) {
         Ss_[i] = Js_point[i].mm(Js_point[i].transpose(0, 1));
@@ -26,7 +27,6 @@ void SAGeometry::construct_metric_() {
         eigvals = at::sqrt(eigvals);
         sqrtSs_[i] = eigvecs.mm(eigvals.diag().mm(eigvecs.transpose(0, 1)));
     }
-    
 }
 
 SAGeometry::SAGeometry() {}

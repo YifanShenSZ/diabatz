@@ -23,7 +23,7 @@ std::shared_ptr<DataSet<SAGeometry>> SAReader::read_SAGeomSet() const {
         for (auto & loader : loaders) loader.reset(3 * NAtoms());
         load_geom(loaders, data_directory);
         load_CNPI2point(loaders, data_directory);
-        for (auto & loader : loaders) pgeoms.push_back(std::make_shared<SAGeometry>(loader, cart2int_));
+        for (const auto & loader : loaders) pgeoms.push_back(std::make_shared<SAGeometry>(loader, cart2int_));
     }
     std::shared_ptr<DataSet<SAGeometry>> GeomSet = std::make_shared<DataSet<SAGeometry>>(pgeoms);
     return GeomSet;

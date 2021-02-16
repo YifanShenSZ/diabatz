@@ -18,12 +18,12 @@ void RegSAHam::construct_dH_(const at::Tensor & cartdH) {
     for (size_t i = 0; i < dH_.size(0); i++) {
         // Diagonals must be totally symmetric
         irreds_[i][i] = 0;
-        dH_[i][i] = cart2int[0].mm(cartdH[i][i]);
+        dH_[i][i] = cart2int[0].mv(cartdH[i][i]);
         // Try out every irreducible for off-diagonals
         for (size_t j = i + 1; j < dH_.size(1); j++) {
             size_t irred;
             for (irred = 0; irred < NPointIrreds(); irred++) {
-                dH_[i][j] = cart2int[irred].mm(cartdH[i][j]);
+                dH_[i][j] = cart2int[irred].mv(cartdH[i][j]);
                 if (dH_[i][j].norm().item<double>() > 1e-6) {
                     irreds_[i][j] = irred;
                     break;
@@ -88,12 +88,15 @@ std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2int)(const a
     for (size_t i = 0    ; i < cartdH.size(0); i++)
     for (size_t j = i + 1; j < cartdH.size(1); j++)
     cartdH[i][j] *= energy_[j] - energy_[i];
-    tchem::chem::composite_representation(H_, cartdH);
+
+std::cerr << qs_[1].norm().item<double>() << '\n';
+
+    tchem::chem::composite_representation_(H_, cartdH);
     this->construct_dH_(cartdH);
     // point group symmetry consistency check
     for (size_t i = 0    ; i < cartdH.size(0); i++)
     for (size_t j = i + 1; j < cartdH.size(1); j++)
-    if (H_[i][j].norm().item<double>() > 1e-6 && irreds_[i][j] != 0)
+    if (abs(H_[i][j].item<double>()) > 1e-6 && irreds_[i][j] != 0)
     throw "Inconsistent irreducible between H and ▽H";
 }
 DegSAHam::~DegSAHam() {}

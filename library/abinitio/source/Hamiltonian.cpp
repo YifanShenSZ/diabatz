@@ -44,9 +44,8 @@ void RegHam::adjust_weight(const double & thresh) {
 
 DegHam::DegHam() {}
 DegHam::DegHam(const HamLoader & loader) : RegHam(loader) {
-    // Transform H and dH to composite representation
     H_ = energy_.clone();
-    tchem::chem::composite_representation(H_, dH_);
+    tchem::chem::composite_representation_(H_, dH_);
 }
 DegHam::~DegHam() {}
 
