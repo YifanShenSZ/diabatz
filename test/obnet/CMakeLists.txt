@@ -21,6 +21,9 @@ link_directories(~/Library/Torch-Chemistry/lib)
 include_directories(~/Software/Mine/diabatz/library/obnet/include)
 link_directories(~/Software/Mine/diabatz/library/obnet/lib)
 
-add_executable(test.exe main.cpp)
+add_executable(test.exe
+    InputGenerator.cpp
+    main.cpp
+)
 
 target_link_libraries(test.exe obnet tchem CL "${TORCH_LIBRARIES}")
