@@ -66,7 +66,7 @@ void SAGeometry::to(const c10::DeviceType & device) {
 }
 
 // Concatenate CNPI group symmetry adapted tensors to point group symmetry adapted tensors
-std::vector<at::Tensor> SAGeometry::cat(std::vector<at::Tensor> xs) const {
+std::vector<at::Tensor> SAGeometry::cat(const std::vector<at::Tensor> & xs) const {
     assert(("`point2CNPI_` must have been constructed", ! point2CNPI_.empty()));
     assert(("Number of CNPI group symmetry adapted tensors must equal to CNPI group order", xs.size() == qs_.size()));
     std::vector<at::Tensor> ys(NPointIrreds());
@@ -76,6 +76,26 @@ std::vector<at::Tensor> SAGeometry::cat(std::vector<at::Tensor> xs) const {
         ys[i] = torch::cat(xmatches);
     }
     return ys;
+}
+// Split an internal coordinate tensor to CNPI group symmetry adapted tensors
+// x is assumed to be the concatenation of CNPI group symmetry adapted internal coordinate tensors
+std::vector<at::Tensor> SAGeometry::split2CNPI(const at::Tensor & x) const {
+    size_t intdim = 0;
+    for (const at::Tensor & q : qs_) intdim += q.size(0);
+    assert(("The 1st dimension of x must match the internal coordinate dimension", x.size(0) == intdim));
+    std::vector<at::Tensor> xs(qs_.size());
+    size_t start = 0;
+    for (size_t i = 0; i < xs.size(); i++) {
+        size_t end = start + qs_[i].size(0);
+        xs[i] = x.slice(0, start, end);
+        start = end;
+    }
+    return xs;
+}
+// Split an internal coordinate tensor to point group symmetry adapted tensors
+// x is assumed to be the concatenation of CNPI group symmetry adapted internal coordinate tensors
+std::vector<at::Tensor> SAGeometry::split2point(const at::Tensor & x) const {
+    return this->cat(this->split2CNPI(x));
 }
 
 } // namespace abinitio

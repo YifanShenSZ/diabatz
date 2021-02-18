@@ -17,7 +17,7 @@ class SAReader : public Reader {
         // `cart2int` takes in Cartesian coordinate r,
         // returns symmetry adapted internal coordinates and their Jacobians over r
         SAReader(const std::vector<std::string> & user_list,
-        std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*_cart2int)(const at::Tensor &));
+                 std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*_cart2int)(const at::Tensor &));
         ~SAReader();
 
         template <typename T> void load_CNPI2point(std::vector<T> & loaders, const std::string & data_directory) const {

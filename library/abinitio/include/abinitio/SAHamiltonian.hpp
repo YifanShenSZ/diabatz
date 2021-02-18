@@ -27,7 +27,7 @@ class RegSAHam : public SAGeometry {
         RegSAHam();
         // See the base class constructor for details of `cart2int`
         RegSAHam(const SAHamLoader & loader,
-        std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2int)(const at::Tensor &));
+                 std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2int)(const at::Tensor &));
         ~RegSAHam();
 
         double weight() const;
@@ -51,7 +51,7 @@ class DegSAHam : public RegSAHam {
         DegSAHam();
         // See the base class constructor for details of `cart2int`
         DegSAHam(const SAHamLoader & loader,
-        std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2int)(const at::Tensor &));
+                 std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2int)(const at::Tensor &));
         ~DegSAHam();
 
         at::Tensor H() const;

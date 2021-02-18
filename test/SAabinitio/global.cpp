@@ -3,10 +3,9 @@
 std::shared_ptr<tchem::IC::SASICSet> sasicset;
 
 // Given Cartesian coordinate r,
-// return symmetry adapted internal coordinates
-// and their Jacobians over r
+// return CNPI group symmetry adapted internal coordinates and corresponding Jacobians
 std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> cart2int(const at::Tensor & r) {
-    assert(("Define symmetry adaptated and scaled internal coordinate before use", sasicset));
+    assert(("Define CNPI group symmetry adaptated and scaled internal coordinate before use", sasicset));
     // Cartesian coordinate -> internal coordinate
     at::Tensor q, J;
     std::tie(q, J) = sasicset->compute_IC_J(r);

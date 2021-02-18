@@ -28,12 +28,12 @@ class SAGeometry {
     public:
         SAGeometry();
         // `cart2int` takes in Cartesian coordinate,
-        // returns symmetry adapted internal coordinates and corresponding Jacobians
+        // returns CNPI group symmetry adapted internal coordinates and corresponding Jacobians
         SAGeometry(const at::Tensor & geom, const std::vector<size_t> & _CNPI2point,
-        std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2int)(const at::Tensor &));
+                   std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2int)(const at::Tensor &));
         // See the base constructor for details of `cart2int`
         SAGeometry(const SAGeomLoader & loader,
-        std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2int)(const at::Tensor &));
+                   std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2int)(const at::Tensor &));
         ~SAGeometry();
 
         std::vector<size_t> CNPI2point() const;
@@ -50,7 +50,13 @@ class SAGeometry {
         void to(const c10::DeviceType & device);
 
         // Concatenate CNPI group symmetry adapted tensors to point group symmetry adapted tensors
-        std::vector<at::Tensor> cat(std::vector<at::Tensor> xs) const;
+        std::vector<at::Tensor> cat(const std::vector<at::Tensor> & xs) const;
+        // Split an internal coordinate tensor to CNPI group symmetry adapted tensors
+        // x is assumed to be the concatenation of CNPI group symmetry adapted internal coordinate tensors
+        std::vector<at::Tensor> split2CNPI(const at::Tensor & x) const;
+        // Split an internal coordinate tensor to point group symmetry adapted tensors
+        // x is assumed to be the concatenation of CNPI group symmetry adapted internal coordinate tensors
+        std::vector<at::Tensor> split2point(const at::Tensor & x) const;
 };
 
 } // namespace abinitio
