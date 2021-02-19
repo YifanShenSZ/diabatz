@@ -10,7 +10,7 @@ std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> cart2int(const at::
     at::Tensor q, J;
     std::tie(q, J) = sasicset->compute_IC_J(r);
     q.set_requires_grad(true);
-    // internal coordinate -> symmetry adapted internal coordinate
+    // internal coordinate -> CNPI group symmetry adapted internal coordinate
     std::vector<at::Tensor> qs = (*sasicset)(q);
     std::vector<at::Tensor> Js = std::vector<at::Tensor>(qs.size());
     for (size_t i = 0; i < qs.size(); i++) {
@@ -21,5 +21,7 @@ std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> cart2int(const at::
         }
         Js[i] = Js[i].mm(J);
     }
+    // Free autograd graph
+    for (at::Tensor & q : qs) q.detach_();
     return std::make_tuple(qs, Js);
 }

@@ -95,7 +95,17 @@ std::vector<at::Tensor> SAGeometry::split2CNPI(const at::Tensor & x) const {
 // Split an internal coordinate tensor to point group symmetry adapted tensors
 // x is assumed to be the concatenation of CNPI group symmetry adapted internal coordinate tensors
 std::vector<at::Tensor> SAGeometry::split2point(const at::Tensor & x) const {
-    return this->cat(this->split2CNPI(x));
+    size_t intdim = 0;
+    for (const at::Tensor & S : Ss_) intdim += S.size(0);
+    assert(("The 1st dimension of x must match the internal coordinate dimension", x.size(0) == intdim));
+    std::vector<at::Tensor> xs(Ss_.size());
+    size_t start = 0;
+    for (size_t i = 0; i < xs.size(); i++) {
+        size_t end = start + Ss_[i].size(0);
+        xs[i] = x.slice(0, start, end);
+        start = end;
+    }
+    return xs;
 }
 
 } // namespace abinitio

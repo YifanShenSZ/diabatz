@@ -55,7 +55,7 @@ class SAGeometry {
         // x is assumed to be the concatenation of CNPI group symmetry adapted internal coordinate tensors
         std::vector<at::Tensor> split2CNPI(const at::Tensor & x) const;
         // Split an internal coordinate tensor to point group symmetry adapted tensors
-        // x is assumed to be the concatenation of CNPI group symmetry adapted internal coordinate tensors
+        // x is assumed to be the concatenation of point group symmetry adapted internal coordinate tensors
         std::vector<at::Tensor> split2point(const at::Tensor & x) const;
 };
 
