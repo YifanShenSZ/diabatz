@@ -13,7 +13,7 @@ class RegHam : public abinitio::RegSAHam {
     public:
         RegHam();
         RegHam(const std::shared_ptr<abinitio::RegSAHam> & ham,
-            CL::utility::matrix<at::Tensor> (*q2x)(const std::vector<at::Tensor> &));
+            std::tuple<CL::utility::matrix<at::Tensor>, CL::utility::matrix<at::Tensor>> (*q2x)(const std::vector<at::Tensor> &));
         ~RegHam();
 
         CL::utility::matrix<at::Tensor> xs() const;
@@ -29,7 +29,7 @@ class DegHam : public abinitio::DegSAHam {
     public:
         DegHam();
         DegHam(const std::shared_ptr<abinitio::DegSAHam> & ham,
-               CL::utility::matrix<at::Tensor> (*q2x)(const std::vector<at::Tensor> &));
+               std::tuple<CL::utility::matrix<at::Tensor>, CL::utility::matrix<at::Tensor>> (*q2x)(const std::vector<at::Tensor> &));
         ~DegHam();
 
         CL::utility::matrix<at::Tensor> xs() const;
@@ -37,7 +37,6 @@ class DegHam : public abinitio::DegSAHam {
 };
 
 std::tuple<std::shared_ptr<abinitio::DataSet<RegHam>>, std::shared_ptr<abinitio::DataSet<DegHam>>>
-read_data(const std::vector<std::string> & user_list,
-std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2int)(const at::Tensor &));
+read_data(const std::vector<std::string> & user_list);
 
 #endif

@@ -1,5 +1,3 @@
-// global variable
-
 #include "global.hpp"
 
 std::shared_ptr<tchem::IC::SASICSet> sasicset;
@@ -12,7 +10,7 @@ std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> cart2int(const at::
     at::Tensor q, J;
     std::tie(q, J) = sasicset->compute_IC_J(r);
     q.set_requires_grad(true);
-    // Internal coordinate -> CNPI group symmetry adapted internal coordinate
+    // internal coordinate -> CNPI group symmetry adapted internal coordinate
     std::vector<at::Tensor> qs = (*sasicset)(q);
     std::vector<at::Tensor> Js = std::vector<at::Tensor>(qs.size());
     for (size_t i = 0; i < qs.size(); i++) {
@@ -28,11 +26,15 @@ std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> cart2int(const at::
     return std::make_tuple(qs, Js);
 }
 
+std::shared_ptr<obnet::symat> Hdnet;
+
 std::shared_ptr<InputGenerator> input_generator;
 
-CL::utility::matrix<at::Tensor> int2input(const std::vector<at::Tensor> & qs) {
+std::tuple<CL::utility::matrix<at::Tensor>, CL::utility::matrix<at::Tensor>>
+int2input(const std::vector<at::Tensor> & qs) {
     assert(("Define input layer generator before use", input_generator));
-    return (*input_generator)(qs);
+    size_t NStates = Hdnet->NStates();
+    CL::utility::matrix<at::Tensor> xs(NStates), JTs(NStates);
+    std::tie(xs, JTs) = input_generator->compute_x_JT(qs);
+    return std::make_tuple(xs, JTs);
 }
-
-std::shared_ptr<obnet::symat> Hdnet;

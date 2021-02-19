@@ -23,6 +23,7 @@ link_directories(~/Software/Mine/diabatz/library/obnet/lib)
 
 add_executable(test.exe
     InputGenerator.cpp
+    global.cpp
     main.cpp
 )
 

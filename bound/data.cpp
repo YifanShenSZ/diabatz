@@ -6,7 +6,7 @@
 
 RegHam::RegHam() {}
 RegHam::RegHam(const std::shared_ptr<abinitio::RegSAHam> & ham,
-CL::utility::matrix<at::Tensor> (*q2x)(const std::vector<at::Tensor> &)) {
+std::tuple<CL::utility::matrix<at::Tensor>, CL::utility::matrix<at::Tensor>> (*q2x)(const std::vector<at::Tensor> &)) {
     CNPI2point_ = ham->CNPI2point();
     qs_         = ham->qs        ();
     Js_         = ham->Js        ();
@@ -18,34 +18,7 @@ CL::utility::matrix<at::Tensor> (*q2x)(const std::vector<at::Tensor> &)) {
     energy_     = ham->energy    ();
     dH_         = ham->dH        ();
     irreds_     = ham->irreds    ();
-    // Construct `xs_` and `JTs_`
-    for (at::Tensor & q : qs_) q.set_requires_grad(true);
-    xs_ = q2x(qs_);
-    size_t NStates = xs_.size();
-    int64_t intdim = 0;
-    for (const at::Tensor & q : qs_) intdim += q.size(0);
-    JTs_.resize(NStates);
-    for (size_t i = 0; i < NStates; i++)
-    for (size_t j = i; j < NStates; j++) {
-        at::Tensor & x = xs_[i][j], & JT = JTs_[i][j];
-        JT = x.new_empty({intdim, x.size(0)});
-        std::vector<at::Tensor> CNPIviews = this->split2CNPI(JT);
-        for (at::Tensor & JTT : CNPIviews) JTT.transpose_(0, 1);
-        for (size_t row = 0; row < x.size(0); row++) {
-            torch::autograd::variable_list g = torch::autograd::grad({x[row]}, qs_, {}, true);
-            for (size_t irred = 0; irred < qs_.size(); irred++)
-            CNPIviews[irred][row] = g[irred]; 
-        }
-        for (at::Tensor & JTTT : CNPIviews) JTTT.transpose_(0, 1);
-    }
-    // Free autograd graph
-    for (at::Tensor & q : qs_) {
-        q.detach_();
-        q.set_requires_grad(false);
-    }
-    for (size_t i = 0; i < NStates; i++)
-    for (size_t j = i; j < NStates; j++)
-    xs_[i][j].detach_();
+    std::tie(xs_, JTs_) = q2x(qs_);
 }
 RegHam::~RegHam() {}
 
@@ -58,7 +31,7 @@ CL::utility::matrix<at::Tensor> RegHam::JTs() const {return JTs_;};
 
 DegHam::DegHam() {}
 DegHam::DegHam(const std::shared_ptr<abinitio::DegSAHam> & ham,
-CL::utility::matrix<at::Tensor> (*q2x)(const std::vector<at::Tensor> &)) {
+std::tuple<CL::utility::matrix<at::Tensor>, CL::utility::matrix<at::Tensor>> (*q2x)(const std::vector<at::Tensor> &)) {
     CNPI2point_ = ham->CNPI2point();
     qs_         = ham->qs        ();
     Js_         = ham->Js        ();
@@ -71,34 +44,7 @@ CL::utility::matrix<at::Tensor> (*q2x)(const std::vector<at::Tensor> &)) {
     dH_         = ham->dH        ();
     irreds_     = ham->irreds    ();
     H_          = ham->H         ();
-    // Construct `xs_` and `JTs_`
-    for (at::Tensor & q : qs_) q.set_requires_grad(true);
-    xs_ = q2x(qs_);
-    size_t NStates = xs_.size();
-    int64_t intdim = 0;
-    for (const at::Tensor & q : qs_) intdim += q.size(0);
-    JTs_.resize(NStates);
-    for (size_t i = 0; i < NStates; i++)
-    for (size_t j = i; j < NStates; j++) {
-        at::Tensor & x = xs_[i][j], & JT = JTs_[i][j];
-        JT = x.new_empty({intdim, x.size(0)});
-        std::vector<at::Tensor> CNPIviews = this->split2CNPI(JT);
-        for (at::Tensor & JTT : CNPIviews) JTT.transpose_(0, 1);
-        for (size_t row = 0; row < x.size(0); row++) {
-            torch::autograd::variable_list g = torch::autograd::grad({x[row]}, qs_, {}, true);
-            for (size_t irred = 0; irred < qs_.size(); irred++)
-            CNPIviews[irred][row] = g[irred]; 
-        }
-        for (at::Tensor & JTTT : CNPIviews) JTTT.transpose_(0, 1);
-    }
-    // Free autograd graph
-    for (at::Tensor & q : qs_) {
-        q.detach_();
-        q.set_requires_grad(false);
-    }
-    for (size_t i = 0; i < NStates; i++)
-    for (size_t j = i; j < NStates; j++)
-    xs_[i][j].detach_();
+    std::tie(xs_, JTs_) = q2x(qs_);
 }
 DegHam::~DegHam() {}
 
@@ -113,15 +59,17 @@ std::tuple<std::shared_ptr<abinitio::DataSet<RegHam>>, std::shared_ptr<abinitio:
 read_data(const std::vector<std::string> & user_list) {
     abinitio::SAReader reader(user_list, cart2int);
     reader.pretty_print(std::cout);
-    // Read the data set in symmetry adapted internal coordinate
+    // Read the data set in symmetry adapted internal coordinate in standard form
     std::shared_ptr<abinitio::DataSet<abinitio::RegSAHam>> stdregset;
     std::shared_ptr<abinitio::DataSet<abinitio::DegSAHam>> stddegset;
     std::tie(stdregset, stddegset) = reader.read_SAHamSet();
     // Precompute the input layers for each geometry
     std::vector<std::shared_ptr<RegHam>> pregs(stdregset->size_int());
+    #pragma omp parallel for
     for (size_t i = 0; i < pregs.size(); i++)
     pregs[i] = std::make_shared<RegHam>(stdregset->get(i), int2input);
     std::vector<std::shared_ptr<DegHam>> pdegs(stddegset->size_int());
+    #pragma omp parallel for
     for (size_t i = 0; i < pdegs.size(); i++)
     pdegs[i] = std::make_shared<DegHam>(stddegset->get(i), int2input);
     // Return
