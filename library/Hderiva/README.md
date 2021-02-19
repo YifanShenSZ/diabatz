@@ -2,8 +2,8 @@
 All the user need to code is a (backwardable) Hd. This library will take care of every other necessary quantities.
 
 Nomenclature:
-* `x` stands for the input layers of the scalor networks
-* `c` stands for the trainable parameters
+* `x` stands for the coordinate vetor
+* `c` stands for the trainable parameters vector
 * Anything without a suffix is an operator. E.g. `H` is Hamiltonian operator, `d / dx * H` is the gradient of Hamiltonian operator over geometry (so it's still an operator)
 * Anything with a suffix is a matrix, with the suffix indicating the representation. E.g. `Hd` is the diabatic Hamiltonian matrix, `d / dx Hd` is the gradient of the diabatic Hamiltonian matrix over geometry (so it's a matrix with vectors as its elements), `(d / dx * H)a` is the adiabatic `d / dx * H` matrix (with vectors as its elements)
 
