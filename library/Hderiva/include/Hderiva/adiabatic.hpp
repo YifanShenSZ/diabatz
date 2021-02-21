@@ -1,3 +1,6 @@
+#ifndef Hderiva_adiabatic_hpp
+#define Hderiva_adiabatic_hpp
+
 #include <torch/torch.h>
 
 namespace Hderiva {
@@ -13,3 +16,5 @@ at::Tensor DcDxHa
 const at::Tensor & energies, const at::Tensor & states);
 
 } // namespace Hderiva
+
+#endif

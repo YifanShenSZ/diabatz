@@ -1,3 +1,6 @@
+#ifndef Hderiva_composite_hpp
+#define Hderiva_composite_hpp
+
 #include <torch/torch.h>
 
 namespace Hderiva {
@@ -34,3 +37,5 @@ const at::Tensor & DxHd, const at::Tensor & DcHd, const at::Tensor & DcDxHd,
 const at::Tensor & eigvals, const at::Tensor & eigvecs, const at::Tensor & S);
 
 } // namespace Hderiva
+
+#endif

@@ -1,3 +1,6 @@
+#ifndef Hderiva_diabatic_hpp
+#define Hderiva_diabatic_hpp
+
 #include <torch/torch.h>
 
 #include <CppLibrary/utility.hpp>
@@ -24,3 +27,5 @@ at::Tensor DcHd(const at::Tensor & Hd, const std::vector<at::Tensor> & cs);
 at::Tensor DcDxHd(const at::Tensor & DxHd, const std::vector<at::Tensor> & cs);
 
 } // namespace Hderiva
+
+#endif

@@ -13,11 +13,11 @@ namespace Hderiva {
 at::Tensor DcDxHa
 (const at::Tensor & DxHa, const at::Tensor & DcHd, const at::Tensor & DcDxHd,
 const at::Tensor & energies, const at::Tensor & states) {
-    at::Tensor nac = tchem::LA::UT_sy_U(DcHd, states);
+    at::Tensor nac = tchem::linalg::UT_sy_U(DcHd, states);
     for (size_t i = 0    ; i < energies.size(0); i++)
     for (size_t j = i + 1; j < energies.size(0); j++)
     nac[i][j] /= energies[j] - energies[i];
-    at::Tensor DcDxHa = tchem::LA::UT_sy_U(DcDxHd, states)
+    at::Tensor DcDxHa = tchem::linalg::UT_sy_U(DcDxHd, states)
                       + commutor_term(DxHa, nac);
     return DcDxHa;
 }
