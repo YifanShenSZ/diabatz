@@ -7,9 +7,9 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor> analytical
     at::Tensor DqHd = libHd::analytical_DqHd(c00, c01, c11, q);
     at::Tensor Dc00DqHd, Dc01DqHd, Dc11DqHd;
     std::tie(Dc00DqHd, Dc01DqHd, Dc11DqHd) = libHd::analytical_DcDqHd(c00, c01, c11, q);
-    at::Tensor Dc00O = tchem::LA::sy4matmvmulsy3(Dc00DqHd.transpose_(-1, -2), DqHd),
-               Dc01O = tchem::LA::sy4matmvmulsy3(Dc01DqHd.transpose_(-1, -2), DqHd),
-               Dc11O = tchem::LA::sy4matmvmulsy3(Dc11DqHd.transpose_(-1, -2), DqHd);
+    at::Tensor Dc00O = tchem::linalg::sy4matmvmulsy3(Dc00DqHd.transpose_(-1, -2), DqHd),
+               Dc01O = tchem::linalg::sy4matmvmulsy3(Dc01DqHd.transpose_(-1, -2), DqHd),
+               Dc11O = tchem::linalg::sy4matmvmulsy3(Dc11DqHd.transpose_(-1, -2), DqHd);
     Dc00O = Dc00O + Dc00O.transpose(0, 1);
     Dc01O = Dc01O + Dc01O.transpose(0, 1);
     Dc11O = Dc11O + Dc11O.transpose(0, 1);
@@ -23,11 +23,11 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor> numerical
         at::Tensor c00_p = c00.clone();
         c00_p[i] += 1e-5;
         at::Tensor dH_p = libHd::analytical_DqHd(c00_p, c01, c11, q);
-        at::Tensor O_p = tchem::LA::sy3matdotmul(dH_p, dH_p);
+        at::Tensor O_p = tchem::linalg::sy3matdotmul(dH_p, dH_p);
         at::Tensor c00_m = c00.clone();
         c00_m[i] -= 1e-5;
         at::Tensor dH_m = libHd::analytical_DqHd(c00_m, c01, c11, q);
-        at::Tensor O_m = tchem::LA::sy3matdotmul(dH_m, dH_m);
+        at::Tensor O_m = tchem::linalg::sy3matdotmul(dH_m, dH_m);
         for (size_t istate = 0; istate < 2; istate++)
         for (size_t jstate = 0; jstate < 2; jstate++)
         Dc00O[istate][jstate][i] = (O_p[istate][jstate] - O_m[istate][jstate]) / 2e-5;
@@ -37,11 +37,11 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor> numerical
         at::Tensor c01_p = c01.clone();
         c01_p[i] += 1e-5;
         at::Tensor dH_p = libHd::analytical_DqHd(c00, c01_p, c11, q);
-        at::Tensor O_p = tchem::LA::sy3matdotmul(dH_p, dH_p);
+        at::Tensor O_p = tchem::linalg::sy3matdotmul(dH_p, dH_p);
         at::Tensor c01_m = c01.clone();
         c01_m[i] -= 1e-5;
         at::Tensor dH_m = libHd::analytical_DqHd(c00, c01_m, c11, q);
-        at::Tensor O_m = tchem::LA::sy3matdotmul(dH_m, dH_m);
+        at::Tensor O_m = tchem::linalg::sy3matdotmul(dH_m, dH_m);
         for (size_t istate = 0; istate < 2; istate++)
         for (size_t jstate = 0; jstate < 2; jstate++)
         Dc01O[istate][jstate][i] = (O_p[istate][jstate] - O_m[istate][jstate]) / 2e-5;
@@ -51,11 +51,11 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor> numerical
         at::Tensor c11_p = c11.clone();
         c11_p[i] += 1e-5;
         at::Tensor dH_p = libHd::analytical_DqHd(c00, c01, c11_p, q);
-        at::Tensor O_p = tchem::LA::sy3matdotmul(dH_p, dH_p);
+        at::Tensor O_p = tchem::linalg::sy3matdotmul(dH_p, dH_p);
         at::Tensor c11_m = c11.clone();
         c11_m[i] -= 1e-5;
         at::Tensor dH_m = libHd::analytical_DqHd(c00, c01, c11_m, q);
-        at::Tensor O_m = tchem::LA::sy3matdotmul(dH_m, dH_m);
+        at::Tensor O_m = tchem::linalg::sy3matdotmul(dH_m, dH_m);
         for (size_t istate = 0; istate < 2; istate++)
         for (size_t jstate = 0; jstate < 2; jstate++)
         Dc11O[istate][jstate][i] = (O_p[istate][jstate] - O_m[istate][jstate]) / 2e-5;

@@ -153,7 +153,7 @@ at::Tensor DqH_a(const at::Tensor & c00, const at::Tensor & c01, const at::Tenso
     at::Tensor H = Hd(c00, c01, c11, q);
     at::Tensor energies, states;
     std::tie(energies, states) = H.symeig(true);
-    at::Tensor dHa = tchem::LA::UT_sy_U(dH, states);
+    at::Tensor dHa = tchem::linalg::UT_sy_U(dH, states);
     return dHa;
 }
 
@@ -164,10 +164,10 @@ at::Tensor DqH_a(const at::Tensor & c00, const at::Tensor & c01, const at::Tenso
 at::Tensor Hc(const at::Tensor & c00, const at::Tensor & c01, const at::Tensor & c11, const at::Tensor & q) {
     at::Tensor H = Hd(c00, c01, c11, q);
     at::Tensor dH = analytical_DqHd(c00, c01, c11, q);
-    at::Tensor dHdH = tchem::LA::sy3matdotmul(dH, dH);
+    at::Tensor dHdH = tchem::linalg::sy3matdotmul(dH, dH);
     at::Tensor eigvals, eigvecs;
     std::tie(eigvals, eigvecs) = dHdH.symeig(true);
-    at::Tensor Hc = tchem::LA::UT_sy_U(H, eigvecs);
+    at::Tensor Hc = tchem::linalg::UT_sy_U(H, eigvecs);
     return Hc;
 }
 
@@ -177,10 +177,10 @@ at::Tensor DqH_c(const at::Tensor & c00, const at::Tensor & c01, const at::Tenso
     // Because of diabaticity it is equivalent to d / dq * Hd
     at::Tensor DqHd = analytical_DqHd(c00, c01, c11, q);
     // Transform to composite representation
-    at::Tensor DqHdDqHd = tchem::LA::sy3matdotmul(DqHd, DqHd);
+    at::Tensor DqHdDqHd = tchem::linalg::sy3matdotmul(DqHd, DqHd);
     at::Tensor eigvals, eigvecs;
     std::tie(eigvals, eigvecs) = DqHdDqHd.symeig(true);
-    at::Tensor DqH_c = tchem::LA::UT_sy_U(DqHd, eigvecs);
+    at::Tensor DqH_c = tchem::linalg::UT_sy_U(DqHd, eigvecs);
     return DqH_c;
 }
 

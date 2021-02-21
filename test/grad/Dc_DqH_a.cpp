@@ -23,7 +23,7 @@ at::Tensor, at::Tensor, at::Tensor> Dc_DqH_a
     }
     at::Tensor energies, states;
     std::tie(energies, states) = Hd.symeig(true);
-    at::Tensor DqH_a = tchem::LA::UT_sy_U(DqHd, states);
+    at::Tensor DqH_a = tchem::linalg::UT_sy_U(DqHd, states);
     // d / dc * (d / dq * H)a
     at::Tensor Dc00_DqH_a = DqH_a.new_zeros({2, 2, 2, 3}),
                Dc01_DqH_a = DqH_a.new_zeros({2, 2, 2, 2}),
@@ -48,22 +48,22 @@ const at::Tensor & energies, const at::Tensor & states) {
     std::tie(Dc00DqHd, Dc01DqHd, Dc11DqHd) = libHd::analytical_DcDqHd(c00, c01, c11, q);
     // (d / dq * H)a
     at::Tensor DqHd = libHd::analytical_DqHd(c00, c01, c11, q);
-    at::Tensor DqH_a = tchem::LA::UT_sy_U(DqHd, states);
+    at::Tensor DqH_a = tchem::linalg::UT_sy_U(DqHd, states);
     // nac
     at::Tensor Dc00Hd, Dc01Hd, Dc11Hd;
     std::tie(Dc00Hd, Dc01Hd, Dc11Hd) = libHd::analytical_DcHd(c00, c01, c11, q);
-    at::Tensor nac_c00 = tchem::LA::UT_sy_U(Dc00Hd, states),
-               nac_c01 = tchem::LA::UT_sy_U(Dc01Hd, states),
-               nac_c11 = tchem::LA::UT_sy_U(Dc11Hd, states);
+    at::Tensor nac_c00 = tchem::linalg::UT_sy_U(Dc00Hd, states),
+               nac_c01 = tchem::linalg::UT_sy_U(Dc01Hd, states),
+               nac_c11 = tchem::linalg::UT_sy_U(Dc11Hd, states);
     nac_c00[0][1] /= energies[1] - energies[0];
     nac_c01[0][1] /= energies[1] - energies[0];
     nac_c11[0][1] /= energies[1] - energies[0];
     // d / dc * (dH / dq)a
-    at::Tensor Dc00_DqH_a = tchem::LA::UT_sy_U(Dc00DqHd, states)
+    at::Tensor Dc00_DqH_a = tchem::linalg::UT_sy_U(Dc00DqHd, states)
                           + commutor(DqH_a, nac_c00),
-               Dc01_DqH_a = tchem::LA::UT_sy_U(Dc01DqHd, states)
+               Dc01_DqH_a = tchem::linalg::UT_sy_U(Dc01DqHd, states)
                           + commutor(DqH_a, nac_c01),
-               Dc11_DqH_a = tchem::LA::UT_sy_U(Dc11DqHd, states)
+               Dc11_DqH_a = tchem::linalg::UT_sy_U(Dc11DqHd, states)
                           + commutor(DqH_a, nac_c11);
     return std::make_tuple(Dc00_DqH_a, Dc01_DqH_a, Dc11_DqH_a);
 }

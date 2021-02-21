@@ -12,11 +12,11 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor> DqHa
     at::Tensor energies, states;
     std::tie(energies, states) = Hd.symeig(true);
 // This misbehaviour has been recorded in Torch-Chemistry issue #1
-// tchem::LA::UT_sy_U who explicitly loops over matrix elements
+// tchem::linalg::UT_sy_U who explicitly loops over matrix elements
 // deteriorates the backward propagation
 // where the diagonal gradient works fine,
 // but the off-diagonal gradient is erroneous
-at::Tensor Ha = tchem::LA::UT_sy_U(Hd, states);
+at::Tensor Ha = tchem::linalg::UT_sy_U(Hd, states);
 // Using mm works out fine
 //at::Tensor Ha = states.transpose(0, 1).mm(Hd.mm(states));
     at::Tensor dHa = q.new_zeros({2, 2, 2});
@@ -34,10 +34,10 @@ const at::Tensor & energies, const at::Tensor & states) {
     // dH / dq in diabatic representation
     at::Tensor dHd = libHd::analytical_DqHd(c00, c01, c11, q);
     // nac
-    at::Tensor nac = tchem::LA::UT_sy_U(dHd, states);
+    at::Tensor nac = tchem::linalg::UT_sy_U(dHd, states);
     nac[0][1] /= energies[1] - energies[0];
     // Combine to d / dq * Ha
-    at::Tensor dHa = tchem::LA::UT_sy_U(dHd, states)
+    at::Tensor dHa = tchem::linalg::UT_sy_U(dHd, states)
                    + commutor(energies.diag(), nac);
     return dHa;
 }

@@ -20,10 +20,10 @@ at::Tensor, at::Tensor, at::Tensor> DcHc
         torch::autograd::variable_list g = torch::autograd::grad({Hd[i][j]}, {q}, {}, true, true);
         DqHd[i][j] = g[0];
     }
-    at::Tensor DqHdDqHd = tchem::LA::sy3matdotmul(DqHd, DqHd);
+    at::Tensor DqHdDqHd = tchem::linalg::sy3matdotmul(DqHd, DqHd);
     at::Tensor eigvals, eigvecs;
     std::tie(eigvals, eigvecs) = DqHdDqHd.symeig(true);
-    at::Tensor Hc = tchem::LA::UT_sy_U(Hd, eigvecs);
+    at::Tensor Hc = tchem::linalg::UT_sy_U(Hd, eigvecs);
     at::Tensor Dc00Hc = q.new_zeros({2, 2, 3}),
                Dc01Hc = q.new_zeros({2, 2, 2}),
                Dc11Hc = q.new_zeros({2, 2, 3});
@@ -46,30 +46,30 @@ const at::Tensor & eigvals, const at::Tensor & eigvecs) {
     std::tie(Dc00Hd, Dc01Hd, Dc11Hd) = libHd::analytical_DcHd(c00, c01, c11, q);
     // H in composite representation
     at::Tensor Hd = libHd::Hd(c00, c01, c11, q);
-    at::Tensor Hc = tchem::LA::UT_sy_U(Hd, eigvecs);
+    at::Tensor Hc = tchem::linalg::UT_sy_U(Hd, eigvecs);
     Hc[1][0].copy_(Hc[0][1]); // For gematoutermul
     // nac
     at::Tensor DqHd = libHd::analytical_DqHd(c00, c01, c11, q);
     at::Tensor Dc00DqHd, Dc01DqHd, Dc11DqHd;
     std::tie(Dc00DqHd, Dc01DqHd, Dc11DqHd) = libHd::analytical_DcDqHd(c00, c01, c11, q);
-    at::Tensor Dc00O = tchem::LA::sy4matmvmulsy3(Dc00DqHd.transpose_(-1, -2), DqHd),
-               Dc01O = tchem::LA::sy4matmvmulsy3(Dc01DqHd.transpose_(-1, -2), DqHd),
-               Dc11O = tchem::LA::sy4matmvmulsy3(Dc11DqHd.transpose_(-1, -2), DqHd);
+    at::Tensor Dc00O = tchem::linalg::sy4matmvmulsy3(Dc00DqHd.transpose_(-1, -2), DqHd),
+               Dc01O = tchem::linalg::sy4matmvmulsy3(Dc01DqHd.transpose_(-1, -2), DqHd),
+               Dc11O = tchem::linalg::sy4matmvmulsy3(Dc11DqHd.transpose_(-1, -2), DqHd);
     Dc00O = Dc00O + Dc00O.transpose(0, 1);
     Dc01O = Dc01O + Dc01O.transpose(0, 1);
     Dc11O = Dc11O + Dc11O.transpose(0, 1);
-    at::Tensor nac_c00 = tchem::LA::UT_sy_U(Dc00O, eigvecs),
-               nac_c01 = tchem::LA::UT_sy_U(Dc01O, eigvecs),
-               nac_c11 = tchem::LA::UT_sy_U(Dc11O, eigvecs);
+    at::Tensor nac_c00 = tchem::linalg::UT_sy_U(Dc00O, eigvecs),
+               nac_c01 = tchem::linalg::UT_sy_U(Dc01O, eigvecs),
+               nac_c11 = tchem::linalg::UT_sy_U(Dc11O, eigvecs);
     nac_c00[0][1] /= eigvals[1] - eigvals[0];
     nac_c01[0][1] /= eigvals[1] - eigvals[0];
     nac_c11[0][1] /= eigvals[1] - eigvals[0];
     // Combine to d / dq * Hc
-    at::Tensor Dc00Hc = tchem::LA::UT_sy_U(Dc00Hd, eigvecs)
+    at::Tensor Dc00Hc = tchem::linalg::UT_sy_U(Dc00Hd, eigvecs)
                       + commutor(Hc, nac_c00),
-               Dc01Hc = tchem::LA::UT_sy_U(Dc01Hd, eigvecs)
+               Dc01Hc = tchem::linalg::UT_sy_U(Dc01Hd, eigvecs)
                       + commutor(Hc, nac_c01),
-               Dc11Hc = tchem::LA::UT_sy_U(Dc11Hd, eigvecs)
+               Dc11Hc = tchem::linalg::UT_sy_U(Dc11Hd, eigvecs)
                       + commutor(Hc, nac_c11);
     return std::make_tuple(Dc00Hc, Dc01Hc, Dc11Hc);
 }

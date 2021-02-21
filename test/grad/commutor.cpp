@@ -35,29 +35,29 @@ at::Tensor commutor(const at::Tensor & A, const at::Tensor M) {
     for (size_t i = 0; i < N; i++) {
         // k < i = j
         for (size_t k = 0; k < i; k++)
-        result[i][i] += tchem::LA::outer_product(A[k][i], M[k][i]);
+        result[i][i] += tchem::linalg::outer_product(A[k][i], M[k][i]);
         // i = j < k
         for (size_t k = i + 1; k < N; k++)
-        result[i][i] -= tchem::LA::outer_product(A[i][k], M[i][k]);
+        result[i][i] -= tchem::linalg::outer_product(A[i][k], M[i][k]);
         result[i][i] *= 2.0;
         // i < j
         for (size_t j = i + 1; j < N; j++) {
             // k < i < j
             for (size_t k = 0; k < i; k++)
-            result[i][j] += tchem::LA::outer_product(A[k][i],  M[k][j])
-                          - tchem::LA::outer_product(A[k][j], -M[k][i]);
+            result[i][j] += tchem::linalg::outer_product(A[k][i],  M[k][j])
+                          - tchem::linalg::outer_product(A[k][j], -M[k][i]);
             // k = i < j
-            result[i][j] += tchem::LA::outer_product(A[i][i],  M[i][j]);
+            result[i][j] += tchem::linalg::outer_product(A[i][i],  M[i][j]);
             // i < k < j, exist only if j - i >= 2
             for (size_t k = i + 1; k < j; k++)
-            result[i][j] += tchem::LA::outer_product(A[i][k], M[k][j])
-                          - tchem::LA::outer_product(A[k][j], M[i][k]);
+            result[i][j] += tchem::linalg::outer_product(A[i][k], M[k][j])
+                          - tchem::linalg::outer_product(A[k][j], M[i][k]);
             // i < j = k
-            result[i][j] -= tchem::LA::outer_product(A[j][j], M[i][j]);
+            result[i][j] -= tchem::linalg::outer_product(A[j][j], M[i][j]);
             // i < j < k
             for (size_t k = j + 1; k < N; k++)
-            result[i][j] += tchem::LA::outer_product(A[i][k], -M[j][k])
-                          - tchem::LA::outer_product(A[j][k],  M[i][k]);
+            result[i][j] += tchem::linalg::outer_product(A[i][k], -M[j][k])
+                          - tchem::linalg::outer_product(A[j][k],  M[i][k]);
         }
     }
     return result;
