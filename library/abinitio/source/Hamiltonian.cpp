@@ -19,6 +19,8 @@ double RegHam::weight() const {return weight_;}
 at::Tensor RegHam::energy() const {return energy_;}
 at::Tensor RegHam::dH() const {return dH_;}
 
+size_t RegHam::NStates() const {return energy_.size(0);}
+
 void RegHam::to(const c10::DeviceType & device) {
     Geometry::to(device);
     energy_.to(device);

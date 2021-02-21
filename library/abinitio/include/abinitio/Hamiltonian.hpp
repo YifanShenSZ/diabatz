@@ -21,6 +21,8 @@ class RegHam : public Geometry {
         at::Tensor energy() const;
         at::Tensor dH() const;
 
+        size_t NStates() const;
+
         void to(const c10::DeviceType & device);
 
         // Subtract zero point from energy

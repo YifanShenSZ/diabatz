@@ -13,16 +13,19 @@ class RegSAHam : public SAGeometry {
     protected:
         double weight_ = 1.0;
         // By regular Hamiltonian I mean energy
-        at::Tensor energy_;
-        // nonzero segment of ▽H elements
-        CL::utility::matrix<at::Tensor> dH_;
+        at::Tensor energy_, dH_;
 
         // point group irreducible of each matrix element
         CL::utility::matrix<size_t> irreds_;
+        // nonzero segment of ▽H elements in point group symmetry adapted internal coordinate
+        CL::utility::matrix<at::Tensor> SAdH_;
 
-        // Transform a Cartesian coordinate ▽H to `dH_`,
-        // by finding the nonzero segment determine `irreds_`
-        void construct_dH_(const at::Tensor & cartdH);
+        // Construct `SAdH_` based on constructed `dH_`
+        // Determine `irreds_` by finding the largest segment of each `SAdH_` element
+        void construct_symmetry_();
+        // Reconstruct `dH_` based on constructed `SAdH_`
+        // to eliminate the symmetry breaking flaw in original data
+        void reconstruct_dH_();
     public:
         RegSAHam();
         // See the base class constructor for details of `cart2int`
@@ -32,8 +35,11 @@ class RegSAHam : public SAGeometry {
 
         double weight() const;
         at::Tensor energy() const;
+        at::Tensor dH() const;
         CL::utility::matrix<size_t> irreds() const;
-        CL::utility::matrix<at::Tensor> dH() const;
+        CL::utility::matrix<at::Tensor> SAdH() const;
+
+        size_t NStates() const;
 
         void to(const c10::DeviceType & device);
 

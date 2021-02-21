@@ -4,9 +4,11 @@
 
 namespace abinitio {
 
-// Transform a Cartesian coordinate ▽H to `dH_`
-void RegSAHam::construct_dH_(const at::Tensor & cartdH) {
-    std::vector<at::Tensor> Js_point = cat(Js_);
+// Construct `SAdH_` based on constructed `dH_`
+// Determine `irreds_` by finding the largest segment of each `SAdH_` element
+void RegSAHam::construct_symmetry_() {
+    assert(("`dH_` must have been constructed", dH_.defined()));
+    std::vector<at::Tensor> Js_point = this->cat(Jqrs_);
     std::vector<at::Tensor> cart2int(NPointIrreds());
     for (size_t i = 0; i < NPointIrreds(); i++) {
         at::Tensor JJT = Ss_[i];
@@ -14,28 +16,37 @@ void RegSAHam::construct_dH_(const at::Tensor & cartdH) {
         at::Tensor inverse = at::cholesky_inverse(cholesky, true);
         cart2int[i] = inverse.mm(Js_point[i]);
     }
-    dH_.resize(cartdH.size(0));
+    SAdH_.resize(dH_.size(0));
     irreds_.resize(dH_.size(0));
     for (size_t i = 0; i < dH_.size(0); i++) {
         // Diagonals must be totally symmetric
-        dH_[i][i] = cart2int[0].mv(cartdH[i][i]);
+        SAdH_[i][i] = cart2int[0].mv(dH_[i][i]);
         irreds_[i][i] = 0;
         // Try out every irreducible for off-diagonals
         for (size_t j = i + 1; j < dH_.size(1); j++) {
-            dH_[i][j] = cart2int[0].mv(cartdH[i][j]);
-            double infnorm = at::max(at::abs(dH_[i][j])).item<double>();
+            SAdH_[i][j] = cart2int[0].mv(dH_[i][j]);
+            double infnorm = at::max(at::abs(SAdH_[i][j])).item<double>();
             irreds_[i][j] = 0;
             for (size_t irred = 1; irred < NPointIrreds(); irred++) {
-                at::Tensor candidate = cart2int[irred].mv(cartdH[i][j]);
+                at::Tensor candidate = cart2int[irred].mv(dH_[i][j]);
                 double cannorm = at::max(at::abs(candidate)).item<double>();
                 if (cannorm > infnorm) {
-                    dH_[i][j] = candidate;
+                    SAdH_[i][j] = candidate;
                     infnorm = cannorm;
                     irreds_[i][j] = irred;
                 }
             }
         }
     }
+}
+// Reconstruct `dH_` based on constructed `SAdH_`
+// to eliminate the symmetry breaking flaw in original data
+void RegSAHam::reconstruct_dH_() {
+    assert(("`SAdH_` must have been constructed", ! SAdH_.empty()));
+    std::vector<at::Tensor> JTs_point = cat(JqrTs_, 1);
+    for (size_t i = 0; i < dH_.size(0); i++)
+    for (size_t j = i; j < dH_.size(1); j++)
+    dH_[i][j] = JTs_point[irreds_[i][j]].mv(SAdH_[i][j]);
 }
 
 RegSAHam::RegSAHam() {}
@@ -44,18 +55,22 @@ RegSAHam::RegSAHam(const SAHamLoader & loader,
 std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2int)(const at::Tensor &))
 : SAGeometry(loader.geom, loader.CNPI2point, cart2int) {
     energy_ = loader.energy.clone();
-    at::Tensor cartdH = loader.dH.clone();
-    for (size_t i = 0    ; i < cartdH.size(0); i++)
-    for (size_t j = i + 1; j < cartdH.size(1); j++)
-    cartdH[i][j] *= energy_[j] - energy_[i];
-    this->construct_dH_(cartdH);
+    at::Tensor dH_ = loader.dH.clone();
+    for (size_t i = 0    ; i < dH_.size(0); i++)
+    for (size_t j = i + 1; j < dH_.size(1); j++)
+    dH_[i][j] *= energy_[j] - energy_[i];
+    this->construct_symmetry_();
+    this->reconstruct_dH_();
 }
 RegSAHam::~RegSAHam() {}
 
 double RegSAHam::weight() const {return weight_;}
 at::Tensor RegSAHam::energy() const {return energy_;}
+at::Tensor RegSAHam::dH() const {return dH_;}
 CL::utility::matrix<size_t> RegSAHam::irreds() const {return irreds_;}
-CL::utility::matrix<at::Tensor> RegSAHam::dH() const {return dH_;}
+CL::utility::matrix<at::Tensor> RegSAHam::SAdH() const {return SAdH_;}
+
+size_t RegSAHam::NStates() const {return energy_.size(0);}
 
 void RegSAHam::to(const c10::DeviceType & device) {
     SAGeometry::to(device);
@@ -87,21 +102,15 @@ DegSAHam::DegSAHam() {}
 DegSAHam::DegSAHam(const SAHamLoader & loader,
 std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2int)(const at::Tensor &))
 : RegSAHam(loader, cart2int) {
-    // Rebuild Cartesian ▽H from `dH_`, eliminating the symmetry breaking flaw in original data
-    std::vector<at::Tensor> Js_point = cat(Js_);
-    at::Tensor cartdH = loader.dH.new_empty(loader.dH.sizes());
-    for (size_t i = 0; i < cartdH.size(0); i++)
-    for (size_t j = i; j < cartdH.size(1); j++)
-    cartdH[i][j] = Js_point[irreds_[i][j]].transpose(0, 1).mv(dH_[i][j]);
     // Transform H and ▽H to composite representation
     H_ = energy_.clone();
-    tchem::chem::composite_representation_(H_, cartdH);
-    this->construct_dH_(cartdH);
+    tchem::chem::composite_representation_(H_, dH_);
+    this->construct_symmetry_();
     // point group symmetry consistency check
-    for (size_t i = 0    ; i < cartdH.size(0); i++)
-    for (size_t j = i + 1; j < cartdH.size(1); j++)
-    if (abs(H_[i][j].item<double>()) > 1e-6 && irreds_[i][j] != 0)
-    throw "Inconsistent irreducible between H and ▽H";
+    for (size_t i = 0    ; i < H_.size(0); i++)
+    for (size_t j = i + 1; j < H_.size(1); j++)
+    if (abs(H_[i][j].item<double>()) > 1e-12 && irreds_[i][j] != 0)
+    std::cerr << "Warning: inconsistent irreducible between H and ▽H\n";
 }
 DegSAHam::~DegSAHam() {}
 

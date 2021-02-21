@@ -1,19 +1,21 @@
 #ifndef abinitio_SAgeometry_hpp
 #define abinitio_SAgeometry_hpp
 
+#include <abinitio/geometry.hpp>
 #include <abinitio/SAloader.hpp>
 
 namespace abinitio {
 
-class SAGeometry {
+class SAGeometry : public Geometry {
     protected:
         // mapping from CNPI group to point group
         // CNPI irreducible i becomes point irreducible CNPI2point[i]
         std::vector<size_t> CNPI2point_;
+        // Internal coordinate dimension
+        size_t intdim_;
         // CNPI group symmetry adapted internal coordinates
-        // and their Jacobians over Cartesian coordiate
-        std::vector<at::Tensor> qs_, Js_;
-
+        // and their (transposed) Jacobians over Cartesian coordiate
+        std::vector<at::Tensor> qs_, Jqrs_, JqrTs_;
         // point irreducible i contains CNPI irreducibles point2CNPI[i]
         std::vector<std::vector<size_t>> point2CNPI_;
         // the metric of internal coordinate gradient S = J . J^T
@@ -38,7 +40,8 @@ class SAGeometry {
 
         std::vector<size_t> CNPI2point() const;
         std::vector<at::Tensor> qs() const;
-        std::vector<at::Tensor> Js() const;
+        std::vector<at::Tensor> Jqrs() const;
+        std::vector<at::Tensor> JqrTs() const;
         std::vector<std::vector<size_t>> point2CNPI() const;
         at::Tensor S() const;
         std::vector<at::Tensor> Ss() const;
@@ -50,13 +53,13 @@ class SAGeometry {
         void to(const c10::DeviceType & device);
 
         // Concatenate CNPI group symmetry adapted tensors to point group symmetry adapted tensors
-        std::vector<at::Tensor> cat(const std::vector<at::Tensor> & xs) const;
+        std::vector<at::Tensor> cat(const std::vector<at::Tensor> & xs, const int64_t & dim = 0) const;
         // Split an internal coordinate tensor to CNPI group symmetry adapted tensors
-        // x is assumed to be the concatenation of CNPI group symmetry adapted internal coordinate tensors
-        std::vector<at::Tensor> split2CNPI(const at::Tensor & x) const;
+        // `x` is assumed to be the concatenation of CNPI group symmetry adapted internal coordinate tensors
+        std::vector<at::Tensor> split2CNPI(const at::Tensor & x, const int64_t & dim = 0) const;
         // Split an internal coordinate tensor to point group symmetry adapted tensors
-        // x is assumed to be the concatenation of point group symmetry adapted internal coordinate tensors
-        std::vector<at::Tensor> split2point(const at::Tensor & x) const;
+        // `x` is assumed to be the concatenation of point group symmetry adapted internal coordinate tensors
+        std::vector<at::Tensor> split2point(const at::Tensor & x, const int64_t & dim = 0) const;
 };
 
 } // namespace abinitio
