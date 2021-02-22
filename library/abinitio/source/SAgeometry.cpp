@@ -3,6 +3,7 @@
 namespace abinitio {
 
 // Construct `point2CNPI_` based on constructed `CNPI2point_`
+// Construct `Ss_` and `sqrtSs_` based on constructed `Jqrs_` and `JqrTs_`
 void SAGeometry::construct_symmetry_() {
     assert(("`CNPI2point_` must have been constructed", ! CNPI2point_.empty()));
     std::vector<size_t> copy = CNPI2point_;
@@ -11,16 +12,13 @@ void SAGeometry::construct_symmetry_() {
     for (size_t i = 0; i < NPointIrreds; i++)
     for (size_t j = 0; j < CNPI2point_.size(); j++)
     if (CNPI2point_[j] == i) point2CNPI_[i].push_back(j);
-}
-// Construct `S_`, `Ss_` and `sqrtSs_` based on constructed `Jqrs_` and `JqrTs_` and `point2CNPI_`
-void SAGeometry::construct_metric_() {
     assert(("`Jqrs_` must have been constructed", ! Jqrs_.empty()));
     assert(("`JqrTs_` must have been constructed", ! JqrTs_.empty()));
-    S_ = at::cat(Jqrs_).mm(at::cat(JqrTs_, 1));
-    Ss_.resize(NPointIrreds());
-    sqrtSs_.resize(Ss_.size());
-    std::vector<at::Tensor> Js_point = cat(Jqrs_), JTs_point = cat(JqrTs_);
-    for (size_t i = 0; i < Ss_.size(); i++) {
+    Ss_.resize(NPointIrreds);
+    sqrtSs_.resize(NPointIrreds);
+    std::vector<at::Tensor> Js_point = this->cat(Jqrs_),
+                           JTs_point = this->cat(JqrTs_, 1);
+    for (size_t i = 0; i < NPointIrreds; i++) {
         Ss_[i] = Js_point[i].mm(JTs_point[i]);
         at::Tensor eigvals, eigvecs;
         std::tie(eigvals, eigvecs) = Ss_[i].symeig(true);
@@ -30,18 +28,28 @@ void SAGeometry::construct_metric_() {
 }
 
 SAGeometry::SAGeometry() {}
+SAGeometry::SAGeometry(const SAGeometry & sageom) : Geometry(sageom),
+CNPI2point_(sageom.CNPI2point_), intdim_(sageom.intdim_),
+q_(sageom.q_), Jqr_(sageom.Jqr_), JqrT_(sageom.JqrT_),
+S_(sageom.S_),
+point2CNPI_(sageom.point2CNPI_),
+qs_(sageom.qs_), Jqrs_(sageom.Jqrs_), JqrTs_(sageom.JqrTs_),
+Ss_(sageom.Ss_), sqrtSs_(sageom.sqrtSs_) {}
 // `cart2int` takes in Cartesian coordinate,
 // returns symmetry adapted internal coordinates and corresponding Jacobians
-SAGeometry::SAGeometry(const at::Tensor & geom, const std::vector<size_t> & _CNPI2point,
+SAGeometry::SAGeometry(const at::Tensor & _geom, const std::vector<size_t> & _CNPI2point,
 std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2int)(const at::Tensor &))
-: CNPI2point_(_CNPI2point) {
-    std::tie(qs_, Jqrs_) = cart2int(geom);
+: Geometry(_geom), CNPI2point_(_CNPI2point) {
+    std::tie(qs_, Jqrs_) = cart2int(_geom);
     JqrTs_ = Jqrs_;
-    for (at::Tensor & JqrT : JqrTs_) JqrT.transpose_(0, 1);
+    for (at::Tensor & JqrT : JqrTs_) JqrT = JqrT.transpose(0, 1);
     intdim_ = 0;
     for (const at::Tensor & q : qs_) intdim_ += q.size(0);
+    q_    = at::cat(qs_);
+    Jqr_  = at::cat(Jqrs_);
+    JqrT_ = Jqr_.transpose(0, 1);
+    S_    = Jqr_.mm(JqrT_);
     this->construct_symmetry_();
-    this->construct_metric_();
 }
 // See the base constructor for details of `cart2int`
 SAGeometry::SAGeometry(const SAGeomLoader & loader,
@@ -50,12 +58,16 @@ std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2int)(const a
 SAGeometry::~SAGeometry() {}
 
 std::vector<size_t> SAGeometry::CNPI2point() const {return CNPI2point_;}
-std::vector<at::Tensor> SAGeometry::qs() const {return qs_;}
-std::vector<at::Tensor> SAGeometry::Jqrs() const {return Jqrs_;}
-std::vector<at::Tensor> SAGeometry::JqrTs() const {return JqrTs_;}
+size_t SAGeometry::intdim() const {return intdim_;}
+at::Tensor SAGeometry::q   () const {return q_   ;}
+at::Tensor SAGeometry::Jqr () const {return Jqr_ ;}
+at::Tensor SAGeometry::JqrT() const {return JqrT_;}
+at::Tensor SAGeometry::S   () const {return S_   ;}
 std::vector<std::vector<size_t>> SAGeometry::point2CNPI() const {return point2CNPI_;}
-at::Tensor SAGeometry::S() const {return S_;}
-std::vector<at::Tensor> SAGeometry::Ss() const {return Ss_;}
+std::vector<at::Tensor> SAGeometry::qs    () const {return qs_    ;}
+std::vector<at::Tensor> SAGeometry::Jqrs  () const {return Jqrs_  ;}
+std::vector<at::Tensor> SAGeometry::JqrTs () const {return JqrTs_ ;}
+std::vector<at::Tensor> SAGeometry::Ss    () const {return Ss_    ;}
 std::vector<at::Tensor> SAGeometry::sqrtSs() const {return sqrtSs_;}
 
 size_t SAGeometry::NPointIrreds() const {
@@ -65,10 +77,14 @@ size_t SAGeometry::NPointIrreds() const {
 
 void SAGeometry::to(const c10::DeviceType & device) {
     this->Geometry::to(device);
+    S_.to(device);
+    S_.to(device);
+    S_.to(device);
+    S_.to(device);
+    S_.to(device);
     for (at::Tensor & q : qs_) q.to(device);
     for (at::Tensor & J : Jqrs_) J.to(device);
     for (at::Tensor & JT : JqrTs_) JT.to(device);
-    S_.to(device);
     for (at::Tensor & S : Ss_) S.to(device);
     for (at::Tensor & sqrtS : sqrtSs_) sqrtS.to(device);
 }

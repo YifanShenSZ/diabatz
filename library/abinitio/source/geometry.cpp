@@ -3,6 +3,7 @@
 namespace abinitio {
 
 Geometry::Geometry() {}
+Geometry::Geometry(const Geometry & geometry) : geom_(geometry.geom_) {}
 Geometry::Geometry(const at::Tensor & _geom) : geom_(_geom.clone()) {}
 Geometry::Geometry(const GeomLoader & loader) : Geometry(loader.geom) {}
 Geometry::~Geometry() {}

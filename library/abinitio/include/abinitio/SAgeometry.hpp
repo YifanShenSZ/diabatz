@@ -13,25 +13,28 @@ class SAGeometry : public Geometry {
         std::vector<size_t> CNPI2point_;
         // Internal coordinate dimension
         size_t intdim_;
-        // CNPI group symmetry adapted internal coordinates
-        // and their (transposed) Jacobians over Cartesian coordiate
-        std::vector<at::Tensor> qs_, Jqrs_, JqrTs_;
-        // point irreducible i contains CNPI irreducibles point2CNPI[i]
-        std::vector<std::vector<size_t>> point2CNPI_;
+        // CNPI group symmetry adapted internal coordinate
+        // and its Jacobian over Cartesian coordiate
+        at::Tensor q_, Jqr_, JqrT_;
         // the metric of internal coordinate gradient S = J . J^T
         at::Tensor S_;
+
+        // point irreducible i contains CNPI irreducibles point2CNPI[i]
+        std::vector<std::vector<size_t>> point2CNPI_;
+        // the CNPI group symmetry adapted blocks of q, Jqr, Jqr^T
+        std::vector<at::Tensor> qs_, Jqrs_, JqrTs_;
         // the point group symmetry adapted blocks of S and sqrt(S)
         std::vector<at::Tensor> Ss_, sqrtSs_;
 
         // Construct `point2CNPI_` based on constructed `CNPI2point_`
+        // Construct `Ss_` and `sqrtSs_` based on constructed `Jqrs_` and `JqrTs_`
         void construct_symmetry_();
-        // Construct `S_`, `Ss_` and `sqrtSs_` based on constructed `Js_` and `point2CNPI_`
-        void construct_metric_();
     public:
         SAGeometry();
+        SAGeometry(const SAGeometry & sageom);
         // `cart2int` takes in Cartesian coordinate,
         // returns CNPI group symmetry adapted internal coordinates and corresponding Jacobians
-        SAGeometry(const at::Tensor & geom, const std::vector<size_t> & _CNPI2point,
+        SAGeometry(const at::Tensor & _geom, const std::vector<size_t> & _CNPI2point,
                    std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2int)(const at::Tensor &));
         // See the base constructor for details of `cart2int`
         SAGeometry(const SAGeomLoader & loader,
@@ -39,12 +42,16 @@ class SAGeometry : public Geometry {
         ~SAGeometry();
 
         std::vector<size_t> CNPI2point() const;
-        std::vector<at::Tensor> qs() const;
-        std::vector<at::Tensor> Jqrs() const;
-        std::vector<at::Tensor> JqrTs() const;
+        size_t intdim() const;
+        at::Tensor q   () const;
+        at::Tensor Jqr () const;
+        at::Tensor JqrT() const;
+        at::Tensor S   () const;
         std::vector<std::vector<size_t>> point2CNPI() const;
-        at::Tensor S() const;
-        std::vector<at::Tensor> Ss() const;
+        std::vector<at::Tensor> qs    () const;
+        std::vector<at::Tensor> Jqrs  () const;
+        std::vector<at::Tensor> JqrTs () const;
+        std::vector<at::Tensor> Ss    () const;
         std::vector<at::Tensor> sqrtSs() const;
 
         // Number of point group irreducibles
