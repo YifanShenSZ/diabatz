@@ -23,7 +23,7 @@ int main(const size_t & argc, const char ** & argv) {
     std::shared_ptr<RegHam> example = regset->get(0);
     std::vector<at::Tensor> qs = example->qs();
     CL::utility::matrix<at::Tensor> xs = example->xs(),
-                                    JTs = example->JTs();
+                                 JxqTs = example->JxqTs();
     for (size_t i = 0; i < Hdnet->NStates(); i++)
     for (size_t j = i; j < Hdnet->NStates(); j++)
     xs[i][j].set_requires_grad(true);
@@ -40,11 +40,11 @@ int main(const size_t & argc, const char ** & argv) {
 
     at::Tensor Hd = Hdnet->forward(xs);
 
-    at::Tensor dxHd = Hderiva::DxHd(Hd, xs, JTs, true);
+    at::Tensor dxHd = Hderiva::DxHd(Hd, xs, JxqTs, true);
     at::Tensor dxHd_A = dxHd.new_empty(dxHd.sizes());
     for (size_t i = 0; i < Hdnet->NStates(); i++)
     for (size_t j = i; j < Hdnet->NStates(); j++)
-    dxHd_A[i][j] = JTs[i][j].mv(cs[i][j]);
+    dxHd_A[i][j] = JxqTs[i][j].mv(cs[i][j]);
     std::cout << "\nd / dx * Hd: "
               << (dxHd - dxHd_A).norm().item<double>() << '\n';
 
@@ -76,12 +76,12 @@ int main(const size_t & argc, const char ** & argv) {
     start = 0;
     for (size_t i = 0; i < Hdnet->NStates(); i++) {
         size_t stop = start + cs[i][i].size(0);
-        dcdxHd_A[i][i].slice(1, start, stop) = JTs[i][i];
+        dcdxHd_A[i][i].slice(1, start, stop) = JxqTs[i][i];
         dcdxHd_A[i][i].slice(1, stop, stop + 1) = 0.0;
         start = stop + 1;
         for (size_t j = i + 1; j < Hdnet->NStates(); j++) {
             size_t stop = start + cs[i][j].size(0);
-            dcdxHd_A[i][j].slice(1, start, stop) = JTs[i][j];
+            dcdxHd_A[i][j].slice(1, start, stop) = JxqTs[i][j];
             start = stop;
         }
     }
