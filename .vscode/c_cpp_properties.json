@@ -9,7 +9,8 @@
                 "library/abinitio/include",
                 "library/obnet/include",
                 "library/Hderiva/include",
-                "library/Fopt/include"
+                "library/Fopt/include",
+                "~/Software/Mine/diabatz/tools/v0/libHd/include"
             ],
             "cppStandard": "c++14"
         }

@@ -3,11 +3,11 @@
 #include <Hd/kernel.hpp>
 
 void print_geom(const at::Tensor & geom, std::ostream & ostream) {
-    at::Tensor r = geom.view({3, geom.size(0) / 3});
-    for (size_t i = 0; i < r.size(1); i++)
-    ostream << r[0][i].item<double>() << ' '
-            << r[1][i].item<double>() << ' '
-            << r[2][i].item<double>() << '\n';
+    at::Tensor r = geom.view({geom.size(0) / 3, 3});
+    for (size_t i = 0; i < geom.size(0) / 3; i++)
+    ostream << r[i][0].item<double>() << ' '
+            << r[i][1].item<double>() << ' '
+            << r[i][2].item<double>() << '\n';
 }
 
 int main() {
