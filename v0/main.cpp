@@ -28,7 +28,7 @@ argparse::ArgumentParser parse_args(const size_t & argc, const char ** & argv) {
 }
 
 int main(size_t argc, const char ** argv) {
-    std::cout << "Bound diabatz: diabatic Hamiltonian generator for bound systems\n"
+    std::cout << "Diabatz version 0\n"
               << "Yifan Shen 2021\n\n";
     argparse::ArgumentParser args = parse_args(argc, argv);
     CL::utility::show_time(std::cout);
@@ -57,4 +57,7 @@ int main(size_t argc, const char ** argv) {
 
     initialize(regset, degset);
     optimize();
+
+    CL::utility::show_time(std::cout);
+    std::cout << "Mission success\n";
 }

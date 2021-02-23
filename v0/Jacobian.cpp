@@ -41,7 +41,7 @@ void Jacobian(double * JT, const double * c, const int32_t & M, const int32_t & 
             std::tie(energy, states) = Hd.symeig(true);
             at::Tensor DqHa = tchem::linalg::UT_sy_U(DqHd, states);
             DqHa = DqHa.slice(0, 0, NStates).slice(1, 0, NStates);
-            at::Tensor cartDqHa = DqHa.new_empty({NStates, NStates});
+            at::Tensor cartDqHa = DqHa.new_empty({NStates, NStates, (int64_t)data->cartdim()});
             for (size_t i = 0; i < NStates; i++)
             for (size_t j = i; j < NStates; j++)
             cartDqHa[i][j] = JqrT.mv(DqHa[i][j]);
@@ -67,7 +67,7 @@ void Jacobian(double * JT, const double * c, const int32_t & M, const int32_t & 
             // (▽H)a Jacobian
             for (size_t i = 0; i < NStates; i++)
             for (size_t j = i; j < NStates; j++) {
-                at::Tensor r_g = weight * sqrtSs[irreds[i][j]].mv(DcSADqHa[i][j]);
+                at::Tensor r_g = weight * sqrtSs[irreds[i][j]].mm(DcSADqHa[i][j]);
                 size_t stop = start + r_g.size(0);
                 J.slice(0, start, stop).copy_(r_g);
                 start = stop;

@@ -1,5 +1,7 @@
 #include <omp.h>
 
+#include <CppLibrary/linalg.hpp>
+
 #include <Fopt/Fopt.hpp>
 
 #include "global.hpp"
@@ -170,8 +172,23 @@ void Jacobian(double * JT, const double * c, const int32_t & M, const int32_t & 
 } // namespace train
 
 void optimize() {
+    // before optimization
     double * c = new double[train::NPars];
     train::p2c(0, c);
-    Fopt::trust_region(train::residue, train::Jacobian, c, train::NEqs, train::NPars);
+    double * r = new double[train::NEqs];
+    train::residue(r, c, train::NEqs, train::NPars);
+    std::cout << "The initial residue = " << CL::linalg::norm2(r, train::NEqs) << std::endl;
+    delete [] r;
+    // Run optimization
+    Fopt::trust_region(train::residue, train::Jacobian, c, train::NEqs, train::NPars, 10);
+    // after optimization
     train::c2p(c, 0);
+    r = new double[train::NEqs];
+    train::residue(r, c, train::NEqs, train::NPars);
+    delete [] r;
+    std::cout << "The final residue = " << CL::linalg::norm2(r, train::NEqs) << std::endl;
+    // Clean up
+    torch::save(Hdnet, "Hd.net");
+    torch::save(Hdnet->elements, "test.net");
+    delete [] c;
 }

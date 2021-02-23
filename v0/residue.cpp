@@ -16,7 +16,7 @@ void residue(double * r, const double * c, const int32_t & M, const int32_t & N)
         for (const auto & data : regchunk[thread]) {
             at::Tensor JqrT = data->JqrT();
             std::vector<at::Tensor> sqrtSs = data->sqrtSs();
-            double weight = data->weight();
+            double   weight = data->weight ();
             int64_t NStates = data->NStates();
             CL::utility::matrix<size_t> irreds = data->irreds();
             CL::utility::matrix<at::Tensor> SAdH = data->SAdH();
@@ -36,7 +36,7 @@ void residue(double * r, const double * c, const int32_t & M, const int32_t & N)
             std::tie(energy, states) = Hd.symeig(true);
             at::Tensor DqHa = tchem::linalg::UT_sy_U(DqHd, states);
             DqHa = DqHa.slice(0, 0, NStates).slice(1, 0, NStates);
-            at::Tensor cartDqHa = DqHa.new_empty({NStates, NStates});
+            at::Tensor cartDqHa = DqHa.new_empty({NStates, NStates, (int64_t)data->cartdim()});
             for (size_t i = 0; i < NStates; i++)
             for (size_t j = i; j < NStates; j++)
             cartDqHa[i][j] = JqrT.mv(DqHa[i][j]);
