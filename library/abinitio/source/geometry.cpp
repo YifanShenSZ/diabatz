@@ -10,6 +10,8 @@ Geometry::~Geometry() {}
 
 at::Tensor Geometry::geom() const {return geom_;}
 
+size_t Geometry::cartdim() const {return geom_.numel();}
+
 void Geometry::to(const c10::DeviceType & device) {geom_.to(device);}
 
 } // namespace abinitio

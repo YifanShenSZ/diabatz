@@ -17,6 +17,8 @@ class Geometry {
 
         at::Tensor geom() const;
 
+        size_t cartdim() const;
+
         void to(const c10::DeviceType & device);
 };
 
