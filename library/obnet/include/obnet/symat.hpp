@@ -7,6 +7,12 @@
 
 namespace obnet {
 
+// The module to hold the neural network for a symmetric matrix,
+// which is actually a collection of its scalar elements
+// For unknown reason (maybe hook registration) you have to call
+// torch::nn::Module methods directly on symat.elements rather than symat,
+// e.g. symat.elements.to(torch::kFloat64) gives what you want
+// but symat.to(torch::kFloat64) does nothing
 struct symat : torch::nn::Module {
     private:
         // number of electronc states
@@ -31,10 +37,9 @@ struct symat : torch::nn::Module {
         int64_t NStates() const;
         CL::utility::matrix<size_t> irreds() const;
 
-        void to(const torch::Dtype & dtype);
         CL::utility::matrix<std::vector<at::Tensor>> parameters();
 
-        std::shared_ptr<symat> clone();
+        void freeze(const size_t & NLayers = -1);
 
         at::Tensor forward(const CL::utility::matrix<at::Tensor> & xs);
         at::Tensor operator()(const CL::utility::matrix<at::Tensor> & xs);

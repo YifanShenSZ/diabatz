@@ -58,10 +58,6 @@ symat::~symat() {}
 int64_t symat::NStates() const {return NStates_;}
 CL::utility::matrix<size_t> symat::irreds() const {return irreds_;}
 
-void symat::to(const torch::Dtype & dtype) {
-    this->torch::nn::Module::to(dtype);
-    elements->to(dtype);
-}
 CL::utility::matrix<std::vector<at::Tensor>> symat::parameters() {
     CL::utility::matrix<std::vector<at::Tensor>> ps(NStates_);
     size_t count = 0;
@@ -71,6 +67,11 @@ CL::utility::matrix<std::vector<at::Tensor>> symat::parameters() {
         count++;
     }
     return ps;
+}
+
+void symat::freeze(const size_t & NLayers) {
+    for (size_t i = 0; i < elements->size(); i++)
+    elements[i]->as<scalar>()->freeze(NLayers);
 }
 
 at::Tensor symat::forward(const CL::utility::matrix<at::Tensor> & xs) {

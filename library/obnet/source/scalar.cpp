@@ -33,6 +33,14 @@ scalar::scalar(const std::vector<size_t> & dimensions, const bool & symmetric) {
 }
 scalar::~scalar() {}
 
+void scalar::freeze(const size_t & NLayers) {
+    for (size_t i = 0; i < std::min(NLayers, fcs->size()); i++) {
+        auto layer = fcs[i]->as<torch::nn::Linear>();
+        layer->weight.set_requires_grad(false);
+        layer->  bias.set_requires_grad(false);
+    }
+}
+
 at::Tensor scalar::forward(const at::Tensor & x) {
     assert(("x must be a vector", x.sizes().size() == 1));
     assert(("The dimension of x must match the number of input features",

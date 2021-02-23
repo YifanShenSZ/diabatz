@@ -5,6 +5,7 @@
 
 namespace obnet {
 
+// The module to hold the neural network for a scalar
 struct scalar : torch::nn::Module {
     torch::nn::ModuleList fcs;
 
@@ -17,6 +18,8 @@ struct scalar : torch::nn::Module {
     scalar(scalar * source);
     scalar(const std::vector<size_t> & dimensions, const bool & symmetric);
     ~scalar();
+
+    void freeze(const size_t & NLayers = -1);
 
     at::Tensor forward(const at::Tensor & x);
     at::Tensor operator()(const at::Tensor & x);
