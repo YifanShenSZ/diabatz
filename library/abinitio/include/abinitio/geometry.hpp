@@ -10,7 +10,7 @@ class Geometry {
         at::Tensor geom_;
     public:
         Geometry();
-        Geometry(const Geometry & geometry);
+        Geometry(const Geometry & source);
         Geometry(const at::Tensor & _geom);
         Geometry(const GeomLoader & loader);
         ~Geometry();

@@ -28,13 +28,13 @@ void SAGeometry::construct_symmetry_() {
 }
 
 SAGeometry::SAGeometry() {}
-SAGeometry::SAGeometry(const SAGeometry & sageom) : Geometry(sageom),
-CNPI2point_(sageom.CNPI2point_), intdim_(sageom.intdim_),
-q_(sageom.q_), Jqr_(sageom.Jqr_), JqrT_(sageom.JqrT_),
-S_(sageom.S_),
-point2CNPI_(sageom.point2CNPI_),
-qs_(sageom.qs_), Jqrs_(sageom.Jqrs_), JqrTs_(sageom.JqrTs_),
-Ss_(sageom.Ss_), sqrtSs_(sageom.sqrtSs_) {}
+SAGeometry::SAGeometry(const SAGeometry & source) : Geometry(source),
+CNPI2point_(source.CNPI2point_), intdim_(source.intdim_),
+q_(source.q_), Jqr_(source.Jqr_), JqrT_(source.JqrT_),
+S_(source.S_),
+point2CNPI_(source.point2CNPI_),
+qs_(source.qs_), Jqrs_(source.Jqrs_), JqrTs_(source.JqrTs_),
+Ss_(source.Ss_), sqrtSs_(source.sqrtSs_) {}
 // `cart2int` takes in Cartesian coordinate,
 // returns symmetry adapted internal coordinates and corresponding Jacobians
 SAGeometry::SAGeometry(const at::Tensor & _geom, const std::vector<size_t> & _CNPI2point,

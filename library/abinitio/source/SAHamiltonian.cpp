@@ -50,10 +50,10 @@ void RegSAHam::reconstruct_dH_() {
 }
 
 RegSAHam::RegSAHam() {}
-RegSAHam::RegSAHam(const RegSAHam & ham) : SAGeometry(ham),
-weight_(ham.weight_),
-energy_(ham.energy_), dH_(ham.dH_),
-irreds_(ham.irreds_), SAdH_(ham.SAdH_) {}
+RegSAHam::RegSAHam(const RegSAHam & source) : SAGeometry(source),
+weight_(source.weight_),
+energy_(source.energy_), dH_(source.dH_),
+irreds_(source.irreds_), SAdH_(source.SAdH_) {}
 // See the base class constructor for details of `cart2int`
 RegSAHam::RegSAHam(const SAHamLoader & loader,
 std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2int)(const at::Tensor &))
@@ -101,8 +101,8 @@ void RegSAHam::adjust_weight(const double & thresh) {
 
 
 DegSAHam::DegSAHam() {}
-DegSAHam::DegSAHam(const DegSAHam & ham) : RegSAHam(ham),
-H_(ham.H_) {}
+DegSAHam::DegSAHam(const DegSAHam & source) : RegSAHam(source),
+H_(source.H_) {}
 // See the base class constructor for details of `cart2int`
 DegSAHam::DegSAHam(const SAHamLoader & loader,
 std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2int)(const at::Tensor &))

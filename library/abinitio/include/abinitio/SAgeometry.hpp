@@ -31,7 +31,7 @@ class SAGeometry : public Geometry {
         void construct_symmetry_();
     public:
         SAGeometry();
-        SAGeometry(const SAGeometry & sageom);
+        SAGeometry(const SAGeometry & source);
         // `cart2int` takes in Cartesian coordinate,
         // returns CNPI group symmetry adapted internal coordinates and corresponding Jacobians
         SAGeometry(const at::Tensor & _geom, const std::vector<size_t> & _CNPI2point,

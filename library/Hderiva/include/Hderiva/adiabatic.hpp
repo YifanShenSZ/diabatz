@@ -13,7 +13,7 @@ namespace Hderiva {
 //                        + [(d / dx * H)a, M]
 at::Tensor DcDxHa
 (const at::Tensor & DxHa, const at::Tensor & DcHd, const at::Tensor & DcDxHd,
-const at::Tensor & energies, const at::Tensor & states);
+const at::Tensor & energy, const at::Tensor & states);
 
 } // namespace Hderiva
 
