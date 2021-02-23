@@ -1,0 +1,2 @@
+# A library to interface FORTRAN nonlinear optimization routines
+As Fortran-Library supports more and more functionalities, it also becomes too heavy and clumsy to debug. This library extracts only the nonlinear optimization codes and provides c++ frontend for them
