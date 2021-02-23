@@ -1,35 +1,51 @@
 #include <CppLibrary/chemistry.hpp>
 
-#include <tchem/utility.hpp>
-#include <tchem/SASintcoord.hpp>
-#include <tchem/SApolynomial.hpp>
+#include <Hd/kernel.hpp>
 
-#include <obnet/symat.hpp>
-
-#include "global.hpp"
+void print_geom(const at::Tensor & geom, std::ostream & ostream) {
+    at::Tensor r = geom.view({3, geom.size(0) / 3});
+    for (size_t i = 0; i < r.size(1); i++)
+    ostream << r[0][i].item<double>() << ' '
+            << r[1][i].item<double>() << ' '
+            << r[2][i].item<double>() << '\n';
+}
 
 int main() {
     c10::TensorOptions top = at::TensorOptions().dtype(torch::kFloat64);
 
-    sasicset = std::make_shared<tchem::IC::SASICSet>("default", "IntCoordDef", "SAS.in");
-
-    Hdnet = std::make_shared<obnet::symat>("Hd.in");
-    Hdnet->to(torch::kFloat64);
-
     std::vector<std::string> sapoly_files = {"11.in", "12.in", "22.in"};
-    input_generator = std::make_shared<InputGenerator>(Hdnet->NStates(), sapoly_files, sasicset->NSASICs());
+    Hd::kernel Hdkernel("default", "IntCoordDef", "SAS.in",
+                        "Hd.in", "Hd.net",
+                        sapoly_files);
 
-    CL::chem::xyz<double> geom("min-C1.xyz", true);
-    std::vector<double> coords = geom.coords();
-    at::Tensor r = at::from_blob(coords.data(), coords.size(), top);
-    at::Tensor q = sasicset->IntCoordSet::operator()(r);
-    std::vector<at::Tensor> qs = (*sasicset)(q);
-    CL::utility::matrix<at::Tensor> xs = (*input_generator)(qs);
-
-    at::Tensor Hd = (*Hdnet)(xs);
+    std::cout << "Cs minimum geometry:\n";
+    CL::chem::xyz<double> geom1("min-Cs.xyz", true);
+    std::vector<double> coords1 = geom1.coords();
+    at::Tensor r1 = at::from_blob(coords1.data(), coords1.size(), top);
+    at::Tensor Hd = Hdkernel(r1);
     std::cout << "Hd =\n" << Hd << '\n';
+    at::Tensor dHd;
+    std::tie(Hd, dHd) = Hdkernel.compute_Hd_dHd(r1);
+    std::cout << "Hd =\n" << Hd << '\n';
+    std::cout << "dHd =\n";
+    for (size_t i = 0; i < Hd.size(0); i++)
+    for (size_t j = i; j < Hd.size(0); j++) {
+        std::cout << i << ' ' << j << ":\n";
+        print_geom(dHd[i][j], std::cout);
+    }
 
-    std::cout << "Number of parameters = "
-              << tchem::utility::NParameters(Hdnet->elements->parameters())
-              << '\n';
+    std::cout << "C1 minimum geometry:\n";
+    CL::chem::xyz<double> geom2("min-C1.xyz", true);
+    std::vector<double> coords2 = geom2.coords();
+    at::Tensor r2 = at::from_blob(coords2.data(), coords2.size(), top);
+    Hd = Hdkernel(r2);
+    std::cout << "Hd =\n" << Hd << '\n';
+    std::tie(Hd, dHd) = Hdkernel.compute_Hd_dHd(r2);
+    std::cout << "Hd =\n" << Hd << '\n';
+    std::cout << "dHd =\n";
+    for (size_t i = 0; i < Hd.size(0); i++)
+    for (size_t j = i; j < Hd.size(0); j++) {
+        std::cout << i << ' ' << j << ":\n";
+        print_geom(dHd[i][j], std::cout);
+    }
 }

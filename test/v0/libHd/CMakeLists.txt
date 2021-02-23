@@ -19,10 +19,18 @@ link_directories(~/Library/Cpp-Library/lib)
 include_directories(~/Library/Torch-Chemistry/include)
 link_directories(~/Library/Torch-Chemistry/lib)
 
+# obnet
+include_directories(~/Software/Mine/diabatz/library/obnet/include)
+link_directories(~/Software/Mine/diabatz/library/obnet/lib)
+
+# Hderiva
+include_directories(~/Software/Mine/diabatz/library/Hderiva/include)
+link_directories(~/Software/Mine/diabatz/library/Hderiva/lib)
+
 # libHd
 include_directories(~/Software/Mine/diabatz/tools/v0/libHd/include)
 link_directories(~/Software/Mine/diabatz/tools/v0/libHd/lib)
 
 add_executable(test.exe main.cpp)
 
-target_link_libraries(test.exe Hd tchem CL "${TORCH_LIBRARIES}")
+target_link_libraries(test.exe Hd Hderiva obnet tchem CL "${TORCH_LIBRARIES}")
