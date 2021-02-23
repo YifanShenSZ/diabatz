@@ -35,18 +35,20 @@ link_directories(~/Software/Mine/diabatz/library/obnet/lib)
 include_directories(~/Software/Mine/diabatz/library/Hderiva/include)
 link_directories(~/Software/Mine/diabatz/library/Hderiva/lib)
 
+# Fopt
+include_directories(~/Software/Mine/diabatz/library/Fopt/include)
+link_directories(~/Software/Mine/diabatz/library/Fopt/lib)
+
 add_executable(v0.exe
     InputGenerator.cpp
     global.cpp
     data.cpp
+    residue.cpp
+    Jacobian.cpp
     train.cpp
     main.cpp
 )
 
-#if (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
-#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -qopenmp")
-#else ()
-#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
-#endif ()
-
-target_link_libraries(v0.exe Hderiva obnet abinitio tchem CL "${TORCH_LIBRARIES}")
+target_link_libraries(v0.exe
+ifcore mkl_intel_lp64 mkl_intel_thread mkl_core
+Fopt Hderiva obnet abinitio tchem CL "${TORCH_LIBRARIES}")

@@ -3,6 +3,7 @@
 
 #include "global.hpp"
 #include "data.hpp"
+#include "train.hpp"
 
 argparse::ArgumentParser parse_args(const size_t & argc, const char ** & argv) {
     CL::utility::echo_command(argc, argv, std::cout);
@@ -39,7 +40,7 @@ int main(size_t argc, const char ** argv) {
     sasicset = std::make_shared<tchem::IC::SASICSet>(format, IC, SAS);
 
     Hdnet = std::make_shared<obnet::symat>(args.retrieve<std::string>("net"));
-    Hdnet->to(torch::kFloat64);
+    Hdnet->train();
     size_t NStates = Hdnet->NStates();
 
     std::vector<std::string> input_layer = args.retrieve<std::vector<std::string>>("input_layer");
@@ -53,4 +54,7 @@ int main(size_t argc, const char ** argv) {
     std::shared_ptr<abinitio::DataSet<RegHam>> regset;
     std::shared_ptr<abinitio::DataSet<DegHam>> degset;
     std::tie(regset, degset) = read_data(data, zero_point, weight);
+
+    initialize(regset, degset);
+    optimize();
 }
