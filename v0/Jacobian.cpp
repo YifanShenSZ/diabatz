@@ -41,11 +41,11 @@ void Jacobian(double * JT, const double * c, const int32_t & M, const int32_t & 
             std::tie(energy, states) = Hd.symeig(true);
             at::Tensor DqHa = tchem::linalg::UT_sy_U(DqHd, states);
             DqHa = DqHa.slice(0, 0, NStates).slice(1, 0, NStates);
-            at::Tensor cartDqHa = DqHa.new_empty({NStates, NStates, (int64_t)data->cartdim()});
+            at::Tensor DrHa = DqHa.new_empty({NStates, NStates, (int64_t)data->cartdim()});
             for (size_t i = 0; i < NStates; i++)
             for (size_t j = i; j < NStates; j++)
-            cartDqHa[i][j] = JqrT.mv(DqHa[i][j]);
-            size_t iphase = phasers[NStates]->iphase_min(cartDqHa, data->dH());
+            DrHa[i][j] = JqrT.mv(DqHa[i][j]);
+            size_t iphase = phasers[NStates]->iphase_min(DrHa, data->dH());
             at::Tensor states_view = states.slice(1, 0, NStates);
             phasers[NStates]->alter_states_(states_view, iphase);
 

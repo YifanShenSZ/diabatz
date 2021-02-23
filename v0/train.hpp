@@ -58,6 +58,6 @@ void initialize(
 const std::shared_ptr<abinitio::DataSet<RegHam>> & regset,
 const std::shared_ptr<abinitio::DataSet<DegHam>> & degset);
 
-void optimize();
+void optimize(const size_t & max_iteration);
 
 #endif
