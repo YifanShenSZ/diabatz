@@ -19,9 +19,10 @@ Reader::Reader(const std::vector<std::string> & user_list) {
         else {
             std::string prefix = CL::utility::GetPrefix(item);
             std::ifstream ifs; ifs.open(item);
-                while (ifs.good()) {
+                while (true) {
                     std::string directory;
                     ifs >> directory;
+                    if (! ifs.good()) break;
                     if (directory.back() != '/') directory += "/";
                     directory = prefix + directory;
                     data_directories_.push_back(directory);
