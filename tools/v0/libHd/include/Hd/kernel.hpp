@@ -25,6 +25,8 @@ class kernel {
                  const std::vector<std::string> & input_layers);
         ~kernel();
 
+        size_t NStates() const;
+
         // Given Cartesian coordinate r, return Hd
         at::Tensor operator()(const at::Tensor & r) const;
         // Given Cartesian coordinate r, return Hd and ▽Hd

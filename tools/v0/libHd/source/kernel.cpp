@@ -18,6 +18,8 @@ const std::vector<std::string> & input_layers) {
 }
 kernel::~kernel() {}
 
+size_t kernel::NStates() const {return Hdnet_->NStates();}
+
 // Given Cartesian coordinate r, return Hd
 at::Tensor kernel::operator()(const at::Tensor & r) const {
     assert(("r must be a vector", r.sizes().size() == 1));
