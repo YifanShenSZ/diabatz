@@ -59,4 +59,8 @@ int main(size_t argc, const char ** argv) {
     for (auto & data : degset) data->subtract_ZeroPoint(zero_point);
 
     compare();
+
+    std::cout << '\n';
+    CL::utility::show_time(std::cout);
+    std::cout << "Mission success\n";
 }

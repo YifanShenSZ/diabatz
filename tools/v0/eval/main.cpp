@@ -31,7 +31,12 @@ void print_grad(const at::Tensor & grad, std::ostream & ostream) {
 }
 
 int main(size_t argc, const char ** argv) {
+    std::cout << "Evaluation for diabatz version 0: \n"
+              << "Yifan Shen 2021\n\n";
     argparse::ArgumentParser args = parse_args(argc, argv);
+    CL::utility::show_time(std::cout);
+    std::cout << '\n';
+
     std::string format = args.retrieve<std::string>("format");
     std::string IC     = args.retrieve<std::string>("IC");
     std::string SAS    = args.retrieve<std::string>("SAS");
@@ -53,4 +58,8 @@ int main(size_t argc, const char ** argv) {
         std::cout << "State " << i + 1 << "-" << j + 1 << ":\n";
         print_grad(dHd[i][j], std::cout);
     }
+
+    std::cout << '\n';
+    CL::utility::show_time(std::cout);
+    std::cout << "Mission success\n";
 }
