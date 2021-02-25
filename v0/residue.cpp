@@ -8,60 +8,96 @@
 
 namespace train {
 
+void reg_residue(const size_t & thread, const std::shared_ptr<RegHam> & data,
+double * r, size_t & start) {
+    // Get necessary diabatic quantities
+    CL::utility::matrix<at::Tensor> xs = data->xs();
+    for (size_t i = 0; i < NStates; i++)
+    for (size_t j = i; j < NStates; j++)
+    xs[i][j].set_requires_grad(true);
+    at::Tensor   Hd = Hdnets[thread]->forward(xs);
+    at::Tensor DqHd = Hderiva::DxHd(Hd, xs, data->JxqTs());
+    // Stop autograd tracking
+    Hd.detach_();
+    // Get adiabatic representation
+    at::Tensor energy, states;
+    std::tie(energy, states) = define_adiabatz(Hd, DqHd,
+        data->JqrT(), data->cartdim(), data->NStates(), data->dH());
+    // Make prediction in adiabatic representation
+    int64_t NStates_data = data->NStates();
+    CL::utility::matrix<size_t> irreds = data->irreds();
+    energy = energy.slice(0, 0, NStates_data);
+    at::Tensor DqHa = tchem::linalg::UT_sy_U(DqHd, states);
+    CL::utility::matrix<at::Tensor> SADqHa(NStates_data);
+    for (size_t i = 0; i < NStates_data; i++)
+    for (size_t j = i; j < NStates_data; j++)
+    SADqHa[i][j] = data->cat(data->split2CNPI(DqHa[i][j]))[irreds[i][j]];
+    // energy residue
+    double weight = data->weight();
+    at::Tensor r_E = weight * unit * (energy - data->energy());
+    std::memcpy(&(r[start]), r_E.data_ptr<double>(), NStates_data * sizeof(double));
+    start += NStates_data;
+    // (▽H)a residue
+    std::vector<at::Tensor> sqrtSs = data->sqrtSs();
+    CL::utility::matrix<at::Tensor> SAdH = data->SAdH();
+    for (size_t i = 0; i < NStates_data; i++)
+    for (size_t j = i; j < NStates_data; j++) {
+        at::Tensor r_dH = weight * sqrtSs[irreds[i][j]].mv(SADqHa[i][j] - SAdH[i][j]);
+        std::memcpy(&(r[start]), r_dH.data_ptr<double>(), r_dH.numel() * sizeof(double));
+        start += r_dH.numel();
+    }
+}
+
+void deg_residue(const size_t & thread, const std::shared_ptr<DegHam> & data,
+double * r, size_t & start) {
+    // Get necessary diabatic quantities
+    CL::utility::matrix<at::Tensor> xs = data->xs();
+    for (size_t i = 0; i < NStates; i++)
+    for (size_t j = i; j < NStates; j++)
+    xs[i][j].set_requires_grad(true);
+    at::Tensor   Hd = Hdnets[thread]->forward(xs);
+    at::Tensor DqHd = Hderiva::DxHd(Hd, xs, data->JxqTs());
+    // Stop autograd tracking
+    Hd.detach_();
+    // Get composite representation
+    at::Tensor eigval, eigvec;
+    std::tie(eigval, eigvec) = define_composite(Hd, DqHd,
+        data->JqrT(), data->cartdim(), data->H(), data->dH());
+    // Make prediction in composite representation
+    CL::utility::matrix<size_t> irreds = data->irreds();
+    at::Tensor   Hc = tchem::linalg::UT_sy_U(  Hd, eigvec);
+    at::Tensor DqHc = tchem::linalg::UT_sy_U(DqHd, eigvec);
+    CL::utility::matrix<at::Tensor> SADqHc(NStates);
+    for (size_t i = 0; i < NStates; i++)
+    for (size_t j = i; j < NStates; j++)
+    SADqHc[i][j] = data->cat(data->split2CNPI(DqHc[i][j]))[irreds[i][j]];
+    // Hc residue
+    double weight = data->weight();
+    at::Tensor r_H = weight * unit * (Hc - data->H());
+    for (size_t i = 0; i < NStates; i++)
+    for (size_t j = i; j < NStates; j++)
+    if (irreds[i][j] == 0) {
+        r[start] = r_H[i][j].item<double>();
+        start++;
+    }
+    // (▽H)c residue
+    std::vector<at::Tensor> sqrtSs = data->sqrtSs();
+    CL::utility::matrix<at::Tensor> SAdH = data->SAdH();
+    for (size_t i = 0; i < NStates; i++)
+    for (size_t j = i; j < NStates; j++) {
+        at::Tensor r_dH = weight * sqrtSs[irreds[i][j]].mv(SADqHc[i][j] - SAdH[i][j]);
+        std::memcpy(&(r[start]), r_dH.data_ptr<double>(), r_dH.numel() * sizeof(double));
+        start += r_dH.numel();
+    }
+}
+
 void residue(double * r, const double * c, const int32_t & M, const int32_t & N) {
     #pragma omp parallel for
     for (size_t thread = 0; thread < OMP_NUM_THREADS; thread++) {
         c2p(c, thread);
         size_t start = segstart[thread];
-        for (const auto & data : regchunk[thread]) {
-            at::Tensor JqrT = data->JqrT();
-            std::vector<at::Tensor> sqrtSs = data->sqrtSs();
-            double   weight = data->weight ();
-            int64_t NStates = data->NStates();
-            CL::utility::matrix<size_t> irreds = data->irreds();
-            CL::utility::matrix<at::Tensor> SAdH = data->SAdH();
-
-            // Get necessary diabatic quantities
-            CL::utility::matrix<at::Tensor> xs = data->xs();
-            for (size_t i = 0; i < NStates; i++)
-            for (size_t j = i; j < NStates; j++)
-            xs[i][j].set_requires_grad(true);
-            at::Tensor   Hd = Hdnets[thread]->forward(xs);
-            at::Tensor DqHd = Hderiva::DxHd(Hd, xs, data->JxqTs());
-            // Stop autograd tracking
-            Hd.detach_();
-
-            // Get adiabatic representation
-            at::Tensor energy, states;
-            std::tie(energy, states) = Hd.symeig(true);
-            at::Tensor DqHa = tchem::linalg::UT_sy_U(DqHd, states);
-            DqHa = DqHa.slice(0, 0, NStates).slice(1, 0, NStates);
-            at::Tensor DrHa = DqHa.new_empty({NStates, NStates, (int64_t)data->cartdim()});
-            for (size_t i = 0; i < NStates; i++)
-            for (size_t j = i; j < NStates; j++)
-            DrHa[i][j] = JqrT.mv(DqHa[i][j]);
-            size_t iphase = phasers[NStates]->iphase_min(DrHa, data->dH());
-            phasers[NStates]->alter_ob_(DqHa, iphase);
-
-            // Make prediction in adiabatic representation
-            energy = energy.slice(0, 0, NStates);
-            CL::utility::matrix<at::Tensor> SADqHa(NStates);
-            for (size_t i = 0; i < NStates; i++)
-            for (size_t j = i; j < NStates; j++)
-            SADqHa[i][j] = data->cat(data->split2CNPI(DqHa[i][j]))[irreds[i][j]];
-
-            // energy residue
-            at::Tensor r_E = weight * unit * (energy - data->energy());
-            std::memcpy(&(r[start]), r_E.data_ptr<double>(), NStates * sizeof(double));
-            start += NStates;
-            // (▽H)a residue
-            for (size_t i = 0; i < NStates; i++)
-            for (size_t j = i; j < NStates; j++) {
-                at::Tensor r_g = weight * sqrtSs[irreds[i][j]].mv(SADqHa[i][j] - SAdH[i][j]);
-                std::memcpy(&(r[start]), r_g.data_ptr<double>(), r_g.numel() * sizeof(double));
-                start += r_g.numel();
-            }
-        }
+        for (const auto & data : regchunk[thread]) reg_residue(thread, data, r, start);
+        for (const auto & data : degchunk[thread]) deg_residue(thread, data, r, start);
     }
 }
 

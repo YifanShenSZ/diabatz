@@ -11,30 +11,30 @@ namespace Hderiva {
 //             + [Hc, M]
 at::Tensor DcHc
 (const at::Tensor & Hc, const at::Tensor & DxHd, const at::Tensor & DcHd, const at::Tensor & DcDxHd,
-const at::Tensor & eigvals, const at::Tensor & eigvecs);
+const at::Tensor & eigval, const at::Tensor & eigvec);
 
 // d / dc * (d / dx * H)c = Ud^T. (d / dc * d / dx * Hd) . Ud
 //                        + [(d / dx * H)c, M]
 at::Tensor DcDxHc
 (const at::Tensor & DxHc, const at::Tensor & DxHd, const at::Tensor & DcDxHd,
-const at::Tensor & eigvals, const at::Tensor & eigvecs);
+const at::Tensor & eigval, const at::Tensor & eigvec);
 
 std::tuple<at::Tensor, at::Tensor> DcHc_DcDxHc
 (const at::Tensor & Hc, const at::Tensor & DxHc,
 const at::Tensor & DxHd, const at::Tensor & DcHd, const at::Tensor & DcDxHd,
-const at::Tensor & eigvals, const at::Tensor & eigvecs);
+const at::Tensor & eigval, const at::Tensor & eigvec);
 
 // dot product defined with a metric S
 at::Tensor DcHc
 (const at::Tensor & Hc, const at::Tensor & DxHd, const at::Tensor & DcHd, const at::Tensor & DcDxHd,
-const at::Tensor & eigvals, const at::Tensor & eigvecs, const at::Tensor & S);
+const at::Tensor & eigval, const at::Tensor & eigvec, const at::Tensor & S);
 at::Tensor DcDxHc
 (const at::Tensor & DxHc, const at::Tensor & DxHd, const at::Tensor & DcDxHd,
-const at::Tensor & eigvals, const at::Tensor & eigvecs, const at::Tensor & S);
+const at::Tensor & eigval, const at::Tensor & eigvec, const at::Tensor & S);
 std::tuple<at::Tensor, at::Tensor> DcHc_DcDxHc
 (const at::Tensor & Hc, const at::Tensor & DxHc,
 const at::Tensor & DxHd, const at::Tensor & DcHd, const at::Tensor & DcDxHd,
-const at::Tensor & eigvals, const at::Tensor & eigvecs, const at::Tensor & S);
+const at::Tensor & eigval, const at::Tensor & eigvec, const at::Tensor & S);
 
 } // namespace Hderiva
 

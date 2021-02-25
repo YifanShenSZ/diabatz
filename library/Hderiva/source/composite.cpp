@@ -10,14 +10,14 @@ namespace Hderiva {
 //             + [Hc, M]
 at::Tensor DcHc
 (const at::Tensor & Hc, const at::Tensor & DxHd, const at::Tensor & DcHd, const at::Tensor & DcDxHd,
-const at::Tensor & eigvals, const at::Tensor & eigvecs) {
-    at::Tensor DcO = tchem::linalg::sy4matmvmulsy3(DcDxHd.transpose_(-1, -2), DxHd);
+const at::Tensor & eigval, const at::Tensor & eigvec) {
+    at::Tensor DcO = tchem::linalg::sy4matmvmulsy3(DcDxHd.transpose(-1, -2), DxHd);
     DcO = DcO + DcO.transpose(0, 1);
-    at::Tensor nac = tchem::linalg::UT_sy_U(DcO, eigvecs);
-    for (size_t i = 0    ; i < eigvals.size(0); i++)
-    for (size_t j = i + 1; j < eigvals.size(0); j++)
-    nac[i][j] /= eigvals[j] - eigvals[i];
-    at::Tensor DcHc = tchem::linalg::UT_sy_U(DcHd, eigvecs)
+    at::Tensor nac = tchem::linalg::UT_sy_U(DcO, eigvec);
+    for (size_t i = 0    ; i < eigval.size(0); i++)
+    for (size_t j = i + 1; j < eigval.size(0); j++)
+    nac[i][j] /= eigval[j] - eigval[i];
+    at::Tensor DcHc = tchem::linalg::UT_sy_U(DcHd, eigvec)
                     + commutor_term(Hc, nac);
     return DcHc;
 }
@@ -26,14 +26,14 @@ const at::Tensor & eigvals, const at::Tensor & eigvecs) {
 //                        + [(d / dx * H)c, M]
 at::Tensor DcDxHc
 (const at::Tensor & DxHc, const at::Tensor & DxHd, const at::Tensor & DcDxHd,
-const at::Tensor & eigvals, const at::Tensor & eigvecs) {
-    at::Tensor DcO = tchem::linalg::sy4matmvmulsy3(DcDxHd.transpose_(-1, -2), DxHd);
+const at::Tensor & eigval, const at::Tensor & eigvec) {
+    at::Tensor DcO = tchem::linalg::sy4matmvmulsy3(DcDxHd.transpose(-1, -2), DxHd);
     DcO = DcO + DcO.transpose(0, 1);
-    at::Tensor nac = tchem::linalg::UT_sy_U(DcO, eigvecs);
-    for (size_t i = 0    ; i < eigvals.size(0); i++)
-    for (size_t j = i + 1; j < eigvals.size(0); j++)
-    nac[i][j] /= eigvals[j] - eigvals[i];
-    at::Tensor DcDxHc = tchem::linalg::UT_sy_U(DcDxHd, eigvecs)
+    at::Tensor nac = tchem::linalg::UT_sy_U(DcO, eigvec);
+    for (size_t i = 0    ; i < eigval.size(0); i++)
+    for (size_t j = i + 1; j < eigval.size(0); j++)
+    nac[i][j] /= eigval[j] - eigval[i];
+    at::Tensor DcDxHc = tchem::linalg::UT_sy_U(DcDxHd, eigvec)
                       + commutor_term(DxHc, nac);
     return DcDxHc;
 }
@@ -41,16 +41,16 @@ const at::Tensor & eigvals, const at::Tensor & eigvecs) {
 std::tuple<at::Tensor, at::Tensor> DcHc_DcDxHc
 (const at::Tensor & Hc, const at::Tensor & DxHc,
 const at::Tensor & DxHd, const at::Tensor & DcHd, const at::Tensor & DcDxHd,
-const at::Tensor & eigvals, const at::Tensor & eigvecs) {
-    at::Tensor DcO = tchem::linalg::sy4matmvmulsy3(DcDxHd.transpose_(-1, -2), DxHd);
+const at::Tensor & eigval, const at::Tensor & eigvec) {
+    at::Tensor DcO = tchem::linalg::sy4matmvmulsy3(DcDxHd.transpose(-1, -2), DxHd);
     DcO = DcO + DcO.transpose(0, 1);
-    at::Tensor nac = tchem::linalg::UT_sy_U(DcO, eigvecs);
-    for (size_t i = 0    ; i < eigvals.size(0); i++)
-    for (size_t j = i + 1; j < eigvals.size(0); j++)
-    nac[i][j] /= eigvals[j] - eigvals[i];
-    at::Tensor DcHc = tchem::linalg::UT_sy_U(DcHd, eigvecs)
+    at::Tensor nac = tchem::linalg::UT_sy_U(DcO, eigvec);
+    for (size_t i = 0    ; i < eigval.size(0); i++)
+    for (size_t j = i + 1; j < eigval.size(0); j++)
+    nac[i][j] /= eigval[j] - eigval[i];
+    at::Tensor DcHc = tchem::linalg::UT_sy_U(DcHd, eigvec)
                     + commutor_term(Hc, nac);
-    at::Tensor DcDxHc = tchem::linalg::UT_sy_U(DcDxHd, eigvecs)
+    at::Tensor DcDxHc = tchem::linalg::UT_sy_U(DcDxHd, eigvec)
                       + commutor_term(DxHc, nac);
     return std::make_tuple(DcHc, DcDxHc);
 }
@@ -58,43 +58,43 @@ const at::Tensor & eigvals, const at::Tensor & eigvecs) {
 // dot product defined with a metric S
 at::Tensor DcHc
 (const at::Tensor & Hc, const at::Tensor & DxHd, const at::Tensor & DcHd, const at::Tensor & DcDxHd,
-const at::Tensor & eigvals, const at::Tensor & eigvecs, const at::Tensor & S) {
-    at::Tensor DcO = tchem::linalg::sy4matmvmulsy3(DcDxHd.transpose_(-1, -2), DxHd, S);
+const at::Tensor & eigval, const at::Tensor & eigvec, const at::Tensor & S) {
+    at::Tensor DcO = tchem::linalg::sy4matmvmulsy3(DcDxHd.transpose(-1, -2), DxHd, S);
     DcO = DcO + DcO.transpose(0, 1);
-    at::Tensor nac = tchem::linalg::UT_sy_U(DcO, eigvecs);
-    for (size_t i = 0    ; i < eigvals.size(0); i++)
-    for (size_t j = i + 1; j < eigvals.size(0); j++)
-    nac[i][j] /= eigvals[j] - eigvals[i];
-    at::Tensor DcHc = tchem::linalg::UT_sy_U(DcHd, eigvecs)
+    at::Tensor nac = tchem::linalg::UT_sy_U(DcO, eigvec);
+    for (size_t i = 0    ; i < eigval.size(0); i++)
+    for (size_t j = i + 1; j < eigval.size(0); j++)
+    nac[i][j] /= eigval[j] - eigval[i];
+    at::Tensor DcHc = tchem::linalg::UT_sy_U(DcHd, eigvec)
                     + commutor_term(Hc, nac);
     return DcHc;
 }
 at::Tensor DcDxHc
 (const at::Tensor & DxHc, const at::Tensor & DxHd, const at::Tensor & DcDxHd,
-const at::Tensor & eigvals, const at::Tensor & eigvecs, const at::Tensor & S) {
-    at::Tensor DcO = tchem::linalg::sy4matmvmulsy3(DcDxHd.transpose_(-1, -2), DxHd, S);
+const at::Tensor & eigval, const at::Tensor & eigvec, const at::Tensor & S) {
+    at::Tensor DcO = tchem::linalg::sy4matmvmulsy3(DcDxHd.transpose(-1, -2), DxHd, S);
     DcO = DcO + DcO.transpose(0, 1);
-    at::Tensor nac = tchem::linalg::UT_sy_U(DcO, eigvecs);
-    for (size_t i = 0    ; i < eigvals.size(0); i++)
-    for (size_t j = i + 1; j < eigvals.size(0); j++)
-    nac[i][j] /= eigvals[j] - eigvals[i];
-    at::Tensor DcDxHc = tchem::linalg::UT_sy_U(DcDxHd, eigvecs)
+    at::Tensor nac = tchem::linalg::UT_sy_U(DcO, eigvec);
+    for (size_t i = 0    ; i < eigval.size(0); i++)
+    for (size_t j = i + 1; j < eigval.size(0); j++)
+    nac[i][j] /= eigval[j] - eigval[i];
+    at::Tensor DcDxHc = tchem::linalg::UT_sy_U(DcDxHd, eigvec)
                       + commutor_term(DxHc, nac);
     return DcDxHc;
 }
 std::tuple<at::Tensor, at::Tensor> DcHc_DcDxHc
 (const at::Tensor & Hc, const at::Tensor & DxHc,
 const at::Tensor & DxHd, const at::Tensor & DcHd, const at::Tensor & DcDxHd,
-const at::Tensor & eigvals, const at::Tensor & eigvecs, const at::Tensor & S) {
-    at::Tensor DcO = tchem::linalg::sy4matmvmulsy3(DcDxHd.transpose_(-1, -2), DxHd, S);
+const at::Tensor & eigval, const at::Tensor & eigvec, const at::Tensor & S) {
+    at::Tensor DcO = tchem::linalg::sy4matmvmulsy3(DcDxHd.transpose(-1, -2), DxHd, S);
     DcO = DcO + DcO.transpose(0, 1);
-    at::Tensor nac = tchem::linalg::UT_sy_U(DcO, eigvecs);
-    for (size_t i = 0    ; i < eigvals.size(0); i++)
-    for (size_t j = i + 1; j < eigvals.size(0); j++)
-    nac[i][j] /= eigvals[j] - eigvals[i];
-    at::Tensor DcHc = tchem::linalg::UT_sy_U(DcHd, eigvecs)
+    at::Tensor nac = tchem::linalg::UT_sy_U(DcO, eigvec);
+    for (size_t i = 0    ; i < eigval.size(0); i++)
+    for (size_t j = i + 1; j < eigval.size(0); j++)
+    nac[i][j] /= eigval[j] - eigval[i];
+    at::Tensor DcHc = tchem::linalg::UT_sy_U(DcHd, eigvec)
                     + commutor_term(Hc, nac);
-    at::Tensor DcDxHc = tchem::linalg::UT_sy_U(DcDxHd, eigvecs)
+    at::Tensor DcDxHc = tchem::linalg::UT_sy_U(DcDxHd, eigvec)
                       + commutor_term(DxHc, nac);
     return std::make_tuple(DcHc, DcDxHc);
 }

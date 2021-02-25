@@ -55,12 +55,15 @@ int main(size_t argc, const char ** argv) {
     std::shared_ptr<abinitio::DataSet<RegHam>> regset;
     std::shared_ptr<abinitio::DataSet<DegHam>> degset;
     std::tie(regset, degset) = read_data(data, zero_point, weight);
+    std::cout << "There are " << regset->size_int() << " data points in adiabatic representation\n"
+              << "          " << degset->size_int() << " data points in composite representation\n";
 
     size_t max_iteration = 100;
     if (args.gotArgument("max_iteration")) max_iteration = args.retrieve<size_t>("max_iteration");
     initialize(regset, degset);
     optimize(max_iteration);
 
+    std::cout << '\n';
     CL::utility::show_time(std::cout);
     std::cout << "Mission success\n";
 }

@@ -10,7 +10,7 @@
 
 namespace train {
 
-size_t NStates;
+int64_t NStates;
 
 std::vector<std::shared_ptr<tchem::chem::Phaser>> phasers;
 
@@ -19,7 +19,7 @@ std::vector<std::shared_ptr<RegHam>> regset;
 std::vector<std::shared_ptr<DegHam>> degset;
 
 // the "unit" of energy, accounting for the unit difference between energy and gradient
-double unit;
+double unit, unit_square;
 
 // Number of least square equations and fitting parameters
 int32_t NEqs, NPars;
@@ -46,26 +46,32 @@ void set_unit() {
     }
     unit = maxg / maxe;
     std::cout << "gradient / energy scaling = " << unit << '\n';
+    unit_square = unit * unit;
 }
 
 void set_count() {
     NEqs = 0;
     for (const auto & data : regset) {
-        size_t NStates = data->NStates();
-        CL::utility::matrix<at::Tensor> SAdH = data->SAdH();
+        size_t NStates_data = data->NStates();
         // energy least square equations
-        NEqs += NStates;
+        NEqs += NStates_data;
         // (▽H)a least square equations
-        for (size_t i = 0; i < NStates; i++)
-        for (size_t j = i; j < NStates; j++)
+        CL::utility::matrix<at::Tensor> SAdH = data->SAdH();
+        for (size_t i = 0; i < NStates_data; i++)
+        for (size_t j = i; j < NStates_data; j++)
         NEqs += SAdH[i][j].size(0);
     }
     for (const auto & data : degset) {
-        size_t NStates = data->NStates();
-        CL::utility::matrix<at::Tensor> SAdH = data->SAdH();
+        assert(("Data must share a same number of electronic states with "
+                "the model to define a comparable composite representation",
+                NStates = data->NStates()));
         // Hc least square equations
-        NEqs += (NStates + 1) * NStates / 2;
+        CL::utility::matrix<size_t> irreds = data->irreds();
+        for (size_t i = 0; i < NStates; i++)
+        for (size_t j = i; j < NStates; j++)
+        if (irreds[i][j] == 0) NEqs++;
         // (▽H)c least square equations
+        CL::utility::matrix<at::Tensor> SAdH = data->SAdH();
         for (size_t i = 0; i < NStates; i++)
         for (size_t j = i; j < NStates; j++)
         NEqs += SAdH[i][j].size(0);
@@ -91,6 +97,8 @@ void set_parallelism() {
     degchunk.resize(OMP_NUM_THREADS);
     size_t regchunksize = regset.size() / OMP_NUM_THREADS,
            degchunksize = degset.size() / OMP_NUM_THREADS;
+    std::cout << "Each thread owns " << regchunksize << " data points in adiabatic representation\n"
+              << "                 " << degchunksize << " data points in composite representation\n";
     size_t regcount = 0, degcount = 0;
     // Thread 0 to OMP_NUM_THREADS - 2 each owns `chunksize` data
     for (size_t thread = 0; thread < OMP_NUM_THREADS - 1; thread++) {
@@ -116,27 +124,31 @@ void set_parallelism() {
         degchunk.back()[i] = degset[degcount];
         degcount++;
     }
+    std::cout << "The last thread owns " << regchunk.back().size() << " data points in adiabatic representation\n"
+              << "                     " << degchunk.back().size() << " data points in composite representation\n";
 
     segstart.resize(OMP_NUM_THREADS);
     segstart[0] = 0;
     for (size_t thread = 1; thread < OMP_NUM_THREADS; thread++) {
         segstart[thread] = segstart[thread - 1];
         for (const auto & data : regchunk[thread - 1]) {
-            size_t NStates = data->NStates();
-            CL::utility::matrix<at::Tensor> SAdH = data->SAdH();
+            size_t NStates_data = data->NStates();
             // energy least square equations
-            segstart[thread] += NStates;
+            segstart[thread] += NStates_data;
             // (▽H)a least square equations
-            for (size_t i = 0; i < NStates; i++)
-            for (size_t j = i; j < NStates; j++)
+            CL::utility::matrix<at::Tensor> SAdH = data->SAdH();
+            for (size_t i = 0; i < NStates_data; i++)
+            for (size_t j = i; j < NStates_data; j++)
             segstart[thread] += SAdH[i][j].size(0);
         }
         for (const auto & data : degchunk[thread - 1]) {
-            size_t NStates = data->NStates();
-            CL::utility::matrix<at::Tensor> SAdH = data->SAdH();
             // Hc least square equations
-            segstart[thread] += (NStates + 1) * NStates / 2;
+            CL::utility::matrix<size_t> irreds = data->irreds();
+            for (size_t i = 0; i < NStates; i++)
+            for (size_t j = i; j < NStates; j++)
+            if (irreds[i][j] == 0) segstart[thread]++;
             // (▽H)c least square equations
+            CL::utility::matrix<at::Tensor> SAdH = data->SAdH();
             for (size_t i = 0; i < NStates; i++)
             for (size_t j = i; j < NStates; j++)
             segstart[thread] += SAdH[i][j].size(0);
