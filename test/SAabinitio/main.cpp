@@ -5,7 +5,7 @@
 int main() {
     sasicset = std::make_shared<tchem::IC::SASICSet>("default", "IntCoordDef", "SAS.in");
 
-    std::vector<std::string> user_list = {"mex/", "min-C1/"};
+    std::vector<std::string> user_list = {"mex/"};
     abinitio::SAReader reader(user_list, cart2int);
     reader.pretty_print(std::cout);
 
