@@ -8,7 +8,7 @@
 argparse::ArgumentParser parse_args(const size_t & argc, const char ** & argv) {
     CL::utility::echo_command(argc, argv, std::cout);
     std::cout << '\n';
-    argparse::ArgumentParser parser("Bound diabatz: diabatic Hamiltonian generator for bound systems");
+    argparse::ArgumentParser parser("Diabatz version 0");
 
     // required arguments
     parser.add_argument("-f","--format",         1, false, "internal coordinate definition format (Columbus7, default)");
