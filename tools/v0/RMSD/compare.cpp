@@ -38,8 +38,8 @@ void compare() {
     rmsd_energy.sqrt_();
     rmsd_dHa /= (double)regset[0]->cartdim();
     for (size_t j = 0; j < NStates; j++)
-    for (size_t i = 0; i < j; i++)
-    rmsd_dHa[i][j] /= (double)state_count[i];
+    for (size_t i = 0; i <= j; i++)
+    rmsd_dHa[i][j] /= (double)state_count[j];
     rmsd_dHa.sqrt_();
     std::cout << "Root mean square deviation of energy:\n";
     for (size_t i = 0; i < NStates; i++)
