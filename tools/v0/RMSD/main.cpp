@@ -29,7 +29,7 @@ argparse::ArgumentParser parse_args(const size_t & argc, const char ** & argv) {
 }
 
 int main(size_t argc, const char ** argv) {
-    std::cout << "Root mean square deviation analyzer for diabatz version 0: \n"
+    std::cout << "Root mean square deviation analyzer for diabatz version 0\n"
               << "Yifan Shen 2021\n\n";
     argparse::ArgumentParser args = parse_args(argc, argv);
     CL::utility::show_time(std::cout);
