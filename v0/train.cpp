@@ -41,12 +41,14 @@ void set_unit() {
     for (const auto & data : regset) {
         double temp = data->energy()[0].item<double>();
         maxe = temp > maxe ? temp : maxe;
-        temp = data->dH()[0][0].norm().item<double>();
+        temp = data->dH()[0][0].abs().max().item<double>();
         maxg = temp > maxg ? temp : maxg;
     }
+    std::cout << "maximum ground state energy = " << maxe << '\n'
+              << "maximum ||ground state energy gradient||_infinity = " << maxg << '\n'; 
     if (maxe > 0.0) unit = maxg / maxe;
     else            unit = 1.0; // fail safe
-    std::cout << "gradient / energy scaling = " << unit << '\n';
+    std::cout << "so set gradient / energy scaling to " << unit << '\n';
     unit_square = unit * unit;
 }
 
@@ -190,7 +192,7 @@ void optimize(const size_t & max_iteration) {
     // Display initial residue
     double * r = new double[train::NEqs];
     train::residue(r, c, train::NEqs, train::NPars);
-    std::cout << "The initial residue = " << CL::linalg::norm2(r, train::NEqs) << std::endl;
+    std::cout << "\nThe initial residue = " << CL::linalg::norm2(r, train::NEqs) << std::endl;
     delete [] r;
     // Run optimization
     Fopt::trust_region(train::residue, train::Jacobian, c, train::NEqs, train::NPars,
@@ -199,7 +201,7 @@ void optimize(const size_t & max_iteration) {
     // Display finial residue
     r = new double[train::NEqs];
     train::residue(r, c, train::NEqs, train::NPars);
-    std::cout << "The initial residue = " << CL::linalg::norm2(r, train::NEqs) << std::endl;
+    std::cout << "The final residue = " << CL::linalg::norm2(r, train::NEqs) << '\n';
     delete [] r;
     // Output
     torch::save(Hdnet->elements, "Hd.net");
