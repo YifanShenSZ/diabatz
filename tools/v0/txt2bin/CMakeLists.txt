@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
 
-project(bin2txt)
+project(txt2bin)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
@@ -19,6 +19,6 @@ link_directories(~/Library/Cpp-Library/lib)
 include_directories(~/Software/Mine/diabatz/library/obnet/include)
 link_directories(~/Software/Mine/diabatz/library/obnet/lib)
 
-add_executable(bin2txt.exe main.cpp)
+add_executable(txt2bin.exe main.cpp)
 
-target_link_libraries(bin2txt.exe obnet CL "${TORCH_LIBRARIES}")
+target_link_libraries(txt2bin.exe obnet CL "${TORCH_LIBRARIES}")
