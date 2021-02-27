@@ -8,7 +8,7 @@
 
 namespace train {
 
-void reg_residue(const size_t & thread, const std::shared_ptr<RegHam> & data,
+inline void reg_residue(const size_t & thread, const std::shared_ptr<RegHam> & data,
 double * r, size_t & start) {
     // Get necessary diabatic quantities
     CL::utility::matrix<at::Tensor> xs = data->xs();
@@ -48,7 +48,7 @@ double * r, size_t & start) {
     }
 }
 
-void deg_residue(const size_t & thread, const std::shared_ptr<DegHam> & data,
+inline void deg_residue(const size_t & thread, const std::shared_ptr<DegHam> & data,
 double * r, size_t & start) {
     // Get necessary diabatic quantities
     CL::utility::matrix<at::Tensor> xs = data->xs();
@@ -99,6 +99,20 @@ void residue(double * r, const double * c, const int32_t & M, const int32_t & N)
         for (const auto & data : regchunk[thread]) reg_residue(thread, data, r, start);
         for (const auto & data : degchunk[thread]) deg_residue(thread, data, r, start);
     }
+}
+
+void regularized_residue(double * r, const double * c, const int32_t & M, const int32_t & N) {
+    #pragma omp parallel for
+    for (size_t thread = 0; thread < OMP_NUM_THREADS; thread++) {
+        c2p(c, thread);
+        size_t start = segstart[thread];
+        for (const auto & data : regchunk[thread]) reg_residue(thread, data, r, start);
+        for (const auto & data : degchunk[thread]) deg_residue(thread, data, r, start);
+    }
+    c10::TensorOptions top = c10::TensorOptions().dtype(torch::kFloat64);
+    at::Tensor residue = at::from_blob(r, M, top),
+               p       = at::from_blob(const_cast<double *>(c), N, top);
+    residue.slice(0, M - N, M).copy_(regularization * (p - prior));
 }
 
 }

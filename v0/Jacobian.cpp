@@ -8,7 +8,7 @@
 
 namespace train {
 
-void reg_Jacobian(const size_t & thread, const std::shared_ptr<RegHam> & data,
+inline void reg_Jacobian(const size_t & thread, const std::shared_ptr<RegHam> & data,
 at::Tensor & J, size_t & start) {
     // Get necessary diabatic quantities
     CL::utility::matrix<at::Tensor> xs = data->xs();
@@ -54,7 +54,7 @@ at::Tensor & J, size_t & start) {
     }
 }
 
-void deg_Jacobian(const size_t & thread, const std::shared_ptr<DegHam> & data,
+inline void deg_Jacobian(const size_t & thread, const std::shared_ptr<DegHam> & data,
 at::Tensor & J, size_t & start) {
     // Get necessary diabatic quantities
     CL::utility::matrix<at::Tensor> xs = data->xs();
@@ -104,7 +104,6 @@ at::Tensor & J, size_t & start) {
 }
 
 void Jacobian(double * JT, const double * c, const int32_t & M, const int32_t & N) {
-    // Make a tensor J sharing memory with JT, since it is easier to manipulate J
     at::Tensor J = at::from_blob(JT, {N, M}, at::TensorOptions().dtype(torch::kFloat64));
     J.transpose_(0, 1);
     #pragma omp parallel for
@@ -114,6 +113,21 @@ void Jacobian(double * JT, const double * c, const int32_t & M, const int32_t & 
         for (const auto & data : regchunk[thread]) reg_Jacobian(thread, data, J, start);
         for (const auto & data : degchunk[thread]) deg_Jacobian(thread, data, J, start);
     }
+}
+
+void regularized_Jacobian(double * JT, const double * c, const int32_t & M, const int32_t & N) {
+    at::Tensor J = at::from_blob(JT, {N, M}, at::TensorOptions().dtype(torch::kFloat64));
+    J.transpose_(0, 1);
+    #pragma omp parallel for
+    for (size_t thread = 0; thread < OMP_NUM_THREADS; thread++) {
+        c2p(c, thread);
+        size_t start = segstart[thread];
+        for (const auto & data : regchunk[thread]) reg_Jacobian(thread, data, J, start);
+        for (const auto & data : degchunk[thread]) deg_Jacobian(thread, data, J, start);
+    }
+    at::Tensor regularization_block = J.slice(0, M - N, M);
+    regularization_block.fill_(0.0);
+    regularization_block.fill_diagonal_(regularization);
 }
 
 }

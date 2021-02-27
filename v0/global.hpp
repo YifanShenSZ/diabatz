@@ -19,4 +19,7 @@ extern std::shared_ptr<InputGenerator> input_generator;
 
 std::tuple<CL::utility::matrix<at::Tensor>, CL::utility::matrix<at::Tensor>> int2input(const std::vector<at::Tensor> & qs);
 
+extern double regularization;
+extern at::Tensor prior;
+
 #endif

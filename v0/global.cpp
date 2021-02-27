@@ -38,3 +38,6 @@ int2input(const std::vector<at::Tensor> & qs) {
     std::tie(xs, JTs) = input_generator->compute_x_JT(qs);
     return std::make_tuple(xs, JTs);
 }
+
+double regularization;
+at::Tensor prior;

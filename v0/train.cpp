@@ -182,11 +182,14 @@ const std::shared_ptr<abinitio::DataSet<DegHam>> & degset) {
 }
 
 namespace train {
-void residue(double * r, const double * c, const int32_t & M, const int32_t & N);
+void residue (double *  r, const double * c, const int32_t & M, const int32_t & N);
 void Jacobian(double * JT, const double * c, const int32_t & M, const int32_t & N);
+
+void regularized_residue (double *  r, const double * c, const int32_t & M, const int32_t & N);
+void regularized_Jacobian(double * JT, const double * c, const int32_t & M, const int32_t & N);
 } // namespace train
 
-void optimize(const size_t & max_iteration) {
+void optimize(const bool & regularized, const size_t & max_iteration) {
     double * c = new double[train::NPars];
     train::p2c(0, c);
     // Display initial residue
@@ -195,7 +198,13 @@ void optimize(const size_t & max_iteration) {
     std::cout << "\nThe initial residue = " << CL::linalg::norm2(r, train::NEqs) << std::endl;
     delete [] r;
     // Run optimization
-    Fopt::trust_region(train::residue, train::Jacobian, c, train::NEqs, train::NPars,
+    if (regularized)
+    Fopt::trust_region(train::regularized_residue, train::regularized_Jacobian,
+                       c, train::NEqs + train::NPars, train::NPars,
+                       max_iteration);
+    else
+    Fopt::trust_region(train::residue, train::Jacobian,
+                       c, train::NEqs, train::NPars,
                        max_iteration);
     train::c2p(c, 0);
     // Display finial residue

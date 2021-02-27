@@ -24,6 +24,10 @@ argparse::ArgumentParser parse_args(const size_t & argc, const char ** & argv) {
     parser.add_argument("-c","--checkpoint",    1, true, "a trained Hd parameter to continue with");
     parser.add_argument("-m","--max_iteration", 1, true, "default = 100");
 
+    // regularization arguments
+    parser.add_argument("-r","--regularization", 1, true, "enable regularization and set strength");
+    parser.add_argument("-p","--priors",       '+', true, "priors for regularization");
+
     parser.parse_args(argc, argv);
     return parser;
 }
@@ -45,6 +49,8 @@ int main(size_t argc, const char ** argv) {
     if (args.gotArgument("checkpoint")) torch::load(Hdnet->elements, args.retrieve<std::string>("checkpoint"));
 
     std::vector<std::string> input_layers = args.retrieve<std::vector<std::string>>("input_layers");
+    assert(("The number of input layers must match the number of Hd upper-triangle elements",
+            input_layers.size() == (Hdnet->NStates() + 1) * Hdnet->NStates() / 2));
     input_generator = std::make_shared<InputGenerator>(Hdnet->NStates(), input_layers, sasicset->NSASICs());
 
     std::vector<std::string> data = args.retrieve<std::vector<std::string>>("data");
@@ -56,12 +62,44 @@ int main(size_t argc, const char ** argv) {
     std::shared_ptr<abinitio::DataSet<DegHam>> degset;
     std::tie(regset, degset) = read_data(data, zero_point, weight);
     std::cout << "There are " << regset->size_int() << " data points in adiabatic representation\n"
-              << "          " << degset->size_int() << " data points in composite representation\n";
+              << "          " << degset->size_int() << " data points in composite representation\n\n";
+
+    bool regularized = args.gotArgument("regularization");
+    if (regularized) {
+        std::cout << "Got regularization strength, enable regularization\n\n";
+        regularization = args.retrieve<double>("regularization");
+        size_t NPars = 0;
+        for (const at::Tensor & p : Hdnet->elements->parameters()) NPars += p.numel();
+        prior = Hdnet->elements->parameters()[0].new_empty(NPars);
+        assert(("Priors must be provided for regularization", args.gotArgument("priors")));
+        std::vector<std::string> priors_in = args.retrieve<std::vector<std::string>>("priors");
+        assert(("The number of priors must match the number of Hd upper-triangle elements",
+                priors_in.size() == (Hdnet->NStates() + 1) * Hdnet->NStates() / 2));
+        size_t count_prior = 0, count_in = 0;
+        for (size_t i = 0; i < Hdnet->NStates(); i++)
+        for (size_t j = i; j < Hdnet->NStates(); j++) {
+            std::ifstream ifs; ifs.open(priors_in[count_in]);
+                while (true) {
+                    std::string line;
+                    std::getline(ifs, line);
+                    if (! ifs.good()) break;
+                    std::getline(ifs, line);
+                    if (! ifs.good()) break;
+                    double temp = std::stod(line);
+                    assert(("Prior and fitting parameter must share a same dimension", count_prior < NPars));
+                    prior[count_prior] = temp;
+                    count_prior++;
+                }
+            ifs.close();
+            count_in++;
+        }
+        assert(("Prior and fitting parameter must share a same dimension", count_prior == NPars));
+    }
 
     size_t max_iteration = 100;
     if (args.gotArgument("max_iteration")) max_iteration = args.retrieve<size_t>("max_iteration");
     initialize(regset, degset);
-    optimize(max_iteration);
+    optimize(regularized, max_iteration);
 
     std::cout << '\n';
     CL::utility::show_time(std::cout);
