@@ -25,7 +25,7 @@ argparse::ArgumentParser parse_args(const size_t & argc, const char ** & argv) {
     parser.add_argument("-m","--max_iteration", 1, true, "default = 100");
 
     // regularization arguments
-    parser.add_argument("-r","--regularization", 1, true, "enable regularization and set strength");
+    parser.add_argument("-r","--regularization", 1, true, "enable regularization and set strength, can be a scalar or a vector file");
     parser.add_argument("-p","--priors",       '+', true, "priors for regularization");
 
     parser.parse_args(argc, argv);
@@ -67,9 +67,32 @@ int main(size_t argc, const char ** argv) {
     bool regularized = args.gotArgument("regularization");
     if (regularized) {
         std::cout << "Got regularization strength, enable regularization\n\n";
-        regularization = args.retrieve<double>("regularization");
+        // Count the number of fitting parameters
         size_t NPars = 0;
         for (const at::Tensor & p : Hdnet->elements->parameters()) NPars += p.numel();
+        // Get regularization strength
+        regularization = Hdnet->elements->parameters()[0].new_empty(NPars);
+        std::string regularization_input = args.retrieve<std::string>("regularization");
+        std::ifstream ifs; ifs.open(regularization_input);
+        if (ifs) {
+            size_t count = 0;
+            while (true) {
+                std::string line;
+                std::getline(ifs, line);
+                if (! ifs.good()) break;
+                std::getline(ifs, line);
+                if (! ifs.good()) break;
+                double temp = std::stod(line);
+                assert(("Regularization strength and fitting parameter must share a same dimension", count < NPars));
+                regularization[count] = temp;
+                count++;
+            }
+            assert(("Regularization strength and fitting parameter must share a same dimension", count == NPars));
+        }
+        else {
+            regularization.fill_(std::stod(regularization_input));
+        }
+        // Get prior
         prior = Hdnet->elements->parameters()[0].new_empty(NPars);
         assert(("Priors must be provided for regularization", args.gotArgument("priors")));
         std::vector<std::string> priors_in = args.retrieve<std::vector<std::string>>("priors");
@@ -79,17 +102,18 @@ int main(size_t argc, const char ** argv) {
         for (size_t i = 0; i < Hdnet->NStates(); i++)
         for (size_t j = i; j < Hdnet->NStates(); j++) {
             std::ifstream ifs; ifs.open(priors_in[count_in]);
-                while (true) {
-                    std::string line;
-                    std::getline(ifs, line);
-                    if (! ifs.good()) break;
-                    std::getline(ifs, line);
-                    if (! ifs.good()) break;
-                    double temp = std::stod(line);
-                    assert(("Prior and fitting parameter must share a same dimension", count_prior < NPars));
-                    prior[count_prior] = temp;
-                    count_prior++;
-                }
+            if (ifs)
+            while (true) {
+                std::string line;
+                std::getline(ifs, line);
+                if (! ifs.good()) break;
+                std::getline(ifs, line);
+                if (! ifs.good()) break;
+                double temp = std::stod(line);
+                assert(("Prior and fitting parameter must share a same dimension", count_prior < NPars));
+                prior[count_prior] = temp;
+                count_prior++;
+            }
             ifs.close();
             count_in++;
         }

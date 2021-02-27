@@ -48,7 +48,7 @@ void set_unit() {
               << "maximum ||ground state energy gradient||_infinity = " << maxg << '\n'; 
     if (maxe > 0.0) unit = maxg / maxe;
     else            unit = 1.0; // fail safe
-    std::cout << "so set gradient / energy scaling to " << unit << '\n';
+    std::cout << "so set gradient / energy scaling to " << unit << "\n\n";
     unit_square = unit * unit;
 }
 
@@ -82,7 +82,7 @@ void set_count() {
     std::cout << "The data set corresponds to " << NEqs << " least square equations\n";
     NPars = 0;
     for (const auto & p : Hdnet->elements->parameters()) NPars += p.numel();
-    std::cout << "There are " << NPars << " parameters to train\n";
+    std::cout << "There are " << NPars << " parameters to train\n\n";
 }
 
 void set_parallelism() {

@@ -127,7 +127,7 @@ void regularized_Jacobian(double * JT, const double * c, const int32_t & M, cons
     }
     at::Tensor regularization_block = J.slice(0, M - N, M);
     regularization_block.fill_(0.0);
-    regularization_block.fill_diagonal_(regularization);
+    regularization_block.diagonal().copy_(regularization);
 }
 
 }

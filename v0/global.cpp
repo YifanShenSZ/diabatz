@@ -39,5 +39,4 @@ int2input(const std::vector<at::Tensor> & qs) {
     return std::make_tuple(xs, JTs);
 }
 
-double regularization;
-at::Tensor prior;
+at::Tensor regularization, prior;
