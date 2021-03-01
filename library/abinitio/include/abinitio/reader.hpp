@@ -36,43 +36,47 @@ class Reader {
 
         template <typename T> void load_geom(std::vector<T> & loaders, const std::string & data_directory) const {
             std::ifstream ifs; ifs.open(data_directory + "geom.data");
-                for (T & loader : loaders)
-                for (size_t i = 0; i < loader.geom.numel() / 3; i++) {
-                    std::string line; ifs >> line;
-                    double dbletemp;
-                    ifs >> dbletemp; loader.geom[3 * i    ] = dbletemp;
-                    ifs >> dbletemp; loader.geom[3 * i + 1] = dbletemp;
-                    ifs >> dbletemp; loader.geom[3 * i + 2] = dbletemp;
-                }
+            assert((data_directory + "geom.data" + " must be good", ifs));
+            for (T & loader : loaders)
+            for (size_t i = 0; i < loader.geom.numel() / 3; i++) {
+                std::string line; ifs >> line;
+                double dbletemp;
+                ifs >> dbletemp; loader.geom[3 * i    ] = dbletemp;
+                ifs >> dbletemp; loader.geom[3 * i + 1] = dbletemp;
+                ifs >> dbletemp; loader.geom[3 * i + 2] = dbletemp;
+            }
             ifs.close();
         }
         template <typename T> void load_energy(std::vector<T> & loaders, const std::string & data_directory) const {
             std::ifstream ifs; ifs.open(data_directory + "energy.data");
-                for (T & loader : loaders) {
-                    std::string line;
-                    std::getline(ifs, line);
-                    std::vector<std::string> strs = CL::utility::split(line);
-                    for (size_t j = 0; j < loader.energy.size(0); j++)
-                    loader.energy[j] = std::stod(strs[j]);
-                }
+            assert((data_directory + "energy.data" + " must be good", ifs));
+            for (T & loader : loaders) {
+                std::string line;
+                std::getline(ifs, line);
+                std::vector<std::string> strs = CL::utility::split(line);
+                for (size_t j = 0; j < loader.energy.size(0); j++)
+                loader.energy[j] = std::stod(strs[j]);
+            }
             ifs.close();
         }
         template <typename T> void load_dH(std::vector<T> & loaders, const std::string & data_directory) const {
             for (size_t istate = 0; istate < loaders[0].dH.size(0); istate++) {
                 std::ifstream ifs; ifs.open(data_directory + "cartgrad-" + std::to_string(istate+1) + ".data");
-                    for (T & loader : loaders)
-                    for (size_t j = 0; j < loader.geom.numel(); j++) {
-                        double dbletemp; ifs >> dbletemp;
-                        loader.dH[istate][istate][j] = dbletemp;
-                    }
+                assert((data_directory + "cartgrad-" + std::to_string(istate+1) + ".data" + " must be good", ifs));
+                for (T & loader : loaders)
+                for (size_t j = 0; j < loader.geom.numel(); j++) {
+                    double dbletemp; ifs >> dbletemp;
+                    loader.dH[istate][istate][j] = dbletemp;
+                }
                 ifs.close();
             for (size_t jstate = istate + 1; jstate < loaders[0].dH.size(1); jstate++) {
                 std::ifstream ifs; ifs.open(data_directory + "cartgrad-" + std::to_string(istate+1) + "-" + std::to_string(jstate+1) + ".data");
-                    for (T & loader : loaders)
-                    for (size_t j = 0; j < loader.geom.numel(); j++) {
-                        double dbletemp; ifs >> dbletemp;
-                        loader.dH[istate][jstate][j] = dbletemp;
-                    }
+                assert((data_directory + "cartgrad-" + std::to_string(istate+1) + "-" + std::to_string(jstate+1) + ".data" + " must be good", ifs));
+                for (T & loader : loaders)
+                for (size_t j = 0; j < loader.geom.numel(); j++) {
+                    double dbletemp; ifs >> dbletemp;
+                    loader.dH[istate][jstate][j] = dbletemp;
+                }
                 ifs.close();
             } }
         }

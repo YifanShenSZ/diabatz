@@ -20,6 +20,7 @@ symat::symat(const std::shared_ptr<symat> & source) {
 }
 symat::symat(const std::string & symat_in) {
     std::ifstream ifs; ifs.open(symat_in);
+    assert((symat_in + " must be good", ifs));
         std::string line;
         // number of electronic states
         std::getline(ifs, line);

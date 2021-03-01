@@ -14,19 +14,21 @@ Reader::Reader() {}
 // This constructor verifies if user inputs are directories (end with /),
 // otherwise files then read them for directories
 Reader::Reader(const std::vector<std::string> & user_list) {
+    assert(("User should specify files or directories", ! user_list.empty()));
     for (std::string item : user_list) {
         if (item.back() == '/') data_directories_.push_back(item);
         else {
             std::string prefix = CL::utility::GetPrefix(item);
             std::ifstream ifs; ifs.open(item);
-                while (true) {
-                    std::string directory;
-                    ifs >> directory;
-                    if (! ifs.good()) break;
-                    if (directory.back() != '/') directory += "/";
-                    directory = prefix + directory;
-                    data_directories_.push_back(directory);
-                }
+            assert((item + " must be good", ifs));
+            while (true) {
+                std::string directory;
+                ifs >> directory;
+                if (! ifs.good()) break;
+                if (directory.back() != '/') directory += "/";
+                directory = prefix + directory;
+                data_directories_.push_back(directory);
+            }
             ifs.close();
         }
     }

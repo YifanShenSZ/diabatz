@@ -22,18 +22,19 @@ class SAReader : public Reader {
 
         template <typename T> void load_CNPI2point(std::vector<T> & loaders, const std::string & data_directory) const {
             std::ifstream ifs; ifs.open(data_directory + "CNPI2point.txt");
-                for (auto & loader : loaders) {
-                    std::string line;
-                    std::getline(ifs, line);
-                    std::vector<std::string> strs = CL::utility::split(line);
-                    size_t NIrreds = (strs.size() - 1) / 2;
-                    loader.CNPI2point.resize(NIrreds);
-                    for (size_t i = 0; i < NIrreds; i++) {
-                        size_t CNPI  = std::stoul(strs[i]) - 1;
-                        size_t point = std::stoul(strs[NIrreds + 1 + i]) - 1;
-                        loader.CNPI2point[CNPI] = point;
-                    }
+            assert((data_directory + "CNPI2point.txt" + " must be good", ifs));
+            for (auto & loader : loaders) {
+                std::string line;
+                std::getline(ifs, line);
+                std::vector<std::string> strs = CL::utility::split(line);
+                size_t NIrreds = (strs.size() - 1) / 2;
+                loader.CNPI2point.resize(NIrreds);
+                for (size_t i = 0; i < NIrreds; i++) {
+                    size_t CNPI  = std::stoul(strs[i]) - 1;
+                    size_t point = std::stoul(strs[NIrreds + 1 + i]) - 1;
+                    loader.CNPI2point[CNPI] = point;
                 }
+            }
             ifs.close();
         }
 
