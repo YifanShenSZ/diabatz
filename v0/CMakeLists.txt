@@ -15,6 +15,10 @@ set(CMAKE_PREFIX_PATH ~/Software/Programming/libtorch-cuda10.1-1.7.1)
 find_package(Torch REQUIRED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
 
+# Foptim
+include_directories(~/Library/Foptim/include)
+link_directories(~/Library/Foptim/lib)
+
 # Cpp-Library
 include_directories(~/Library/Cpp-Library/include)
 link_directories(~/Library/Cpp-Library/lib)
@@ -35,10 +39,6 @@ link_directories(~/Software/Mine/diabatz/library/obnet/lib)
 include_directories(~/Software/Mine/diabatz/library/Hderiva/include)
 link_directories(~/Software/Mine/diabatz/library/Hderiva/lib)
 
-# Fopt
-include_directories(~/Software/Mine/diabatz/library/Fopt/include)
-link_directories(~/Software/Mine/diabatz/library/Fopt/lib)
-
 add_executable(v0.exe
     InputGenerator.cpp
     global.cpp
@@ -50,5 +50,8 @@ add_executable(v0.exe
 )
 
 target_link_libraries(v0.exe
-ifcore mkl_intel_lp64 mkl_intel_thread mkl_core
-Fopt Hderiva obnet abinitio tchem CL "${TORCH_LIBRARIES}")
+    Hderiva obnet abinitio
+    tchem CL
+    Foptim ifcore mkl_intel_lp64 mkl_intel_thread mkl_core
+    "${TORCH_LIBRARIES}"
+)

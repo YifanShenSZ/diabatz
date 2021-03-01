@@ -4,12 +4,12 @@
             "name": "Linux",
             "includePath": [
                 "~/Software/Programming/libtorch-cuda10.1-1.7.1/include/**",
+                "~/Library/Foptim/include",
                 "~/Library/Cpp-Library/include",
                 "~/Library/Torch-Chemistry/include",
                 "library/abinitio/include",
                 "library/obnet/include",
                 "library/Hderiva/include",
-                "library/Fopt/include",
                 "~/Software/Mine/diabatz/tools/v0/libHd/include"
             ],
             "cppStandard": "c++14"

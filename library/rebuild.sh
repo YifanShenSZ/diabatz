@@ -4,8 +4,3 @@ for directory in abinitio obnet Hderiva; do
     cmake --build .
     cd ../..
 done
-
-cd Fopt
-make
-make install
-cd ..

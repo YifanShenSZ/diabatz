@@ -2,7 +2,7 @@
 
 #include <CppLibrary/linalg.hpp>
 
-#include <Fopt/Fopt.hpp>
+#include <Foptim/trust_region.hpp>
 
 #include "global.hpp"
 
@@ -199,11 +199,11 @@ void optimize(const bool & regularized, const size_t & max_iteration) {
     delete [] r;
     // Run optimization
     if (regularized)
-    Fopt::trust_region(train::regularized_residue, train::regularized_Jacobian,
+    Foptim::trust_region(train::regularized_residue, train::regularized_Jacobian,
                        c, train::NEqs + train::NPars, train::NPars,
                        max_iteration);
     else
-    Fopt::trust_region(train::residue, train::Jacobian,
+    Foptim::trust_region(train::residue, train::Jacobian,
                        c, train::NEqs, train::NPars,
                        max_iteration);
     train::c2p(c, 0);
