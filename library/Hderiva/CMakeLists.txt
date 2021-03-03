@@ -5,18 +5,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 set(CMAKE_BUILD_TYPE Release)
 
-# libtorch
-set(CMAKE_PREFIX_PATH ~/Software/Programming/libtorch-cuda10.1-1.7.1)
-find_package(Torch REQUIRED)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
-
-# Cpp-Library
-include_directories(~/Library/Cpp-Library/include)
-link_directories(~/Library/Cpp-Library/lib)
-
 # Torch-Chemistry
-include_directories(~/Library/Torch-Chemistry/include)
-link_directories(~/Library/Torch-Chemistry/lib)
+set(CMAKE_PREFIX_PATH ~/Library/Torch-Chemistry)
+find_package(tchem REQUIRED)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TCHEM_CXX_FLAGS}")
 
 include_directories(include)
 
@@ -27,4 +19,4 @@ add_library(Hderiva STATIC
     source/composite.cpp
 )
 
-target_link_libraries(Hderiva tchem CL "${TORCH_LIBRARIES}")
+target_link_libraries(Hderiva "${tchem_LIBRARIES}")

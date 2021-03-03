@@ -12,7 +12,7 @@ namespace train {
 
 int64_t NStates;
 
-std::vector<std::shared_ptr<tchem::chem::Phaser>> phasers;
+std::vector<std::shared_ptr<tchem::Phaser>> phasers;
 
 // data set
 std::vector<std::shared_ptr<RegHam>> regset;
@@ -171,7 +171,7 @@ const std::shared_ptr<abinitio::DataSet<DegHam>> & degset) {
     train::phasers.resize(train::NStates + 1);
     // Make phasers for cases from 2 to NStates states
     for (size_t i = 2; i < train::phasers.size(); i++)
-    train::phasers[i] = std::make_shared<tchem::chem::Phaser>(i);
+    train::phasers[i] = std::make_shared<tchem::Phaser>(i);
 
     train::regset = regset->examples();
     train::degset = degset->examples();

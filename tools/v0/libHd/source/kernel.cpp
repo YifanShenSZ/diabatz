@@ -16,6 +16,10 @@ const std::vector<std::string> & input_layers) {
     Hdnet_->eval();
     input_generator_ = std::make_shared<InputGenerator>(Hdnet_->NStates(), input_layers, sasicset_->NSASICs());
 }
+kernel::kernel(const std::vector<std::string> & args) : kernel(
+args[0], args[1], args[2],
+args[3], args[4],
+std::vector<std::string>(args.begin() + 5, args.end())) {}
 kernel::~kernel() {}
 
 size_t kernel::NStates() const {return Hdnet_->NStates();}
@@ -58,13 +62,14 @@ std::tuple<at::Tensor, at::Tensor> kernel::compute_Hd_dHd(const at::Tensor & r) 
     size_t NStates = Hdnet_->NStates();
     CL::utility::matrix<at::Tensor> xs(NStates), JxqTs(NStates);
     std::tie(xs, JxqTs) = input_generator_->compute_x_JT(qs);
-    // input layer -> Hd and ▽Hd
+    // input layer -> Hd and SASIC ▽Hd
     for (size_t i = 0; i < NStates; i++)
     for (size_t j = i; j < NStates; j++)
     xs[i][j].set_requires_grad(true);
     at::Tensor Hd = (*Hdnet_)(xs);
     at::Tensor DqHd = Hderiva::DxHd(Hd, xs, JxqTs);
     Hd.detach_();
+    // SASIC ▽Hd -> Cartesian coordinate ▽Hd
     at::Tensor DrHd = Hd.new_empty({Hd.size(0), Hd.size(1), r.size(0)});
     for (size_t i = 0; i < NStates; i++)
     for (size_t j = i; j < NStates; j++)

@@ -21,8 +21,9 @@ class kernel {
     public:
         kernel();
         kernel(const std::string & format, const std::string & IC, const std::string & SAS,
-                 const std::string & net, const std::string & checkpoint,
-                 const std::vector<std::string> & input_layers);
+               const std::string & net, const std::string & checkpoint,
+               const std::vector<std::string> & input_layers);
+        kernel(const std::vector<std::string> & args);
         ~kernel();
 
         size_t NStates() const;

@@ -11,8 +11,8 @@ find_package(Torch REQUIRED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
 
 # Cpp-Library
-include_directories(~/Library/Cpp-Library/include)
-link_directories(~/Library/Cpp-Library/lib)
+set(CMAKE_PREFIX_PATH ~/Library/Cpp-Library)
+find_package(CL REQUIRED)
 
 include_directories(include)
 
