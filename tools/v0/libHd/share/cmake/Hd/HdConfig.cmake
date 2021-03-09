@@ -8,6 +8,7 @@
 #   Hd_FOUND        -- True if the system has Hd
 #   Hd_INCLUDE_DIRS -- The include directories for Hd
 #   Hd_LIBRARIES    -- Libraries to link against
+#   Hd_CXX_FLAGS    -- Additional (required) compiler flags
 #
 # and the following imported targets:
 #
@@ -26,20 +27,26 @@ add_library(Hd STATIC IMPORTED)
 set(Hd_LIBRARIES Hd)
 
 # dependency 1: Torch-Chemistry
-find_package(tchem REQUIRED PATHS ~/Library/Torch-Chemistry)
-list(APPEND Hd_INCLUDE_DIRS ${tchem_INCLUDE_DIRS})
-list(APPEND Hd_LIBRARIES ${tchem_LIBRARIES})
-set(Hd_CXX_FLAGS "${tchem_CXX_FLAGS}")
+if(NOT tchem_FOUND)
+    find_package(tchem REQUIRED PATHS ~/Library/Torch-Chemistry)
+    list(APPEND Hd_INCLUDE_DIRS ${tchem_INCLUDE_DIRS})
+    list(APPEND Hd_LIBRARIES ${tchem_LIBRARIES})
+    set(Hd_CXX_FLAGS "${tchem_CXX_FLAGS}")
+endif()
 
 # dependency 2: obnet
-find_package(obnet REQUIRED PATHS ~/Software/Mine/diabatz/library/obnet)
-list(APPEND Hd_INCLUDE_DIRS ${obnet_INCLUDE_DIRS})
-list(APPEND Hd_LIBRARIES ${obnet_LIBRARIES})
+if(NOT obnet_FOUND)
+    find_package(obnet REQUIRED PATHS ~/Software/Mine/diabatz/library/obnet)
+    list(APPEND Hd_INCLUDE_DIRS ${obnet_INCLUDE_DIRS})
+    list(APPEND Hd_LIBRARIES ${obnet_LIBRARIES})
+endif()
 
 # dependency 3: Hderiva
-find_package(Hderiva REQUIRED PATHS ~/Software/Mine/diabatz/library/Hderiva)
-list(APPEND Hd_INCLUDE_DIRS ${Hderiva_INCLUDE_DIRS})
-list(APPEND Hd_LIBRARIES ${Hderiva_LIBRARIES})
+if(NOT Hderiva_FOUND)
+    find_package(Hderiva REQUIRED PATHS ~/Software/Mine/diabatz/library/Hderiva)
+    list(APPEND Hd_INCLUDE_DIRS ${Hderiva_INCLUDE_DIRS})
+    list(APPEND Hd_LIBRARIES ${Hderiva_LIBRARIES})
+endif()
 
 # import location
 find_library(Hd_LIBRARY Hd PATHS "${HdROOT}/lib")
