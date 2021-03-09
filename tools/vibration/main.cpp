@@ -12,7 +12,7 @@
 argparse::ArgumentParser parse_args(const size_t & argc, const char ** & argv) {
     CL::utility::echo_command(argc, argv, std::cout);
     std::cout << '\n';
-    argparse::ArgumentParser parser("Evaluation for diabatz version 0");
+    argparse::ArgumentParser parser("Vibrational analysis for diabatz");
 
     // required arguments
     parser.add_argument("-f","--format",    1, false, "internal coordinate definition format (Columbus7, default)");
@@ -50,7 +50,7 @@ at::Tensor compute_ddHa(const at::Tensor & r, const Hd::kernel & Hdkernel) {
 }
 
 int main(size_t argc, const char ** argv) {
-    std::cout << "Evaluation for diabatz version 0\n"
+    std::cout << "Vibrational analysis for diabatz\n"
               << "Yifan Shen 2021\n\n";
     argparse::ArgumentParser args = parse_args(argc, argv);
     CL::utility::show_time(std::cout);
@@ -102,7 +102,14 @@ int main(size_t argc, const char ** argv) {
                            freq.data_ptr<double>(), intmodeT.data_ptr<double>(), Linv.data_ptr<double>(),
                            cartmodeT.data_ptr<double>(), intdim, NAtoms);
 
+    r /= 1.8897261339212517;
     freq /= 4.556335830019422e-6;
+    // Wilson GF method normalizes Cartesian coordinate normal mode by Hessian metric
+    // However, this may not be an appropriate magnitude to visualize
+    // Here we use infinity-norm to normalize Cartesian coordinate normal mode
+    // Actually, normalize to 9.99 since the visualization file format is %5.2f
+    for (size_t i = 0; i < intdim; i++)
+    cartmodeT[i] *= 9.99 / at::amax(at::abs(cartmodeT[i]));
     FL::chem::Avogadro_Vibration(NAtoms, symbols, r.data_ptr<double>(), intdim,
                                  freq.data_ptr<double>(), cartmodeT.data_ptr<double>(),
                                  geom_file + ".log");
