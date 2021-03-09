@@ -2,8 +2,8 @@
 
 InputGenerator::InputGenerator() {}
 InputGenerator::InputGenerator(const size_t & NStates, const std::vector<std::string> & sapoly_files, const std::vector<size_t> & dimensions) {
-    assert(("Number of input files must equal to the number of upper triangle elements",
-            sapoly_files.size() == (NStates + 1) * NStates / 2));
+    if (sapoly_files.size() != (NStates + 1) * NStates / 2) throw std::invalid_argument(
+    "InputGenerator::InputGenerator: The number of input files must equal to the number of upper triangle elements");
     polynomials_.resize(NStates);
     size_t count = 0;
     for (size_t i = 0; i < NStates; i++)

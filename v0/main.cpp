@@ -49,8 +49,8 @@ int main(size_t argc, const char ** argv) {
     if (args.gotArgument("checkpoint")) torch::load(Hdnet->elements, args.retrieve<std::string>("checkpoint"));
 
     std::vector<std::string> input_layers = args.retrieve<std::vector<std::string>>("input_layers");
-    assert(("The number of input layers must match the number of Hd upper-triangle elements",
-            input_layers.size() == (Hdnet->NStates() + 1) * Hdnet->NStates() / 2));
+    if (input_layers.size() != (Hdnet->NStates() + 1) * Hdnet->NStates() / 2) throw std::invalid_argument(
+    "The number of input layers must match the number of Hd upper-triangle elements");
     input_generator = std::make_shared<InputGenerator>(Hdnet->NStates(), input_layers, sasicset->NSASICs());
 
     std::vector<std::string> data = args.retrieve<std::vector<std::string>>("data");
@@ -74,7 +74,7 @@ int main(size_t argc, const char ** argv) {
         regularization = Hdnet->elements->parameters()[0].new_empty(NPars);
         std::string regularization_input = args.retrieve<std::string>("regularization");
         std::ifstream ifs; ifs.open(regularization_input);
-        if (ifs) {
+        if (ifs.good()) {
             size_t count = 0;
             while (true) {
                 std::string line;
@@ -83,26 +83,29 @@ int main(size_t argc, const char ** argv) {
                 std::getline(ifs, line);
                 if (! ifs.good()) break;
                 double temp = std::stod(line);
-                assert(("Regularization strength and fitting parameter must share a same dimension", count < NPars));
+                if (count >= NPars) throw std::invalid_argument(
+                "Regularization strength and fitting parameter must share a same dimension");
                 regularization[count] = temp;
                 count++;
             }
-            assert(("Regularization strength and fitting parameter must share a same dimension", count == NPars));
+            if (count != NPars) throw std::invalid_argument(
+            "Regularization strength and fitting parameter must share a same dimension");
         }
         else {
             regularization.fill_(std::stod(regularization_input));
         }
         // Get prior
         prior = Hdnet->elements->parameters()[0].new_empty(NPars);
-        assert(("Priors must be provided for regularization", args.gotArgument("priors")));
+        if (! args.gotArgument("priors")) throw std::invalid_argument(
+        "Priors must be provided for regularization");
         std::vector<std::string> priors_in = args.retrieve<std::vector<std::string>>("priors");
-        assert(("The number of priors must match the number of Hd upper-triangle elements",
-                priors_in.size() == (Hdnet->NStates() + 1) * Hdnet->NStates() / 2));
+        if (priors_in.size() != (Hdnet->NStates() + 1) * Hdnet->NStates() / 2) throw std::invalid_argument(
+        "The number of priors must match the number of Hd upper-triangle elements");
         size_t count_prior = 0, count_in = 0;
         for (size_t i = 0; i < Hdnet->NStates(); i++)
         for (size_t j = i; j < Hdnet->NStates(); j++) {
             std::ifstream ifs; ifs.open(priors_in[count_in]);
-            if (ifs)
+            if (! ifs.good()) throw CL::utility::file_error(priors_in[count_in]);
             while (true) {
                 std::string line;
                 std::getline(ifs, line);
@@ -110,14 +113,16 @@ int main(size_t argc, const char ** argv) {
                 std::getline(ifs, line);
                 if (! ifs.good()) break;
                 double temp = std::stod(line);
-                assert(("Prior and fitting parameter must share a same dimension", count_prior < NPars));
+                if (count_prior >= NPars) throw std::invalid_argument(
+                "Prior and fitting parameter must share a same dimension");
                 prior[count_prior] = temp;
                 count_prior++;
             }
             ifs.close();
             count_in++;
         }
-        assert(("Prior and fitting parameter must share a same dimension", count_prior == NPars));
+        if (count_prior != NPars) throw std::invalid_argument(
+        "Prior and fitting parameter must share a same dimension");
     }
 
     size_t max_iteration = 100;

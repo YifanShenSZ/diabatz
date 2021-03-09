@@ -65,9 +65,9 @@ void set_count() {
         NEqs += SAdH[i][j].size(0);
     }
     for (const auto & data : degset) {
-        assert(("Data must share a same number of electronic states with "
-                "the model to define a comparable composite representation",
-                NStates = data->NStates()));
+        if (NStates != data->NStates()) throw std::invalid_argument(
+        "Degenerate data must share a same number of electronic states with "
+        "the model to define a comparable composite representation");
         // Hc least square equations
         CL::utility::matrix<size_t> irreds = data->irreds();
         for (size_t i = 0; i < NStates; i++)
@@ -169,8 +169,7 @@ const std::shared_ptr<abinitio::DataSet<DegHam>> & degset) {
     train::NStates = Hdnet->NStates();
 
     train::phasers.resize(train::NStates + 1);
-    // Make phasers for cases from 2 to NStates states
-    for (size_t i = 2; i < train::phasers.size(); i++)
+    for (size_t i = 0; i < train::phasers.size(); i++)
     train::phasers[i] = std::make_shared<tchem::Phaser>(i);
 
     train::regset = regset->examples();

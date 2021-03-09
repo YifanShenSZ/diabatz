@@ -18,7 +18,7 @@ at::Tensor & J, size_t & start) {
     at::Tensor     Hd = Hdnets[thread]->forward(xs);
     at::Tensor   DqHd = Hderiva::DxHd(Hd, xs, data->JxqTs(), true);
     at::Tensor   DcHd = Hderiva::DcHd(Hd, Hdnets[thread]->elements->parameters());
-    at::Tensor DcDqHd = Hderiva::DcDxHd(DqHd,  Hdnets[thread]->elements->parameters());
+    at::Tensor DcDqHd = Hderiva::DcDxHd(DqHd, Hdnets[thread]->elements->parameters());
     // Stop autograd tracking
       Hd.detach_();
     DqHd.detach_();
@@ -64,7 +64,7 @@ at::Tensor & J, size_t & start) {
     at::Tensor     Hd = Hdnets[thread]->forward(xs);
     at::Tensor   DqHd = Hderiva::DxHd(Hd, xs, data->JxqTs(), true);
     at::Tensor   DcHd = Hderiva::DcHd(Hd, Hdnets[thread]->elements->parameters());
-    at::Tensor DcDqHd = Hderiva::DcDxHd(DqHd,  Hdnets[thread]->elements->parameters());
+    at::Tensor DcDqHd = Hderiva::DcDxHd(DqHd, Hdnets[thread]->elements->parameters());
     // Stop autograd tracking
       Hd.detach_();
     DqHd.detach_();

@@ -21,8 +21,9 @@ class SAReader : public Reader {
         ~SAReader();
 
         template <typename T> void load_CNPI2point(std::vector<T> & loaders, const std::string & data_directory) const {
-            std::ifstream ifs; ifs.open(data_directory + "CNPI2point.txt");
-            assert((data_directory + "CNPI2point.txt" + " must be good", ifs));
+            std::string file = data_directory + "CNPI2point.txt";
+            std::ifstream ifs; ifs.open(file);
+            if (! ifs.good()) throw CL::utility::file_error(file);
             for (auto & loader : loaders) {
                 std::string line;
                 std::getline(ifs, line);
