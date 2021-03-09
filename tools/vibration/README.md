@@ -1,0 +1,1 @@
+-DCMAKE_PREFIX_PATH=~/Software/Mine/diabatz/tools/v0/libHd

@@ -1,0 +1,3 @@
+/home/yshen/Software/Mine/diabatz/tools/critics/v0/CMakeFiles/rebuild_cache.dir
+/home/yshen/Software/Mine/diabatz/tools/critics/v0/CMakeFiles/edit_cache.dir
+/home/yshen/Software/Mine/diabatz/tools/critics/v0/CMakeFiles/critics.exe.dir
