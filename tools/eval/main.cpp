@@ -11,13 +11,8 @@ argparse::ArgumentParser parse_args(const size_t & argc, const char ** & argv) {
     argparse::ArgumentParser parser("Evaluation for diabatz version 0");
 
     // required arguments
-    parser.add_argument("-f","--format",         1, false, "internal coordinate definition format (Columbus7, default)");
-    parser.add_argument("-i","--IC",             1, false, "internal coordinate definition file");
-    parser.add_argument("-s","--SAS",            1, false, "symmetry adaptation and scale definition file");
-    parser.add_argument("-n","--net",            1, false, "diabatic Hamiltonian network definition file");
-    parser.add_argument("-c","--checkpoint",     1, false, "a trained Hd parameter to continue with");
-    parser.add_argument("-l","--input_layers", '+', false, "network input layer definition files");
-    parser.add_argument("-g","--geometry",       1, false, "the geometry to calculate diabatz");
+    parser.add_argument("-d","--diabatz", '+', false, "diabatz definition files");
+    parser.add_argument("-g","--geometry",  1, false, "the geometry to calculate diabatz");
 
     // optional argument
     parser.add_argument("-a","--adiabatz");
@@ -41,14 +36,8 @@ int main(size_t argc, const char ** argv) {
     CL::utility::show_time(std::cout);
     std::cout << '\n';
 
-    std::string format = args.retrieve<std::string>("format");
-    std::string IC     = args.retrieve<std::string>("IC");
-    std::string SAS    = args.retrieve<std::string>("SAS");
-    std::string net_in = args.retrieve<std::string>("net");
-    std::string chk    = args.retrieve<std::string>("checkpoint");
-    std::vector<std::string> input_layers = args.retrieve<std::vector<std::string>>("input_layers");
-    
-    Hd::kernel Hdkernel(format, IC, SAS, net_in, chk, input_layers);
+    std::vector<std::string> diabatz_inputs = args.retrieve<std::vector<std::string>>("diabatz");
+    Hd::kernel Hdkernel(diabatz_inputs);
 
     CL::chem::xyz<double> geom(args.retrieve<std::string>("geometry"), true);
     std::vector<double> coords = geom.coords();
