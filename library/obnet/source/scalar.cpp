@@ -46,8 +46,11 @@ at::Tensor scalar::forward(const at::Tensor & x) {
     if (x.sizes().size() != 1) throw std::invalid_argument(
     "obnet::scalar::forward: x must be a vector");
     at::Tensor y = x;
-    for (auto & layer : (*fcs.get()))
-    y = layer->as<torch::nn::Linear>()->forward(y);
+    for (size_t i = 0; i < fcs->size() - 1; i++) {
+        y = fcs[i]->as<torch::nn::Linear>()->forward(y);
+        y = torch::tanh(y);
+    }
+    y = fcs[fcs->size() - 1]->as<torch::nn::Linear>()->forward(y);
     return y[0];
 }
 at::Tensor scalar::operator()(const at::Tensor & x) {return forward(x);}

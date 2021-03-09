@@ -10,6 +10,7 @@
                 "library/abinitio/include",
                 "library/obnet/include",
                 "library/Hderiva/include",
+                "~/Library/Fortran-Library/include",
                 "~/Software/Mine/diabatz/tools/v0/libHd/include"
             ],
             "cppStandard": "c++14"

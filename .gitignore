@@ -30,11 +30,15 @@
 __pycache__/
 
 # Executables
-build/
-lib/
 *.exe
 *.out
 *.app
+build/
+lib/
+tools/RMSD/v0/
+tools/eval/v0/
+tools/critics/v0/
+tools/vibration/v0/
 
 # Back up
 BAK/
