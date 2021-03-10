@@ -108,11 +108,14 @@ int main(size_t argc, const char ** argv) {
     // However, this may not be an appropriate magnitude to visualize
     // Here we use infinity-norm to normalize Cartesian coordinate normal mode
     // Actually, normalize to 9.99 since the visualization file format is %5.2f
-    for (size_t i = 0; i < intdim; i++)
+    for (int32_t i = 0; i < intdim; i++)
     cartmodeT[i] *= 9.99 / at::amax(at::abs(cartmodeT[i]));
     FL::chem::Avogadro_Vibration(NAtoms, symbols, r.data_ptr<double>(), intdim,
                                  freq.data_ptr<double>(), cartmodeT.data_ptr<double>(),
                                  geom_file + ".log");
+    std::ofstream ofs; ofs.open("frequency.txt");
+    for (int32_t i = 0; i < intdim; i++) ofs << freq[i].item<double>() << '\n';
+    ofs.close();
 
     std::cout << '\n';
     CL::utility::show_time(std::cout);

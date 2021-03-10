@@ -70,7 +70,6 @@ int main(size_t argc, const char ** argv) {
     std::string net_in = args.retrieve<std::string>("net");
     std::string chk    = args.retrieve<std::string>("checkpoint");
     std::vector<std::string> input_layers = args.retrieve<std::vector<std::string>>("input_layers");
-
     Hd::kernel Hdkernel(format, IC, SAS, net_in, chk, input_layers);
 
     CL::chem::xyz<double> mex("mex.xyz", true);
