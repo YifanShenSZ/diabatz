@@ -1,0 +1,11 @@
+Generate *vibronics* input
+Yifan Shen 2021
+
+Echo of user command line input:
+../build/vibronics.exe -f default -i vibronics.IntCoordDef -m mass.txt -d default Hd.IntCoordDef SAS.in Hd.in Hd.net 11.in 12.in 22.in
+
+Thu Mar 11 14:21:49 2021
+
+
+Thu Mar 11 14:21:56 2021
+Mission success
