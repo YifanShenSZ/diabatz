@@ -51,7 +51,7 @@ int main(size_t argc, const char ** argv) {
     std::vector<std::string> input_layers = args.retrieve<std::vector<std::string>>("input_layers");
     if (input_layers.size() != (Hdnet->NStates() + 1) * Hdnet->NStates() / 2) throw std::invalid_argument(
     "The number of input layers must match the number of Hd upper-triangle elements");
-    input_generator = std::make_shared<InputGenerator>(Hdnet->NStates(), input_layers, sasicset->NSASICs());
+    input_generator = std::make_shared<InputGenerator>(Hdnet->NStates(), Hdnet->irreds(), input_layers, sasicset->NSASICs());
 
     std::vector<std::string> data = args.retrieve<std::vector<std::string>>("data");
     double zero_point = 0.0;

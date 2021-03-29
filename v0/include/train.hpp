@@ -2,7 +2,7 @@
 #define train_hpp
 
 #include <tchem/linalg.hpp>
-#include <tchem/phaser.hpp>
+#include <tchem/chemistry.hpp>
 
 #include <obnet/symat.hpp>
 
@@ -12,7 +12,7 @@ namespace train {
 
 extern int64_t NStates;
 
-extern std::vector<std::shared_ptr<tchem::Phaser>> phasers;
+extern std::vector<std::shared_ptr<tchem::chem::Phaser>> phasers;
 
 // data set
 extern std::vector<std::shared_ptr<RegHam>> regset;

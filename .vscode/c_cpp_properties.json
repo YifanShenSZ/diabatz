@@ -11,6 +11,7 @@
                 "library/obnet/include",
                 "library/Hderiva/include",
                 "~/Library/Fortran-Library/include",
+                "v0/include",
                 "~/Software/Mine/diabatz/tools/v0/libHd/include"
             ],
             "cppStandard": "c++14"

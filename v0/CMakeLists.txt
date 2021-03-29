@@ -31,14 +31,15 @@ find_package(obnet REQUIRED)
 set(CMAKE_PREFIX_PATH ~/Software/Mine/diabatz/library/Hderiva)
 find_package(Hderiva REQUIRED)
 
+include_directories(include)
 add_executable(v0.exe
-    InputGenerator.cpp
-    global.cpp
-    data.cpp
-    residue.cpp
-    Jacobian.cpp
-    train.cpp
-    main.cpp
+    source/InputGenerator.cpp
+    source/global.cpp
+    source/data.cpp
+    source/residue.cpp
+    source/Jacobian.cpp
+    source/train.cpp
+    source/main.cpp
 )
 
 target_link_libraries(v0.exe
