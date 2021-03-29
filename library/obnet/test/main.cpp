@@ -17,7 +17,7 @@ int main() {
     Hdnet->to(torch::kFloat64);
 
     std::vector<std::string> sapoly_files = {"11.in", "12.in", "22.in"};
-    input_generator = std::make_shared<InputGenerator>(Hdnet->NStates(), sapoly_files, sasicset->NSASICs());
+    input_generator = std::make_shared<InputGenerator>(Hdnet->NStates(), Hdnet->irreds(), sapoly_files, sasicset->NSASICs());
 
     CL::chem::xyz<double> geom("min-C1.xyz", true);
     std::vector<double> coords = geom.coords();

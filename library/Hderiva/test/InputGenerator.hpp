@@ -13,7 +13,7 @@ class InputGenerator {
         CL::utility::matrix<tchem::polynomial::SAPSet> polynomials_;
     public:
         InputGenerator();
-        InputGenerator(const size_t & NStates, const std::vector<std::string> & sapoly_files, const std::vector<size_t> & dimensions);
+        InputGenerator(const size_t & NStates, const CL::utility::matrix<size_t> & irreds, const std::vector<std::string> & sapoly_files, const std::vector<size_t> & dimensions);
         ~InputGenerator();
 
         CL::utility::matrix<tchem::polynomial::SAPSet> polynomials() const;

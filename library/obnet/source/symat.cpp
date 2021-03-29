@@ -56,8 +56,8 @@ symat::symat(const std::string & symat_in) {
 }
 symat::~symat() {}
 
-int64_t symat::NStates() const {return NStates_;}
-CL::utility::matrix<size_t> symat::irreds() const {return irreds_;}
+const int64_t & symat::NStates() const {return NStates_;}
+const CL::utility::matrix<size_t> & symat::irreds() const {return irreds_;}
 
 CL::utility::matrix<std::vector<at::Tensor>> symat::parameters() {
     CL::utility::matrix<std::vector<at::Tensor>> ps(NStates_);

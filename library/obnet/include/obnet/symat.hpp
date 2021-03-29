@@ -34,8 +34,8 @@ struct symat : torch::nn::Module {
         symat(const std::string & symat_in);
         ~symat();
 
-        int64_t NStates() const;
-        CL::utility::matrix<size_t> irreds() const;
+        const int64_t & NStates() const;
+        const CL::utility::matrix<size_t> & irreds() const;
 
         CL::utility::matrix<std::vector<at::Tensor>> parameters();
 

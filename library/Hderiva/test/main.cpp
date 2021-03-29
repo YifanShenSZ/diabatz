@@ -13,7 +13,7 @@ int main(const size_t & argc, const char ** & argv) {
     Hdnet->to(torch::kFloat64);
 
     std::vector<std::string> sapoly_files = {"11.in", "12.in", "22.in"};
-    input_generator = std::make_shared<InputGenerator>(Hdnet->NStates(), sapoly_files, sasicset->NSASICs());
+    input_generator = std::make_shared<InputGenerator>(Hdnet->NStates(), Hdnet->irreds(), sapoly_files, sasicset->NSASICs());
 
     std::vector<std::string> data = {"min-C1/"};
     std::shared_ptr<abinitio::DataSet<RegHam>> regset;
@@ -45,13 +45,13 @@ int main(const size_t & argc, const char ** & argv) {
     for (size_t i = 0; i < Hdnet->NStates(); i++)
     for (size_t j = i; j < Hdnet->NStates(); j++)
     dxHd_A[i][j] = JxqTs[i][j].mv(cs[i][j]);
-    std::cout << "\nd / dx * Hd: "
-              << (dxHd - dxHd_A).norm().item<double>() << '\n';
+    double difference = 0.0;
+    for (size_t i = 0; i < Hdnet->NStates(); i++)
+    for (size_t j = i; j < Hdnet->NStates(); j++)
+    difference += (dxHd[i][j] - dxHd_A[i][j]).pow(2).sum().item<double>();
+    std::cout << "\nd / dx * Hd: " << sqrt(difference) << '\n';
 
     at::Tensor dcHd = Hderiva::DcHd(Hd, Hdnet->elements->parameters());
-    for (size_t i = 0    ; i < Hdnet->NStates(); i++)
-    for (size_t j = i + 1; j < Hdnet->NStates(); j++)
-    dcHd[j][i] = 0.0;
     at::Tensor dcHd_A = dcHd.new_zeros(dcHd.sizes());
     size_t start = 0;
     for (size_t i = 0; i < Hdnet->NStates(); i++) {
@@ -65,13 +65,13 @@ int main(const size_t & argc, const char ** & argv) {
             start = stop;
         }
     }
-    std::cout << "\nd / dc * Hd: "
-              << (dcHd - dcHd_A).norm().item<double>() << '\n';
+    difference = 0.0;
+    for (size_t i = 0; i < Hdnet->NStates(); i++)
+    for (size_t j = i; j < Hdnet->NStates(); j++)
+    difference += (dcHd[i][j] - dcHd_A[i][j]).pow(2).sum().item<double>();
+    std::cout << "\nd / dc * Hd: " << sqrt(difference) << '\n';
 
     at::Tensor dcdxHd = Hderiva::DcDxHd(dxHd, Hdnet->elements->parameters());
-    for (size_t i = 0    ; i < Hdnet->NStates(); i++)
-    for (size_t j = i + 1; j < Hdnet->NStates(); j++)
-    dcdxHd[j][i] = 0.0;
     at::Tensor dcdxHd_A = dcdxHd.new_zeros(dcdxHd.sizes());
     start = 0;
     for (size_t i = 0; i < Hdnet->NStates(); i++) {
@@ -85,6 +85,9 @@ int main(const size_t & argc, const char ** & argv) {
             start = stop;
         }
     }
-    std::cout << "\nd / dc * d / dx * Hd: "
-              << (dcdxHd - dcdxHd_A).norm().item<double>() << '\n';
+    difference = 0.0;
+    for (size_t i = 0; i < Hdnet->NStates(); i++)
+    for (size_t j = i; j < Hdnet->NStates(); j++)
+    difference += (dcdxHd[i][j] - dcdxHd_A[i][j]).pow(2).sum().item<double>();
+    std::cout << "\nd / dc * d / dx * Hd: " << sqrt(difference) << '\n';
 }
