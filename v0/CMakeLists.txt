@@ -32,6 +32,7 @@ set(CMAKE_PREFIX_PATH ~/Software/Mine/diabatz/library/Hderiva)
 find_package(Hderiva REQUIRED)
 
 include_directories(include)
+
 add_executable(v0.exe
     source/InputGenerator.cpp
     source/global.cpp
@@ -43,6 +44,6 @@ add_executable(v0.exe
 )
 
 target_link_libraries(v0.exe
-    Hderiva obnet abinitio
-    "${tchem_LIBRARIES}" "${Foptim_LIBRARIES}"
+    ${Hderiva_LIBRARIES} ${obnet_LIBRARIES} ${abinitio_LIBRARIES}
+    ${tchem_LIBRARIES} ${Foptim_LIBRARIES}
 )

@@ -6,32 +6,24 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 set(CMAKE_BUILD_TYPE Release)
 
+# OpenMP
 find_package(OpenMP REQUIRED)
-
-# libtorch
-set(CMAKE_PREFIX_PATH ~/Software/Programming/libtorch-cuda10.1-1.7.1)
-find_package(Torch REQUIRED)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
-
-# Cpp-Library
-include_directories(~/Library/Cpp-Library/include)
-link_directories(~/Library/Cpp-Library/lib)
-
-# Torch-Chemistry
-include_directories(~/Library/Torch-Chemistry/include)
-link_directories(~/Library/Torch-Chemistry/lib)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 
 # abinitio
-include_directories(~/Software/Mine/diabatz/library/abinitio/include)
-link_directories(~/Software/Mine/diabatz/library/abinitio/lib)
+set(CMAKE_PREFIX_PATH ~/Software/Mine/diabatz/library/abinitio)
+find_package(abinitio REQUIRED)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${abinitio_CXX_FLAGS}")
 
 # obnet
-include_directories(~/Software/Mine/diabatz/library/obnet/include)
-link_directories(~/Software/Mine/diabatz/library/obnet/lib)
+set(CMAKE_PREFIX_PATH ~/Software/Mine/diabatz/library/obnet)
+find_package(obnet REQUIRED)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${obnet_CXX_FLAGS}")
 
 # Hderiva
-include_directories(~/Software/Mine/diabatz/library/Hderiva/include)
-link_directories(~/Software/Mine/diabatz/library/Hderiva/lib)
+set(CMAKE_PREFIX_PATH ~/Software/Mine/diabatz/library/Hderiva)
+find_package(Hderiva REQUIRED)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Hderiva_CXX_FLAGS}")
 
 add_executable(test.exe
     InputGenerator.cpp
@@ -40,4 +32,4 @@ add_executable(test.exe
     main.cpp
 )
 
-target_link_libraries(test.exe Hderiva obnet abinitio tchem CL "${TORCH_LIBRARIES}" OpenMP::OpenMP_CXX)
+target_link_libraries(test.exe ${abinitio_LIBRARIES} ${obnet_LIBRARIES} ${Hderiva_LIBRARIES})

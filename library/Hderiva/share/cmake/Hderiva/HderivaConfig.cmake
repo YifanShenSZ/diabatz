@@ -25,6 +25,14 @@ set(Hderiva_INCLUDE_DIRS ${HderivaROOT}/include)
 add_library(Hderiva STATIC IMPORTED)
 set(Hderiva_LIBRARIES Hderiva)
 
+# dependency: Torch-Chemistry
+if(NOT tchem_FOUND)
+    find_package(tchem REQUIRED PATHS ~/Library/Torch-Chemistry)
+    list(APPEND Hderiva_INCLUDE_DIRS ${tchem_INCLUDE_DIRS})
+    list(APPEND Hderiva_LIBRARIES ${tchem_LIBRARIES})
+    set(Hderiva_CXX_FLAGS "${tchem_CXX_FLAGS}")
+endif()
+
 # import location
 find_library(Hderiva_LIBRARY Hderiva PATHS "${HderivaROOT}/lib")
 set_target_properties(Hderiva PROPERTIES

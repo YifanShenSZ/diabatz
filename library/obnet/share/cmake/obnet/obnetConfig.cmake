@@ -1,4 +1,4 @@
-# Findobnet
+# Find obnet
 # -------
 #
 # Finds obnet
@@ -24,6 +24,21 @@ set(obnet_INCLUDE_DIRS ${obnetROOT}/include)
 # library
 add_library(obnet STATIC IMPORTED)
 set(obnet_LIBRARIES obnet)
+
+# dependency 1: libtorch
+if(NOT TORCH_FOUND)
+    find_package(Torch REQUIRED PATHS ~/Software/Programming/libtorch-cuda10.1-1.7.1) 
+    list(APPEND obnet_INCLUDE_DIRS ${TORCH_INCLUDE_DIRS})
+    list(APPEND obnet_LIBRARIES ${TORCH_LIBRARIES})
+    set(obnet_CXX_FLAGS "${TORCH_CXX_FLAGS}")
+endif()
+
+# dependency 2: Cpp-Library
+if(NOT CL_FOUND)
+    find_package(CL REQUIRED PATHS ~/Library/Cpp-Library)
+    list(APPEND obnet_INCLUDE_DIRS ${CL_INCLUDE_DIRS})
+    list(APPEND obnet_LIBRARIES ${CL_LIBRARIES})
+endif()
 
 # import location
 find_library(obnet_LIBRARY obnet PATHS "${obnetROOT}/lib")

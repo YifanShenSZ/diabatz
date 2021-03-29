@@ -1,4 +1,4 @@
-# Findabinitio
+# Find abinitio
 # -------
 #
 # Finds abinitio
@@ -24,6 +24,14 @@ set(abinitio_INCLUDE_DIRS ${abinitioROOT}/include)
 # library
 add_library(abinitio STATIC IMPORTED)
 set(abinitio_LIBRARIES abinitio)
+
+# dependency: Torch-Chemistry
+if(NOT tchem_FOUND)
+    find_package(tchem REQUIRED PATHS ~/Library/Torch-Chemistry)
+    list(APPEND abinitio_INCLUDE_DIRS ${tchem_INCLUDE_DIRS})
+    list(APPEND abinitio_LIBRARIES ${tchem_LIBRARIES})
+    set(abinitio_CXX_FLAGS "${tchem_CXX_FLAGS}")
+endif()
 
 # import location
 find_library(abinitio_LIBRARY abinitio PATHS "${abinitioROOT}/lib")
