@@ -1,11 +1,10 @@
-#include <GeometryTransformation.hpp>
-#include <Chemistry.hpp>
-
 #include <CppLibrary/argparse.hpp>
 #include <CppLibrary/chemistry.hpp>
 
+#include <tchem/utility.hpp>
 #include <tchem/intcoord.hpp>
 #include <tchem/linalg.hpp>
+#include <tchem/chemistry.hpp>
 
 #include <Hd/kernel.hpp>
 
@@ -17,10 +16,13 @@ argparse::ArgumentParser parse_args(const size_t & argc, const char ** & argv) {
     // required arguments
     parser.add_argument("-f","--format",    1, false, "internal coordinate definition format (Columbus7, default)");
     parser.add_argument("-i","--IC",        1, false, "internal coordinate definition file");
-    parser.add_argument("-t","--target",     1, false, "the target electronic state to analyze vibration");
+    parser.add_argument("-t","--target",    1, false, "the target electronic state to analyze vibration");
     parser.add_argument("-g","--geometry",  1, false, "the geometry to analyze vibration");
     parser.add_argument("-m","--mass",      1, false, "the masses of atoms");
     parser.add_argument("-d","--diabatz", '+', false, "diabatz definition files");
+
+    // optional arguments
+    parser.add_argument("-o","--output", 1, true, "output file name (default = avogadro.log)");
 
     parser.parse_args(argc, argv);
     return parser;
@@ -88,33 +90,15 @@ int main(size_t argc, const char ** argv) {
 
     at::Tensor q, J;
     std::tie(q, J) = intcoordset.compute_IC_J(r);
-    int32_t cartdim = r.size(0),
-             intdim = q.size(0);
-    int32_t NAtoms = cartdim / 3;
-    at::Tensor JT = J.new_empty({cartdim, intdim});
-    JT.copy_(J.transpose(0, 1));
-    at::Tensor freq = q.new_empty(intdim),
-               intmodeT  = J.new_empty({intdim,  intdim}),
-               Linv      = J.new_empty({intdim,  intdim}),
-               cartmodeT = J.new_empty({intdim, cartdim});
-    FL::GT::WilsonGFMethod(inthess.data_ptr<double>(), JT.data_ptr<double>(), masses.data(),
-                           freq.data_ptr<double>(), intmodeT.data_ptr<double>(), Linv.data_ptr<double>(),
-                           cartmodeT.data_ptr<double>(), intdim, NAtoms);
+    tchem::chem::IntNormalMode intvib(geom.masses(), J, inthess);
+    intvib.kernel();
 
-    r /= 1.8897261339212517;
-    freq /= 4.556335830019422e-6;
-    // Wilson GF method normalizes Cartesian coordinate normal mode by Hessian metric
-    // However, this may not be an appropriate magnitude to visualize
-    // Here we use infinity-norm to normalize Cartesian coordinate normal mode
-    // Actually, normalize to 9.99 since the visualization file format is %5.2f
-    for (int32_t i = 0; i < intdim; i++)
-    cartmodeT[i] *= 9.99 / at::amax(at::abs(cartmodeT[i]));
-    FL::chem::Avogadro_Vibration(NAtoms, geom.symbols(), r.data_ptr<double>(), intdim,
-                                 freq.data_ptr<double>(), cartmodeT.data_ptr<double>(),
-                                 geom_file + ".log");
-    std::ofstream ofs; ofs.open("frequency.txt");
-    for (int32_t i = 0; i < intdim; i++) ofs << freq[i].item<double>() << '\n';
-    ofs.close();
+    std::string output = "avogadro.log";
+    if (args.gotArgument("output")) output = args.retrieve<std::string>("output");
+    auto freqs = tchem::utility::tensor2vector(intvib.frequency());
+    auto modes = tchem::utility::tensor2matrix(intvib.cartmode());
+    CL::chem::xyz_vib<double> avogadro(geom.symbols(), geom.coords(), freqs, modes, true);
+    avogadro.print(output);
 
     std::cout << '\n';
     CL::utility::show_time(std::cout);
