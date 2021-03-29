@@ -6,10 +6,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 set(CMAKE_BUILD_TYPE Release)
 
+# Cpp-Library
+set(CMAKE_PREFIX_PATH ~/Library/Cpp-Library)
+find_package(CL REQUIRED)
+
 # libHd
 find_package(Hd REQUIRED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Hd_CXX_FLAGS}")
 
 add_executable(eval.exe main.cpp)
 
-target_link_libraries(eval.exe "${Hd_LIBRARIES}")
+target_link_libraries(eval.exe ${Hd_LIBRARIES} ${CL_LIBRARIES})

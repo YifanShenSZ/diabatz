@@ -6,34 +6,18 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 set(CMAKE_BUILD_TYPE Release)
 
-# libtorch
-set(CMAKE_PREFIX_PATH ~/Software/Programming/libtorch-cuda10.1-1.7.1)
-find_package(Torch REQUIRED)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
-
 # Cpp-Library
-include_directories(~/Library/Cpp-Library/include)
-link_directories(~/Library/Cpp-Library/lib)
-
-# Torch-Chemistry
-include_directories(~/Library/Torch-Chemistry/include)
-link_directories(~/Library/Torch-Chemistry/lib)
+set(CMAKE_PREFIX_PATH ~/Library/Cpp-Library)
+find_package(CL REQUIRED)
 
 # abinitio
-include_directories(~/Software/Mine/diabatz/library/abinitio/include)
-link_directories(~/Software/Mine/diabatz/library/abinitio/lib)
-
-# obnet
-include_directories(~/Software/Mine/diabatz/library/obnet/include)
-link_directories(~/Software/Mine/diabatz/library/obnet/lib)
-
-# Hderiva
-include_directories(~/Software/Mine/diabatz/library/Hderiva/include)
-link_directories(~/Software/Mine/diabatz/library/Hderiva/lib)
+set(CMAKE_PREFIX_PATH ~/Software/Mine/diabatz/library/abinitio)
+find_package(abinitio REQUIRED)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${abinitio_CXX_FLAGS}")
 
 # libHd
-include_directories(~/Software/Mine/diabatz/tools/v0/libHd/include)
-link_directories(~/Software/Mine/diabatz/tools/v0/libHd/lib)
+find_package(Hd REQUIRED)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Hd_CXX_FLAGS}")
 
 add_executable(RMSD.exe
     global.cpp
@@ -41,4 +25,4 @@ add_executable(RMSD.exe
     main.cpp
 )
 
-target_link_libraries(RMSD.exe Hd Hderiva obnet abinitio tchem CL "${TORCH_LIBRARIES}")
+target_link_libraries(RMSD.exe ${Hd_LIBRARIES} ${abinitio_LIBRARIES} ${CL_LIBRARIES})

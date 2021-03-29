@@ -5,6 +5,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 set(CMAKE_BUILD_TYPE Release)
 
+# Cpp-Library
+set(CMAKE_PREFIX_PATH ~/Library/Cpp-Library)
+find_package(CL REQUIRED)
+
 # Torch-Chemistry
 set(CMAKE_PREFIX_PATH ~/Library/Torch-Chemistry)
 find_package(tchem REQUIRED)
@@ -25,4 +29,7 @@ add_library(Hd STATIC
     source/kernel.cpp
 )
 
-target_link_libraries(Hd Hderiva obnet "${tchem_LIBRARIES}")
+target_link_libraries(Hd
+    ${Hderiva_LIBRARIES} ${obnet_LIBRARIES}
+    ${tchem_LIBRARIES} ${CL_LIBRARIES}
+)

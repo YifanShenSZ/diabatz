@@ -1,0 +1,161 @@
+CNPI2point: Map the global CNPI group to the local point group of a certain data point
+Yifan Shen 2021
+
+Echo of user command line input:
+../build/CNPI2point.exe -f default -i IntCoordDef -s SAS.in -d min-Cs/
+
+
+The data set will be read from: 
+    min-Cs/, 
+Geometry number 1
+The point group is isomorphic to the CNPI group
+Geometry number 2
+The point group is isomorphic to the CNPI group
+Geometry number 3
+The point group is isomorphic to the CNPI group
+Geometry number 4
+The point group is isomorphic to the CNPI group
+Geometry number 5
+The point group is isomorphic to the CNPI group
+Geometry number 6
+The point group is isomorphic to the CNPI group
+Geometry number 7
+The point group is isomorphic to the CNPI group
+Geometry number 8
+The point group is isomorphic to the CNPI group
+Geometry number 9
+The point group is isomorphic to the CNPI group
+Geometry number 10
+The point group is isomorphic to the CNPI group
+Geometry number 11
+The point group is isomorphic to the CNPI group
+Geometry number 12
+The point group is isomorphic to the CNPI group
+Geometry number 13
+The point group is isomorphic to the CNPI group
+Geometry number 14
+The point group is isomorphic to the CNPI group
+Geometry number 15
+The point group is isomorphic to the CNPI group
+Geometry number 16
+The point group is isomorphic to the CNPI group
+Geometry number 17
+The point group is isomorphic to the CNPI group
+Geometry number 18
+The point group is isomorphic to the CNPI group
+Geometry number 19
+The point group is isomorphic to the CNPI group
+Geometry number 20
+The point group is isomorphic to the CNPI group
+Geometry number 21
+The point group is isomorphic to the CNPI group
+Geometry number 22
+The point group is isomorphic to the CNPI group
+Geometry number 23
+The point group is isomorphic to the CNPI group
+Geometry number 24
+The point group is isomorphic to the CNPI group
+Geometry number 25
+The point group is isomorphic to the CNPI group
+Geometry number 26
+The point group is isomorphic to the CNPI group
+Geometry number 27
+The point group is isomorphic to the CNPI group
+Geometry number 28
+The point group is isomorphic to the CNPI group
+Geometry number 29
+The point group is isomorphic to the CNPI group
+Geometry number 30
+The point group is isomorphic to the CNPI group
+Geometry number 31
+The point group is isomorphic to the CNPI group
+Geometry number 32
+The point group is isomorphic to the CNPI group
+Geometry number 33
+The point group is isomorphic to the CNPI group
+Geometry number 34
+The point group is isomorphic to the CNPI group
+Geometry number 35
+The point group is isomorphic to the CNPI group
+Geometry number 36
+The point group is isomorphic to the CNPI group
+Geometry number 37
+The point group is isomorphic to the CNPI group
+Geometry number 38
+The point group is isomorphic to the CNPI group
+Geometry number 39
+The point group is isomorphic to the CNPI group
+Geometry number 40
+The point group is isomorphic to the CNPI group
+Geometry number 41
+The point group is isomorphic to the CNPI group
+Geometry number 42
+The point group is isomorphic to the CNPI group
+Geometry number 43
+The point group is isomorphic to the CNPI group
+Geometry number 44
+The point group is isomorphic to the CNPI group
+Geometry number 45
+The point group is isomorphic to the CNPI group
+Geometry number 46
+The point group is isomorphic to the CNPI group
+Geometry number 47
+The point group is isomorphic to the CNPI group
+Geometry number 48
+The point group is isomorphic to the CNPI group
+Geometry number 49
+The point group is isomorphic to the CNPI group
+Geometry number 50
+The point group is isomorphic to the CNPI group
+Geometry number 51
+The point group is isomorphic to the CNPI group
+Geometry number 52
+The point group is isomorphic to the CNPI group
+Geometry number 53
+The point group is isomorphic to the CNPI group
+Geometry number 54
+The point group is isomorphic to the CNPI group
+Geometry number 55
+The point group is isomorphic to the CNPI group
+Geometry number 56
+No symmetry, C1 point group
+Geometry number 57
+No symmetry, C1 point group
+Geometry number 58
+No symmetry, C1 point group
+Geometry number 59
+No symmetry, C1 point group
+Geometry number 60
+No symmetry, C1 point group
+Geometry number 61
+No symmetry, C1 point group
+Geometry number 62
+No symmetry, C1 point group
+Geometry number 63
+No symmetry, C1 point group
+Geometry number 64
+No symmetry, C1 point group
+Geometry number 65
+No symmetry, C1 point group
+Geometry number 66
+No symmetry, C1 point group
+Geometry number 67
+No symmetry, C1 point group
+Geometry number 68
+No symmetry, C1 point group
+Geometry number 69
+No symmetry, C1 point group
+Geometry number 70
+No symmetry, C1 point group
+Geometry number 71
+No symmetry, C1 point group
+Geometry number 72
+No symmetry, C1 point group
+Geometry number 73
+No symmetry, C1 point group
+Geometry number 74
+No symmetry, C1 point group
+Geometry number 75
+No symmetry, C1 point group
+Geometry number 76
+No symmetry, C1 point group

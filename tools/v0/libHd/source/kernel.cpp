@@ -14,7 +14,7 @@ const std::vector<std::string> & input_layers) {
     torch::load(Hdnet_->elements, checkpoint);
     Hdnet_->freeze();
     Hdnet_->eval();
-    input_generator_ = std::make_shared<InputGenerator>(Hdnet_->NStates(), input_layers, sasicset_->NSASICs());
+    input_generator_ = std::make_shared<InputGenerator>(Hdnet_->NStates(), Hdnet_->irreds(), input_layers, sasicset_->NSASICs());
 }
 kernel::kernel(const std::vector<std::string> & args) : kernel(
 args[0], args[1], args[2],

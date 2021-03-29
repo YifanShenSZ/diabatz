@@ -5,4 +5,4 @@ The core of diabatic representation is its constant basis vectors. The most amaz
 * Applying Ad to wave function vector is isomorphic to applying A to wave function, of course
 * ▽Ad equals to the diabatic ▽A matrix. In general representations, however, you need another term accounting for the gradient of basis vectors
 
-Usually a representation is defined to diagonalize some operator, e.g. adiabatic representation diagonalizes Hamiltonian operator. That can be problematic, however, when the operator has (near) degenerate eigen values, since the corresponding eigen vectors can arbitrarily mix, introducing <span style="color:red">singularity to the gradient of basis vectors</span>
+Usually a representation is defined to diagonalize some operator, e.g. adiabatic representation diagonalizes Hamiltonian operator. That can become problematic, however, when the operator has (near) degenerate eigen values, since the corresponding eigen vectors can arbitrarily mix, introducing <span style="color:red">singularity to the gradient of basis vectors</span>

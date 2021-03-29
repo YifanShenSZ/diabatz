@@ -25,7 +25,9 @@ Until now we are using the simplest Cartesian coordinate. However, in many cases
 1. are invariant under translation and rotation
 2. carry certain symmetry
 
-A global description is based on CNPI group. For a specific data point, the CNPI group is mapped to point group.
+A global description is based on CNPI group. For a specific data point, the CNPI group is mapped to point group. The mapping is defined by `CNPI2point.txt` in the data directory:
+* each line defines the mapping rule of a geometry
+* e.g. `1 2 -> 1 1` means CNPI group irreducible `1` and `2` become point group irreducible `1` and `1`
 
 ## Reference
 1. Y. Shen and D. R. Yarkony, J. Phys. Chem. A 2020, 124, 22, 4539–4548 https://doi.org/10.1021/acs.jpca.0c02763

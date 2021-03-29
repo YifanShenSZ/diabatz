@@ -3,14 +3,14 @@
 namespace Hd {
 
 InputGenerator::InputGenerator() {}
-InputGenerator::InputGenerator(const size_t & NStates, const std::vector<std::string> & sapoly_files, const std::vector<size_t> & dimensions) {
+InputGenerator::InputGenerator(const size_t & NStates, const CL::utility::matrix<size_t> & irreds, const std::vector<std::string> & sapoly_files, const std::vector<size_t> & dimensions) {
     if (sapoly_files.size() != (NStates + 1) * NStates / 2) throw std::invalid_argument(
     "Hd::InputGenerator::InputGenerator: The number of input files must equal to the number of upper triangle elements");
     polynomials_.resize(NStates);
     size_t count = 0;
     for (size_t i = 0; i < NStates; i++)
     for (size_t j = i; j < NStates; j++) {
-        polynomials_[i][j] = tchem::polynomial::SAPSet(sapoly_files[count], dimensions);
+        polynomials_[i][j] = tchem::polynomial::SAPSet(sapoly_files[count], irreds[i][j], dimensions);
         count++;
     }
 }

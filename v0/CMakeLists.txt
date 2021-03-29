@@ -14,6 +14,10 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 set(CMAKE_PREFIX_PATH ~/Library/Foptim)
 find_package(Foptim REQUIRED)
 
+# Cpp-Library
+set(CMAKE_PREFIX_PATH ~/Library/Cpp-Library)
+find_package(CL REQUIRED)
+
 # Torch-Chemistry
 set(CMAKE_PREFIX_PATH ~/Library/Torch-Chemistry)
 find_package(tchem REQUIRED)
@@ -22,14 +26,17 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TCHEM_CXX_FLAGS}")
 # abinitio
 set(CMAKE_PREFIX_PATH ~/Software/Mine/diabatz/library/abinitio)
 find_package(abinitio REQUIRED)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${abinitio_CXX_FLAGS}")
 
 # obnet
 set(CMAKE_PREFIX_PATH ~/Software/Mine/diabatz/library/obnet)
 find_package(obnet REQUIRED)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${obnet_CXX_FLAGS}")
 
 # Hderiva
 set(CMAKE_PREFIX_PATH ~/Software/Mine/diabatz/library/Hderiva)
 find_package(Hderiva REQUIRED)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Hderiva_CXX_FLAGS}")
 
 include_directories(include)
 
@@ -45,5 +52,5 @@ add_executable(v0.exe
 
 target_link_libraries(v0.exe
     ${Hderiva_LIBRARIES} ${obnet_LIBRARIES} ${abinitio_LIBRARIES}
-    ${tchem_LIBRARIES} ${Foptim_LIBRARIES}
+    ${tchem_LIBRARIES} ${CL_LIBRARIES} ${Foptim_LIBRARIES}
 )

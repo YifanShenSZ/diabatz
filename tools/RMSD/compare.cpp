@@ -1,14 +1,14 @@
 #include <tchem/linalg.hpp>
-#include <tchem/phaser.hpp>
+#include <tchem/chemistry.hpp>
 
 #include "global.hpp"
 
 void compare() {
     c10::TensorOptions top = at::TensorOptions().dtype(torch::kFloat64);
     int64_t NStates = Hdkernel->NStates();
-    std::vector<std::shared_ptr<tchem::Phaser>> phasers(NStates + 1);
+    std::vector<std::shared_ptr<tchem::chem::Phaser>> phasers(NStates + 1);
     for (size_t i = 2; i < phasers.size(); i++)
-    phasers[i] = std::make_shared<tchem::Phaser>(i);
+    phasers[i] = std::make_shared<tchem::chem::Phaser>(i);
     // Data in adiabatic representation
     at::Tensor rmsd_energy = at::zeros(NStates, top),
                rmsd_dHa    = at::zeros({NStates, NStates}, top);
