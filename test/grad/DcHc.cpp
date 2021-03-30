@@ -84,11 +84,11 @@ const at::Tensor & Hc) {
         at::Tensor c00_p = c00.clone();
         c00_p[i] += 1e-5;
         at::Tensor Hc_p = libHd::Hc(c00_p, c01, c11, q);
-        phaser.fix_(Hc_p, Hc);
+        phaser.fix_ob_(Hc_p, Hc);
         at::Tensor c00_m = c00.clone();
         c00_m[i] -= 1e-5;
         at::Tensor Hc_m = libHd::Hc(c00_m, c01, c11, q);
-        phaser.fix_(Hc_m, Hc);
+        phaser.fix_ob_(Hc_m, Hc);
         for (size_t istate = 0; istate < 2; istate++)
         for (size_t jstate = istate; jstate < 2; jstate++)
         Dc00Hc[istate][jstate][i] = (Hc_p[istate][jstate] - Hc_m[istate][jstate]) / 2e-5;
@@ -98,11 +98,11 @@ const at::Tensor & Hc) {
         at::Tensor c01_p = c01.clone();
         c01_p[i] += 1e-5;
         at::Tensor Hc_p = libHd::Hc(c00, c01_p, c11, q);
-        phaser.fix_(Hc_p, Hc);
+        phaser.fix_ob_(Hc_p, Hc);
         at::Tensor c01_m = c01.clone();
         c01_m[i] -= 1e-5;
         at::Tensor Hc_m = libHd::Hc(c00, c01_m, c11, q);
-        phaser.fix_(Hc_m, Hc);
+        phaser.fix_ob_(Hc_m, Hc);
         for (size_t istate = 0; istate < 2; istate++)
         for (size_t jstate = istate; jstate < 2; jstate++)
         Dc01Hc[istate][jstate][i] = (Hc_p[istate][jstate] - Hc_m[istate][jstate]) / 2e-5;
@@ -112,11 +112,11 @@ const at::Tensor & Hc) {
         at::Tensor c11_p = c11.clone();
         c11_p[i] += 1e-5;
         at::Tensor Hc_p = libHd::Hc(c00, c01, c11_p, q);
-        phaser.fix_(Hc_p, Hc);
+        phaser.fix_ob_(Hc_p, Hc);
         at::Tensor c11_m = c11.clone();
         c11_m[i] -= 1e-5;
         at::Tensor Hc_m = libHd::Hc(c00, c01, c11_m, q);
-        phaser.fix_(Hc_m, Hc);
+        phaser.fix_ob_(Hc_m, Hc);
         for (size_t istate = 0; istate < 2; istate++)
         for (size_t jstate = istate; jstate < 2; jstate++)
         Dc11Hc[istate][jstate][i] = (Hc_p[istate][jstate] - Hc_m[istate][jstate]) / 2e-5;

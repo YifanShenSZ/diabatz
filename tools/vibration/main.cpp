@@ -75,7 +75,6 @@ int main(size_t argc, const char ** argv) {
 
     std::vector<double> coords = geom.coords();
     at::Tensor r = at::from_blob(coords.data(), coords.size(), at::TensorOptions().dtype(torch::kFloat64));
-    std::vector<double> masses = geom.masses();
     
     at::Tensor Hd, dHd;
     std::tie(Hd, dHd) = Hdkernel.compute_Hd_dHd(r);
@@ -83,7 +82,6 @@ int main(size_t argc, const char ** argv) {
     std::tie(energy, states) = Hd.symeig(true);
     at::Tensor dHa = tchem::linalg::UT_sy_U(dHd, states);
     at::Tensor ddHa = compute_ddHa(r, Hdkernel);
-
     at::Tensor cartgrad =  dHa[target_state][target_state],
                carthess = ddHa[target_state][target_state];
     at::Tensor inthess = intcoordset.Hessian_cart2int(r, cartgrad, carthess);

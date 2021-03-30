@@ -3,7 +3,7 @@
 
 #include <CppLibrary/utility.hpp>
 
-#include <tchem/SApolynomial.hpp>
+#include <tchem/polynomial.hpp>
 
 #include <obnet/symat.hpp>
 

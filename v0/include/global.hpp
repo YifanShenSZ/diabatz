@@ -1,7 +1,7 @@
 #ifndef global_hpp
 #define global_hpp
 
-#include <tchem/SASintcoord.hpp>
+#include <tchem/intcoord.hpp>
 
 #include <obnet/symat.hpp>
 

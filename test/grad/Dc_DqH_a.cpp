@@ -78,11 +78,11 @@ const at::Tensor & DqH_a) {
         at::Tensor c00_plus = c00.clone();
         c00_plus[l] += 1e-5;
         at::Tensor DqH_a_plus = libHd::DqH_a(c00_plus, c01, c11, q);
-        phaser.fix_(DqH_a_plus, DqH_a);
+        phaser.fix_ob_(DqH_a_plus, DqH_a);
         at::Tensor c00_minus = c00.clone();
         c00_minus[l] -= 1e-5;
         at::Tensor DqH_a_minus = libHd::DqH_a(c00_minus, c01, c11, q);
-        phaser.fix_(DqH_a_minus, DqH_a);
+        phaser.fix_ob_(DqH_a_minus, DqH_a);
         for (size_t i = 0; i < 2; i++)
         for (size_t j = i; j < 2; j++)
         for (size_t k = 0; k < 2; k++)
@@ -93,11 +93,11 @@ const at::Tensor & DqH_a) {
         at::Tensor c01_plus = c01.clone();
         c01_plus[l] += 1e-5;
         at::Tensor DqH_a_plus = libHd::DqH_a(c00, c01_plus, c11, q);
-        phaser.fix_(DqH_a_plus, DqH_a);
+        phaser.fix_ob_(DqH_a_plus, DqH_a);
         at::Tensor c01_minus = c01.clone();
         c01_minus[l] -= 1e-5;
         at::Tensor DqH_a_minus = libHd::DqH_a(c00, c01_minus, c11, q);
-        phaser.fix_(DqH_a_minus, DqH_a);
+        phaser.fix_ob_(DqH_a_minus, DqH_a);
         for (size_t i = 0; i < 2; i++)
         for (size_t j = i; j < 2; j++)
         for (size_t k = 0; k < 2; k++)
@@ -108,11 +108,11 @@ const at::Tensor & DqH_a) {
         at::Tensor c11_plus = c11.clone();
         c11_plus[l] += 1e-5;
         at::Tensor DqH_a_plus = libHd::DqH_a(c00, c01, c11_plus, q);
-        phaser.fix_(DqH_a_plus, DqH_a);
+        phaser.fix_ob_(DqH_a_plus, DqH_a);
         at::Tensor c11_minus = c11.clone();
         c11_minus[l] -= 1e-5;
         at::Tensor DqH_a_minus = libHd::DqH_a(c00, c01, c11_minus, q);
-        phaser.fix_(DqH_a_minus, DqH_a);
+        phaser.fix_ob_(DqH_a_minus, DqH_a);
         for (size_t i = 0; i < 2; i++)
         for (size_t j = i; j < 2; j++)
         for (size_t k = 0; k < 2; k++)

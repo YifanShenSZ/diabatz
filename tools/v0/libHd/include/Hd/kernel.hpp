@@ -1,7 +1,7 @@
 #ifndef Hd_kernel_hpp
 #define Hd_kernel_hpp
 
-#include <tchem/SASintcoord.hpp>
+#include <tchem/intcoord.hpp>
 
 #include <obnet/symat.hpp>
 

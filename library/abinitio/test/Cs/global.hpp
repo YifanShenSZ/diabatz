@@ -1,7 +1,7 @@
 #ifndef global_hpp
 #define global_hpp
 
-#include <tchem/SASintcoord.hpp>
+#include <tchem/intcoord.hpp>
 
 extern std::shared_ptr<tchem::IC::SASICSet> sasicset;
 

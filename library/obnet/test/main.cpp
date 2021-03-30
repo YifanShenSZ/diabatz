@@ -1,8 +1,6 @@
 #include <CppLibrary/chemistry.hpp>
 
 #include <tchem/utility.hpp>
-#include <tchem/SASintcoord.hpp>
-#include <tchem/SApolynomial.hpp>
 
 #include <obnet/symat.hpp>
 
