@@ -10,6 +10,10 @@ set(CMAKE_BUILD_TYPE Release)
 find_package(OpenMP REQUIRED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 
+# Foptim
+set(CMAKE_PREFIX_PATH ~/Library/Foptim)
+find_package(Foptim REQUIRED)
+
 # Cpp-Library
 set(CMAKE_PREFIX_PATH ~/Library/Cpp-Library)
 find_package(CL REQUIRED)
@@ -23,9 +27,15 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TCHEM_CXX_FLAGS}")
 find_package(Hd REQUIRED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Hd_CXX_FLAGS}")
 
-add_executable(vibronics.exe main.cpp)
+add_executable(vibronics.exe
+    read_Columbus.cpp
+    final2init.cpp
+    suggest_phonons.cpp
+    int2normal.cpp
+    main.cpp
+)
 
 target_link_libraries(vibronics.exe
     ${Hd_LIBRARIES}
-    ${tchem_LIBRARIES} ${CL_LIBRARIES}
+    ${tchem_LIBRARIES} ${CL_LIBRARIES} ${Foptim_LIBRARIES}
 )

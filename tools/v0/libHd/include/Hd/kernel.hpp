@@ -26,6 +26,9 @@ class kernel {
         kernel(const std::vector<std::string> & args);
         ~kernel();
 
+        const std::shared_ptr<obnet::symat> & Hdnet() const;
+        const std::shared_ptr<InputGenerator> & input_generator() const;
+
         size_t NStates() const;
 
         // Given Cartesian coordinate r, return Hd

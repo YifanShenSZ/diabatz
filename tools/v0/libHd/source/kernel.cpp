@@ -22,6 +22,9 @@ args[3], args[4],
 std::vector<std::string>(args.begin() + 5, args.end())) {}
 kernel::~kernel() {}
 
+const std::shared_ptr<obnet::symat> & kernel::Hdnet() const {return Hdnet_;}
+const std::shared_ptr<InputGenerator> & kernel::input_generator() const {return input_generator_;}
+
 size_t kernel::NStates() const {return Hdnet_->NStates();}
 
 // Given Cartesian coordinate r, return Hd

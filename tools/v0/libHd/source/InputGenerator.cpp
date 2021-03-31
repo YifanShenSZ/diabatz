@@ -16,7 +16,15 @@ InputGenerator::InputGenerator(const size_t & NStates, const CL::utility::matrix
 }
 InputGenerator::~InputGenerator() {}
 
-CL::utility::matrix<tchem::polynomial::SAPSet> InputGenerator::polynomials() const {return polynomials_;}
+const CL::utility::matrix<tchem::polynomial::SAPSet> & InputGenerator::polynomials() const {return polynomials_;}
+
+const tchem::polynomial::SAPSet & InputGenerator::operator[](const std::pair<size_t, size_t> & indices) const {
+    size_t row = std::min(indices.first, indices.second),
+           col = std::max(indices.first, indices.second);
+    if (col >= polynomials_.size()) throw std::invalid_argument(
+    "Hd::InputGenerator::operator[]: index out of range");
+    return polynomials_[row][col];
+}
 
 CL::utility::matrix<at::Tensor> InputGenerator::operator()(const std::vector<at::Tensor> & qs) const {
     size_t NStates = polynomials_.size();
