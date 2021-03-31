@@ -36,7 +36,7 @@ Reader::Reader(const std::vector<std::string> & user_list) {
 }
 Reader::~Reader() {}
 
-std::vector<std::string> Reader::data_directories() const {return data_directories_;}
+const std::vector<std::string> & Reader::data_directories() const {return data_directories_;}
 
 void Reader::pretty_print(std::ostream & stream) const {
     stream << "The data set will be read from: \n    ";

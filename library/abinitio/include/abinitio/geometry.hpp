@@ -15,7 +15,7 @@ class Geometry {
         Geometry(const GeomLoader & loader);
         ~Geometry();
 
-        at::Tensor geom() const;
+        const at::Tensor & geom() const;
 
         size_t cartdim() const;
 

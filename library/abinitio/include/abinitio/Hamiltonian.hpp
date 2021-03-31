@@ -17,9 +17,9 @@ class RegHam : public Geometry {
         RegHam(const HamLoader & loader);
         ~RegHam();
 
-        double weight() const;
-        at::Tensor energy() const;
-        at::Tensor dH() const;
+        const double & weight() const;
+        const at::Tensor & energy() const;
+        const at::Tensor & dH() const;
 
         size_t NStates() const;
 
@@ -40,7 +40,7 @@ class DegHam : public RegHam {
         DegHam(const HamLoader & loader);
         ~DegHam();
 
-        at::Tensor H() const;
+        const at::Tensor & H() const;
 
         void to(const c10::DeviceType & device);
 

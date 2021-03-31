@@ -67,11 +67,11 @@ energy_(loader.energy.clone()), dH_(loader.dH.clone()) {
 }
 RegSAHam::~RegSAHam() {}
 
-double RegSAHam::weight() const {return weight_;}
-at::Tensor RegSAHam::energy() const {return energy_;}
-at::Tensor RegSAHam::dH() const {return dH_;}
-CL::utility::matrix<size_t> RegSAHam::irreds() const {return irreds_;}
-CL::utility::matrix<at::Tensor> RegSAHam::SAdH() const {return SAdH_;}
+const double & RegSAHam::weight() const {return weight_;}
+const at::Tensor & RegSAHam::energy() const {return energy_;}
+const at::Tensor & RegSAHam::dH() const {return dH_;}
+const CL::utility::matrix<size_t> & RegSAHam::irreds() const {return irreds_;}
+const CL::utility::matrix<at::Tensor> & RegSAHam::SAdH() const {return SAdH_;}
 
 size_t RegSAHam::NStates() const {return energy_.size(0);}
 

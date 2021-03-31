@@ -14,7 +14,7 @@ template <class T> class DataSet : public torch::data::datasets::Dataset<DataSet
         inline DataSet(const std::vector<std::shared_ptr<T>> & _examples) : examples_(_examples) {}
         inline ~DataSet() {}
 
-        inline std::vector<std::shared_ptr<T>> examples() const {return examples_;}
+        inline const std::vector<std::shared_ptr<T>> & examples() const {return examples_;}
 
         // Override the size method to infer the size of the data set
         inline torch::optional<size_t> size() const override {return examples_.size();}

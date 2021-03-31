@@ -22,7 +22,7 @@ class Reader {
         Reader(const std::vector<std::string> & user_list);
         ~Reader();
 
-        std::vector<std::string> data_directories() const;
+        const std::vector<std::string> & data_directories() const;
 
         void pretty_print(std::ostream & stream) const;
         // Number of data points per directory

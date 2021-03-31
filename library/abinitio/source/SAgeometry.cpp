@@ -57,18 +57,18 @@ std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2int)(const a
 : SAGeometry(loader.geom, loader.CNPI2point, cart2int) {}
 SAGeometry::~SAGeometry() {}
 
-std::vector<size_t> SAGeometry::CNPI2point() const {return CNPI2point_;}
-size_t SAGeometry::intdim() const {return intdim_;}
-at::Tensor SAGeometry::q   () const {return q_   ;}
-at::Tensor SAGeometry::Jqr () const {return Jqr_ ;}
-at::Tensor SAGeometry::JqrT() const {return JqrT_;}
-at::Tensor SAGeometry::S   () const {return S_   ;}
-std::vector<std::vector<size_t>> SAGeometry::point2CNPI() const {return point2CNPI_;}
-std::vector<at::Tensor> SAGeometry::qs    () const {return qs_    ;}
-std::vector<at::Tensor> SAGeometry::Jqrs  () const {return Jqrs_  ;}
-std::vector<at::Tensor> SAGeometry::JqrTs () const {return JqrTs_ ;}
-std::vector<at::Tensor> SAGeometry::Ss    () const {return Ss_    ;}
-std::vector<at::Tensor> SAGeometry::sqrtSs() const {return sqrtSs_;}
+const std::vector<size_t> & SAGeometry::CNPI2point() const {return CNPI2point_;}
+const size_t & SAGeometry::intdim() const {return intdim_;}
+const at::Tensor & SAGeometry::q   () const {return q_   ;}
+const at::Tensor & SAGeometry::Jqr () const {return Jqr_ ;}
+const at::Tensor & SAGeometry::JqrT() const {return JqrT_;}
+const at::Tensor & SAGeometry::S   () const {return S_   ;}
+const std::vector<std::vector<size_t>> & SAGeometry::point2CNPI() const {return point2CNPI_;}
+const std::vector<at::Tensor> & SAGeometry::qs    () const {return qs_    ;}
+const std::vector<at::Tensor> & SAGeometry::Jqrs  () const {return Jqrs_  ;}
+const std::vector<at::Tensor> & SAGeometry::JqrTs () const {return JqrTs_ ;}
+const std::vector<at::Tensor> & SAGeometry::Ss    () const {return Ss_    ;}
+const std::vector<at::Tensor> & SAGeometry::sqrtSs() const {return sqrtSs_;}
 
 size_t SAGeometry::NPointIrreds() const {
     assert(("`point2CNPI_` must have been constructed", ! point2CNPI_.empty()));

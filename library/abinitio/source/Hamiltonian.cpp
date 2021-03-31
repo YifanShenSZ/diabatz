@@ -15,9 +15,9 @@ RegHam::RegHam(const HamLoader & loader) {
 }
 RegHam::~RegHam() {}
 
-double RegHam::weight() const {return weight_;}
-at::Tensor RegHam::energy() const {return energy_;}
-at::Tensor RegHam::dH() const {return dH_;}
+const double & RegHam::weight() const {return weight_;}
+const at::Tensor & RegHam::energy() const {return energy_;}
+const at::Tensor & RegHam::dH() const {return dH_;}
 
 size_t RegHam::NStates() const {return energy_.size(0);}
 
@@ -51,7 +51,7 @@ DegHam::DegHam(const HamLoader & loader) : RegHam(loader) {
 }
 DegHam::~DegHam() {}
 
-at::Tensor DegHam::H() const {return H_;};
+const at::Tensor & DegHam::H() const {return H_;};
 
 void DegHam::to(const c10::DeviceType & device) {
     RegHam::to(device);

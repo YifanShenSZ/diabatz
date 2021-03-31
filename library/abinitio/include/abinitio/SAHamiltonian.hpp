@@ -34,11 +34,11 @@ class RegSAHam : public SAGeometry {
                  std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2int)(const at::Tensor &));
         ~RegSAHam();
 
-        double weight() const;
-        at::Tensor energy() const;
-        at::Tensor dH() const;
-        CL::utility::matrix<size_t> irreds() const;
-        CL::utility::matrix<at::Tensor> SAdH() const;
+        const double & weight() const;
+        const at::Tensor & energy() const;
+        const at::Tensor & dH() const;
+        const CL::utility::matrix<size_t> & irreds() const;
+        const CL::utility::matrix<at::Tensor> & SAdH() const;
 
         size_t NStates() const;
 

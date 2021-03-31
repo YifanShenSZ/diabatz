@@ -41,18 +41,18 @@ class SAGeometry : public Geometry {
                    std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2int)(const at::Tensor &));
         ~SAGeometry();
 
-        std::vector<size_t> CNPI2point() const;
-        size_t intdim() const;
-        at::Tensor q   () const;
-        at::Tensor Jqr () const;
-        at::Tensor JqrT() const;
-        at::Tensor S   () const;
-        std::vector<std::vector<size_t>> point2CNPI() const;
-        std::vector<at::Tensor> qs    () const;
-        std::vector<at::Tensor> Jqrs  () const;
-        std::vector<at::Tensor> JqrTs () const;
-        std::vector<at::Tensor> Ss    () const;
-        std::vector<at::Tensor> sqrtSs() const;
+        const std::vector<size_t> & CNPI2point() const;
+        const size_t & intdim() const;
+        const at::Tensor & q   () const;
+        const at::Tensor & Jqr () const;
+        const at::Tensor & JqrT() const;
+        const at::Tensor & S   () const;
+        const std::vector<std::vector<size_t>> & point2CNPI() const;
+        const std::vector<at::Tensor> & qs    () const;
+        const std::vector<at::Tensor> & Jqrs  () const;
+        const std::vector<at::Tensor> & JqrTs () const;
+        const std::vector<at::Tensor> & Ss    () const;
+        const std::vector<at::Tensor> & sqrtSs() const;
 
         // Number of point group irreducibles
         size_t NPointIrreds() const;
