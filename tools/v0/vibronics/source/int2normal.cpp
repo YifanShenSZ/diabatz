@@ -11,9 +11,8 @@ void int2normal(const Hd::kernel & Hdkernel, const tchem::chem::SANormalMode & f
     for (size_t i = 0; i < Hdkernel.NStates(); i++)
     for (size_t j = i; j < Hdkernel.NStates(); j++) {
         const auto & sapset = (*Hdkernel.input_generator())[{i, j}];
-        at::Tensor T = sapset.rotation(Ls);
-        at::Tensor Tinv = T.inverse();
-        at::Tensor c = Tinv.mv(para_mat[i][j][0].view(para_mat[i][j][0].numel()));
+        at::Tensor T = sapset->rotation(Ls);
+        at::Tensor c = T.transpose(0, 1).mv(para_mat[i][j][0].view(para_mat[i][j][0].numel()));
         std::string file = "Hd_" + std::to_string(i + 1) + "-" + std::to_string(j + 1) + ".txt";
         std::cout << "Hd" << i + 1 << j + 1 << " expanded in final-state normal modes can be found in " << file << '\n';
         std::ofstream ofs; ofs.open(file); {
@@ -23,8 +22,18 @@ void int2normal(const Hd::kernel & Hdkernel, const tchem::chem::SANormalMode & f
                 << std::scientific << std::setw(25) << std::setprecision(15) << para_mat[i][j][1].item<double>() << '\n';
             // 1st and higher order terms
             for (size_t k = 0; k < c.size(0); k++) {
-                sapset[k].pretty_print(ofs);
-                ofs << std::scientific << std::setw(25) << std::setprecision(15) << c[k].item<double>() << '\n';
+                const auto & sap = (*sapset)[k];
+                sap.pretty_print(ofs);
+                bool diag = false;
+                if (sap.order() == 2) if (sap[0] == sap[1]) diag = true;
+                // Subtract harmonic term from diagonal
+                if (diag) {
+                    double sub = final_vib.frequencies()[sap[0].first][sap[0].second].item<double>();
+                    sub = 0.5 * sub * sub;
+                    ofs << std::scientific << std::setw(25) << std::setprecision(15)
+                        << c[k].item<double>() - sub << '\n';
+                }
+                else ofs << std::scientific << std::setw(25) << std::setprecision(15) << c[k].item<double>() << '\n';
             }
         }
         ofs.close();

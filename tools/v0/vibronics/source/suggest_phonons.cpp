@@ -2,6 +2,8 @@
 
 #include <tchem/chemistry.hpp>
 
+#include "cart2int.hpp"
+
 namespace {
     // constraint (T . Q + b)^T . sigmainv_ . (T . Q + b) - contour^2 = 0
     double contour_;
@@ -54,35 +56,34 @@ namespace {
 }
 
 void suggest_phonons(const double & contour,
-const std::vector<size_t> & init_NModes, const std::vector<size_t> & final_NModes,
-const at::Tensor & init_q, const at::Tensor & final_q,
+const std::vector<at::Tensor> & init_qs, const std::vector<at::Tensor> & final_qs,
 const tchem::chem::SANormalMode & init_vib, const tchem::chem::SANormalMode & final_vib) {
-    int64_t intdim = init_q.size(0);
+    int64_t intdim = sasicset->intdim();
     // Set contour, T, b, sigma^-1
     contour_ = contour;
-    at::Tensor init_Linv = init_q.new_zeros({intdim, intdim});
+    at::Tensor init_Linv = init_qs[0].new_zeros({intdim, intdim});
     size_t start = 0;
-    for (size_t i = 0; i < init_NModes.size(); i++) {
-        size_t stop = start + init_NModes[i];
+    for (size_t i = 0; i < init_qs.size(); i++) {
+        size_t stop = start + init_qs[i].size(0);
         init_Linv.slice(0, start, stop).slice(1, start, stop).copy_(init_vib.Linvs()[i]);
         start = stop;
     }
-    at::Tensor final_L = final_q.new_zeros({intdim, intdim});
+    at::Tensor final_L = final_qs[0].new_zeros({intdim, intdim});
     start = 0;
-    for (size_t i = 0; i < final_NModes.size(); i++) {
-        size_t stop = start + final_NModes[i];
+    for (size_t i = 0; i < final_qs.size(); i++) {
+        size_t stop = start + final_qs[i].size(0);
         final_L.slice(0, start, stop).slice(1, start, stop).copy_(final_vib.intmodes()[i]);
         start = stop;
     }
     final_L.transpose_(0, 1);
     T_ = init_Linv.mm(final_L);
-    b_ = init_Linv.mv(final_q - init_q);
+    b_ = init_Linv.mv(at::cat(final_qs) - at::cat(init_qs));
     sigmainv_ = at::diag(2.0 * at::cat(init_vib.frequencies()));
     // Get lower and upper bounds
     std::vector<double> lower_bound(intdim), upper_bound(intdim);
     for (size_t i = 0; i < intdim; i++) {
         // lower bound
-        at::Tensor Q = init_q.new_zeros(intdim);
+        at::Tensor Q = init_qs[0].new_zeros(intdim);
         sign_ = 1.0;
         index_ = i;
         Foptim::ALagrangian_Newton_Raphson(f, f_fd, fdd, c, c_cd, c_cd_cdd, Q.data_ptr<double>(), intdim, 1);
@@ -108,9 +109,9 @@ const tchem::chem::SANormalMode & init_vib, const tchem::chem::SANormalMode & fi
     ofs.open("continuum.txt"); {
         ofs << "Contour value = " << contour << '\n';
         size_t NVib = 1;
-        for (size_t i = 0; i < init_NModes[0]; i++) NVib *= (phonons[i] + 1);
+        for (size_t i = 0; i < init_qs[0].size(0); i++) NVib *= (phonons[i] + 1);
         ofs << NVib << " = number of vibrational basis functions from initial-state totally symemtric irreducible\n";
-        for (size_t i = init_NModes[0]; i < intdim; i++) NVib *= (phonons[i] + 1);
+        for (size_t i = init_qs[0].size(0); i < intdim; i++) NVib *= (phonons[i] + 1);
         ofs << NVib << " = number of vibrational basis functions\n";
         ofs << "mode    lower bound    upper bound    phonons    continuum phonons\n";
         for (size_t i = 0; i < intdim; i++)
@@ -124,12 +125,12 @@ const tchem::chem::SANormalMode & init_vib, const tchem::chem::SANormalMode & fi
     ofs.open("phonons.txt"); {
         ofs << "phonons for initial-state totally symemtric irreducible only:\n";
         ofs << "(";
-        for (size_t i = 0; i < init_NModes[0] - 1; i++) ofs << phonons[i] << ", ";
-        ofs << phonons[init_NModes[0] - 1] << "),\n";
-        size_t count = init_NModes[0];
-        for (size_t irred = 1; irred < init_NModes.size(); irred++) {
+        for (size_t i = 0; i < init_qs[0].size(0) - 1; i++) ofs << phonons[i] << ", ";
+        ofs << phonons[init_qs[0].size(0) - 1] << "),\n";
+        size_t count = init_qs[0].size(0);
+        for (size_t irred = 1; irred < init_qs.size(); irred++) {
             ofs << "(";
-            for (size_t i = 0; i < init_NModes[irred] - 1; i++) {
+            for (size_t i = 0; i < init_qs[irred].size(0) - 1; i++) {
                 ofs << 0 << ", ";
                 count++;
             }
@@ -138,9 +139,9 @@ const tchem::chem::SANormalMode & init_vib, const tchem::chem::SANormalMode & fi
         }
         ofs << "phonons:\n";
         count = 0;
-        for (size_t irred = 0; irred < init_NModes.size(); irred++) {
+        for (size_t irred = 0; irred < init_qs.size(); irred++) {
             ofs << "(";
-            for (size_t i = 0; i < init_NModes[irred] - 1; i++) {
+            for (size_t i = 0; i < init_qs[irred].size(0) - 1; i++) {
                 ofs << phonons[count] << ", ";
                 count++;
             }

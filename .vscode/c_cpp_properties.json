@@ -12,7 +12,8 @@
                 "library/Hderiva/include",
                 "~/Library/Fortran-Library/include",
                 "v0/include",
-                "~/Software/Mine/diabatz/tools/v0/libHd/include"
+                "tools/v0/libHd/include",
+                "tools/v0/vibronics/include"
             ],
             "cppStandard": "c++14"
         }

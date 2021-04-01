@@ -105,7 +105,8 @@ std::vector<at::Tensor> SAGeometry::cat(const std::vector<at::Tensor> & xs, cons
 // Split an internal coordinate tensor to CNPI group symmetry adapted tensors
 // `x` is assumed to be the concatenation of CNPI group symmetry adapted internal coordinate tensors
 std::vector<at::Tensor> SAGeometry::split2CNPI(const at::Tensor & x, const int64_t & dim) const {
-    assert(("The target dimension of x must match the internal coordinate dimension", x.size(dim) == intdim_));
+    if (x.size(dim) != intdim_) throw std::invalid_argument(
+    "abinitio::SAGeometry::split2CNPI: The target dimension of x must match the internal coordinate dimension");
     std::vector<at::Tensor> xs(qs_.size());
     size_t start = 0;
     for (size_t i = 0; i < xs.size(); i++) {
@@ -118,7 +119,8 @@ std::vector<at::Tensor> SAGeometry::split2CNPI(const at::Tensor & x, const int64
 // Split an internal coordinate tensor to point group symmetry adapted tensors
 // `x` is assumed to be the concatenation of CNPI group symmetry adapted internal coordinate tensors
 std::vector<at::Tensor> SAGeometry::split2point(const at::Tensor & x, const int64_t & dim) const {
-    assert(("The target dimension of x must match the internal coordinate dimension", x.size(dim) == intdim_));
+    if (x.size(dim) != intdim_) throw std::invalid_argument(
+    "abinitio::SAGeometry::split2CNPI: The target dimension of x must match the internal coordinate dimension");
     std::vector<at::Tensor> xs(Ss_.size());
     size_t start = 0;
     for (size_t i = 0; i < xs.size(); i++) {

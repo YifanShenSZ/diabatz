@@ -23,19 +23,29 @@ set(CMAKE_PREFIX_PATH ~/Library/Torch-Chemistry)
 find_package(tchem REQUIRED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TCHEM_CXX_FLAGS}")
 
+# abinitio
+set(CMAKE_PREFIX_PATH ~/Software/Mine/diabatz/library/abinitio)
+find_package(abinitio REQUIRED)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${abinitio_CXX_FLAGS}")
+
 # libHd
 find_package(Hd REQUIRED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Hd_CXX_FLAGS}")
 
+include_directories(include)
+
 add_executable(vibronics.exe
-    read_Columbus.cpp
-    final2init.cpp
-    suggest_phonons.cpp
-    int2normal.cpp
-    main.cpp
+    source/cart2int.cpp
+    source/initHess.cpp
+    source/finalHess.cpp
+    source/final2init.cpp
+    source/suggest_phonons.cpp
+    source/int2normal.cpp
+    source/main.cpp
 )
 
 target_link_libraries(vibronics.exe
     ${Hd_LIBRARIES}
+    ${abinitio_LIBRARIES}
     ${tchem_LIBRARIES} ${CL_LIBRARIES} ${Foptim_LIBRARIES}
 )
