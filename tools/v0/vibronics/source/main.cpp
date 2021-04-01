@@ -140,7 +140,7 @@ int main(size_t argc, const char ** argv) {
     auto final_modes = tchem::utility::tensor2matrix(at::cat(final_vib.cartmodes()));
     CL::chem::xyz_vib<double> final_avogadro(final_geom.symbols(), final_geom.coords(), final_freqs, final_modes, true);
     std::cout << "The final-state normal modes can be visualized by final.log\n";
-    init_avogadro.print("final.log");
+    final_avogadro.print("final.log");
 
     std::cout << '\n';
     final2init(init_qs, final_qs, init_vib, final_vib);

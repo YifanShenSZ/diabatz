@@ -7693,7 +7693,7 @@ Yifan Shen 2021
 Echo of user command line input:
 ../build/vibronics.exe -f default -i Hd.IntCoordDef -s SAS.in -n Hd.in -c Hd.net -l 11.in 12.in 22.in -m mass.txt --init_geom anion.xyz --final_geom surface-mex.xyz --init_hess anion-hessian --contour 1
 
-Thu Apr  1 16:26:19 2021
+Thu Apr  1 16:35:55 2021
 
 The initial-state normal modes can be visualized by init.log
 The final-state normal modes can be visualized by final.log
@@ -7707,5 +7707,5 @@ Hd11 expanded in final-state normal modes can be found in Hd_1-1.txt
 Hd12 expanded in final-state normal modes can be found in Hd_1-2.txt
 Hd22 expanded in final-state normal modes can be found in Hd_2-2.txt
 
-Thu Apr  1 16:27:03 2021
+Thu Apr  1 16:36:41 2021
 Mission success
