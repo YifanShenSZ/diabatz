@@ -33,8 +33,13 @@ class kernel {
 
         // Given Cartesian coordinate r, return Hd
         at::Tensor operator()(const at::Tensor & r) const;
+        // Given CNPI group symmetry adapted and scaled internal coordinate, return Hd
+        at::Tensor operator()(const std::vector<at::Tensor> & qs) const;
+
         // Given Cartesian coordinate r, return Hd and ▽Hd
         std::tuple<at::Tensor, at::Tensor> compute_Hd_dHd(const at::Tensor & r) const;
+        // Given CNPI group symmetry adapted and scaled internal coordinate, return Hd and ▽Hd
+        std::tuple<at::Tensor, at::Tensor> compute_Hd_dHd(const std::vector<at::Tensor> & qs) const;
 };
 
 } // namespace Hd

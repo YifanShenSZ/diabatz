@@ -10,15 +10,15 @@ InputGenerator::InputGenerator(const size_t & NStates, const CL::utility::matrix
     size_t count = 0;
     for (size_t i = 0; i < NStates; i++)
     for (size_t j = i; j < NStates; j++) {
-        polynomials_[i][j] = tchem::polynomial::SAPSet(sapoly_files[count], irreds[i][j], dimensions);
+        polynomials_[i][j] = new tchem::polynomial::SAPSet(sapoly_files[count], irreds[i][j], dimensions);
         count++;
     }
 }
 InputGenerator::~InputGenerator() {}
 
-const CL::utility::matrix<tchem::polynomial::SAPSet> & InputGenerator::polynomials() const {return polynomials_;}
+const CL::utility::matrix<tchem::polynomial::SAPSet *> & InputGenerator::polynomials() const {return polynomials_;}
 
-const tchem::polynomial::SAPSet & InputGenerator::operator[](const std::pair<size_t, size_t> & indices) const {
+const tchem::polynomial::SAPSet * InputGenerator::operator[](const std::pair<size_t, size_t> & indices) const {
     size_t row = std::min(indices.first, indices.second),
            col = std::max(indices.first, indices.second);
     if (col >= polynomials_.size()) throw std::invalid_argument(
@@ -31,7 +31,7 @@ CL::utility::matrix<at::Tensor> InputGenerator::operator()(const std::vector<at:
     CL::utility::matrix<at::Tensor> xs(NStates);
     for (size_t i = 0; i < NStates; i++)
     for (size_t j = i; j < NStates; j++)
-    xs[i][j] = polynomials_[i][j](qs);
+    xs[i][j] = (*polynomials_[i][j])(qs);
     return xs;
 }
 std::tuple<CL::utility::matrix<at::Tensor>, CL::utility::matrix<at::Tensor>>
@@ -40,8 +40,8 @@ InputGenerator::compute_x_JT(const std::vector<at::Tensor> & qs) const {
     CL::utility::matrix<at::Tensor> xs(NStates), JTs(NStates);
     for (size_t i = 0; i < NStates; i++)
     for (size_t j = i; j < NStates; j++) {
-        xs[i][j] = polynomials_[i][j](qs);
-        std::vector<at::Tensor> Js = polynomials_[i][j].Jacobian(qs);
+        xs[i][j] = (*polynomials_[i][j])(qs);
+        std::vector<at::Tensor> Js = polynomials_[i][j]->Jacobian(qs);
         for (at::Tensor & J : Js) J.transpose_(0, 1);
         JTs[i][j] = at::cat(Js);
     }

@@ -29,22 +29,34 @@ size_t kernel::NStates() const {return Hdnet_->NStates();}
 
 // Given Cartesian coordinate r, return Hd
 at::Tensor kernel::operator()(const at::Tensor & r) const {
-    assert(("r must be a vector", r.sizes().size() == 1));
+    if (r.sizes().size() != 1) throw std::invalid_argument(
+    "Hd::kernel::operator(): r must be a vector");
     // Cartesian coordinate -> CNPI group symmetry adaptated and scaled internal coordinate
-    assert(("Define CNPI group symmetry adaptated and scaled internal coordinate before use", sasicset_));
     at::Tensor q = sasicset_->tchem::IC::IntCoordSet::operator()(r);
     std::vector<at::Tensor> qs = (*sasicset_)(q);
     // SASIC -> input layer
-    assert(("Define input layer generator before use", input_generator_));
     CL::utility::matrix<at::Tensor> xs = (*input_generator_)(qs);
     // input layer -> Hd
     return (*Hdnet_)(xs);
 }
+// Given CNPI group symmetry adapted and scaled internal coordinate, return Hd
+at::Tensor kernel::operator()(const std::vector<at::Tensor> & qs) const {
+    if (qs.size() != sasicset_->NIrreds()) throw std::invalid_argument(
+    "Hd::kernel::operator(): qs has wrong number of irreducibles");
+    auto NSASICs = sasicset_->NSASICs();
+    for (size_t i = 0; i < qs.size(); i++)
+    if (qs[i].size(0) != NSASICs[i]) throw std::invalid_argument(
+    "Hd::kernel::operator(): qs has wrong number of internal coordinates");
+    CL::utility::matrix<at::Tensor> xs = (*input_generator_)(qs);
+    // input layer -> Hd
+    return (*Hdnet_)(xs);
+}
+
 // Given Cartesian coordinate r, return Hd and ▽Hd
 std::tuple<at::Tensor, at::Tensor> kernel::compute_Hd_dHd(const at::Tensor & r) const {
-    assert(("r must be a vector", r.sizes().size() == 1));
+    if (r.sizes().size() != 1) throw std::invalid_argument(
+    "Hd::kernel::compute_Hd_dHd: r must be a vector");
     // Cartesian coordinate -> CNPI group symmetry adaptated and scaled internal coordinate
-    assert(("Define CNPI group symmetry adaptated and scaled internal coordinate before use", sasicset_));
     at::Tensor q, J;
     std::tie(q, J) = sasicset_->compute_IC_J(r);
     q.set_requires_grad(true);
@@ -61,7 +73,6 @@ std::tuple<at::Tensor, at::Tensor> kernel::compute_Hd_dHd(const at::Tensor & r) 
     at::Tensor JqrT = at::cat(Jqrs).transpose(0, 1);
     for (at::Tensor & q : qs) q.detach_();
     // SASIC -> input layer
-    assert(("Define input layer generator before use", input_generator_));
     size_t NStates = Hdnet_->NStates();
     CL::utility::matrix<at::Tensor> xs(NStates), JxqTs(NStates);
     std::tie(xs, JxqTs) = input_generator_->compute_x_JT(qs);
@@ -78,6 +89,21 @@ std::tuple<at::Tensor, at::Tensor> kernel::compute_Hd_dHd(const at::Tensor & r) 
     for (size_t j = i; j < NStates; j++)
     DrHd[i][j] = JqrT.mv(DqHd[i][j]);
     return std::make_tuple(Hd, DrHd);
+}
+// Given CNPI group symmetry adapted and scaled internal coordinate, return Hd and ▽Hd
+std::tuple<at::Tensor, at::Tensor> kernel::compute_Hd_dHd(const std::vector<at::Tensor> & qs) const {
+    // SASIC -> input layer
+    size_t NStates = Hdnet_->NStates();
+    CL::utility::matrix<at::Tensor> xs(NStates), JxqTs(NStates);
+    std::tie(xs, JxqTs) = input_generator_->compute_x_JT(qs);
+    // input layer -> Hd and SASIC ▽Hd
+    for (size_t i = 0; i < NStates; i++)
+    for (size_t j = i; j < NStates; j++)
+    xs[i][j].set_requires_grad(true);
+    at::Tensor Hd = (*Hdnet_)(xs);
+    at::Tensor DqHd = Hderiva::DxHd(Hd, xs, JxqTs);
+    Hd.detach_();
+    return std::make_tuple(Hd, DqHd);
 }
 
 } // namespace Hd
