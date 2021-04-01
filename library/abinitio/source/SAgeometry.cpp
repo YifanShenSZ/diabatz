@@ -92,7 +92,8 @@ void SAGeometry::to(const c10::DeviceType & device) {
 // Concatenate CNPI group symmetry adapted tensors to point group symmetry adapted tensors
 std::vector<at::Tensor> SAGeometry::cat(const std::vector<at::Tensor> & xs, const int64_t & dim) const {
     assert(("`point2CNPI_` must have been constructed", ! point2CNPI_.empty()));
-    assert(("Number of CNPI group symmetry adapted tensors must equal to CNPI group order", xs.size() == qs_.size()));
+    if (xs.size() != qs_.size()) throw std::invalid_argument(
+    "abinitio::SAGeometry::cat: the number of CNPI group symmetry adapted tensors must equal to CNPI group order");
     std::vector<at::Tensor> ys(NPointIrreds());
     for (size_t i = 0; i < ys.size(); i++) {
         std::vector<at::Tensor> xmatches(point2CNPI_[i].size());

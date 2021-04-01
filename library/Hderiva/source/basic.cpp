@@ -13,11 +13,16 @@ namespace Hderiva {
 // Only read the "strict upper triangle" (i < j) of M
 // Only write the "upper triangle" (i <= j) of the output tensor
 at::Tensor commutor_term(const at::Tensor & A, const at::Tensor & M) {
-    assert(("A must be a matrix or higher order tensor", A.sizes().size() >= 2));
-    assert(("M must be a 3rd-order tensor", M.sizes().size() == 3));
-    assert(("The matrix part of A must be square", A.size(0) == A.size(1)));
-    assert(("The matrix part of M must be square", M.size(0) == M.size(1)));
-    assert(("A & M must be matrix mutiplicable", A.size(1) == M.size(0)));
+    if (A.sizes().size() < 2) throw std::invalid_argument(
+    "Hderiva::commutor_term: A must be a matrix or higher order tensor");
+    if (M.sizes().size() != 3) throw std::invalid_argument(
+    "Hderiva::commutor_term: M must be a 3rd-order tensor");
+    if (A.size(0) != A.size(1)) throw std::invalid_argument(
+    "Hderiva::commutor_term: The matrix part of A must be square");
+    if (M.size(0) != M.size(1)) throw std::invalid_argument(
+    "Hderiva::commutor_term: The matrix part of M must be square");
+    if (A.size(1) != M.size(0)) throw std::invalid_argument(
+    "Hderiva::commutor_term: A & M must be matrix mutiplicable");
     std::vector<int64_t> dims(A.sizes().size() + 1);
     for (size_t i = 0; i < A.sizes().size(); i++) dims[i] = A.size(i);
     dims.back() = M.size(-1);
