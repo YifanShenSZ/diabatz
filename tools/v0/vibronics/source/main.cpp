@@ -118,11 +118,6 @@ int main(size_t argc, const char ** argv) {
     std::vector<at::Tensor> init_Hs = Hessian_cart2int(init_r, init_CNPI2point, init_carthess);
     tchem::chem::SANormalMode init_vib(init_geom.masses(), init_Js, init_Hs);
     init_vib.kernel();
-    auto init_freqs = tchem::utility::tensor2vector(at::cat(init_vib.frequencies()));
-    auto init_modes = tchem::utility::tensor2matrix(at::cat(init_vib.cartmodes()));
-    CL::chem::xyz_vib<double> init_avogadro(init_geom.symbols(), init_geom.coords(), init_freqs, init_modes, true);
-    std::cout << "The initial-state normal modes can be visualized by init.log\n";
-    init_avogadro.print("init.log");
 
     at::Tensor final_intddHd = compute_intddHd(final_r, Hdkernel);
     at::Tensor final_inthess = (final_intddHd[0][0] + final_intddHd[1][1]) / 2.0;
@@ -136,11 +131,36 @@ int main(size_t argc, const char ** argv) {
     }
     tchem::chem::SANormalMode final_vib(final_geom.masses(), final_Js, final_Hs);
     final_vib.kernel();
-    auto final_freqs = tchem::utility::tensor2vector(at::cat(final_vib.frequencies()));
-    auto final_modes = tchem::utility::tensor2matrix(at::cat(final_vib.cartmodes()));
-    CL::chem::xyz_vib<double> final_avogadro(final_geom.symbols(), final_geom.coords(), final_freqs, final_modes, true);
-    std::cout << "The final-state normal modes can be visualized by final.log\n";
-    final_avogadro.print("final.log");
+
+    for (size_t i = 0; i < init_vib.frequencies().size(); i++) {
+        const at::Tensor & frequency = init_vib.frequencies()[i];
+        std::ofstream ofs; ofs.open("initial-freq-" + std::to_string(i + 1) + ".txt");
+        for (size_t j = 0; j < frequency.size(0); j++)
+        ofs << std::scientific << std::setw(25) << std::setprecision(15) << frequency[j].item<double>() << '\n';
+        ofs.close();
+    }
+    std::cout << "The initial-state normal modes can be visualized by init-*.log\n";
+    for (size_t i = 0; i < init_vib.NIrreds(); i++) {
+        auto freq = tchem::utility::tensor2vector(init_vib.frequencies()[i]);
+        auto mode = tchem::utility::tensor2matrix(init_vib.cartmodes  ()[i]);
+        CL::chem::xyz_vib<double> avogadro(init_geom.symbols(), init_geom.coords(), freq, mode, true);
+        avogadro.print("init-" + std::to_string(i + 1) + ".log");
+    }
+
+    for (size_t i = 0; i < final_vib.frequencies().size(); i++) {
+        const at::Tensor & frequency = final_vib.frequencies()[i];
+        std::ofstream ofs; ofs.open("final-freq-" + std::to_string(i + 1) + ".txt");
+        for (size_t j = 0; j < frequency.size(0); j++)
+        ofs << std::scientific << std::setw(25) << std::setprecision(15) << frequency[j].item<double>() << '\n';
+        ofs.close();
+    }
+    std::cout << "The final-state normal modes can be visualized by final-*.log\n";
+    for (size_t i = 0; i < final_vib.NIrreds(); i++) {
+        auto freq = tchem::utility::tensor2vector(final_vib.frequencies()[i]);
+        auto mode = tchem::utility::tensor2matrix(final_vib.cartmodes  ()[i]);
+        CL::chem::xyz_vib<double> avogadro(final_geom.symbols(), final_geom.coords(), freq, mode, true);
+        avogadro.print("final-" + std::to_string(i + 1) + ".log");
+    }
 
     std::cout << '\n';
     final2init(init_qs, final_qs, init_vib, final_vib);
