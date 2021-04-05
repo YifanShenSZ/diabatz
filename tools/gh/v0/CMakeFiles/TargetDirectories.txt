@@ -1,3 +1,0 @@
-/home/yshen/Software/Mine/diabatz/tools/gh/v0/CMakeFiles/edit_cache.dir
-/home/yshen/Software/Mine/diabatz/tools/gh/v0/CMakeFiles/rebuild_cache.dir
-/home/yshen/Software/Mine/diabatz/tools/gh/v0/CMakeFiles/gh.exe.dir
