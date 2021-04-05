@@ -8,7 +8,7 @@
 argparse::ArgumentParser parse_args(const size_t & argc, const char ** & argv) {
     CL::utility::echo_command(argc, argv, std::cout);
     std::cout << '\n';
-    argparse::ArgumentParser parser("Evaluation for diabatz version 0");
+    argparse::ArgumentParser parser("Evaluation for diabatz");
 
     // required arguments
     parser.add_argument("-d","--diabatz", '+', false, "diabatz definition files");
@@ -30,7 +30,7 @@ void print_grad(const at::Tensor & grad, std::ostream & ostream) {
 }
 
 int main(size_t argc, const char ** argv) {
-    std::cout << "Evaluation for diabatz version 0\n"
+    std::cout << "Evaluation for diabatz\n"
               << "Yifan Shen 2021\n\n";
     argparse::ArgumentParser args = parse_args(argc, argv);
     CL::utility::show_time(std::cout);

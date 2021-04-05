@@ -26,11 +26,18 @@ set(Hd_INCLUDE_DIRS ${HdROOT}/include)
 add_library(Hd STATIC IMPORTED)
 set(Hd_LIBRARIES Hd)
 
-# dependency 1: Cpp-Library
-if(NOT CL_FOUND)
-    find_package(CL REQUIRED PATHS ~/Library/Cpp-Library)
-    list(APPEND Hd_INCLUDE_DIRS ${CL_INCLUDE_DIRS})
-    list(APPEND Hd_LIBRARIES ${CL_LIBRARIES})
+# dependency 4: Hderiva
+if(NOT Hderiva_FOUND)
+    find_package(Hderiva REQUIRED PATHS ~/Software/Mine/diabatz/library/Hderiva)
+    list(APPEND Hd_INCLUDE_DIRS ${Hderiva_INCLUDE_DIRS})
+    list(APPEND Hd_LIBRARIES ${Hderiva_LIBRARIES})
+endif()
+
+# dependency 3: obnet
+if(NOT obnet_FOUND)
+    find_package(obnet REQUIRED PATHS ~/Software/Mine/diabatz/library/obnet)
+    list(APPEND Hd_INCLUDE_DIRS ${obnet_INCLUDE_DIRS})
+    list(APPEND Hd_LIBRARIES ${obnet_LIBRARIES})
 endif()
 
 # dependency 2: Torch-Chemistry
@@ -41,18 +48,11 @@ if(NOT tchem_FOUND)
     set(Hd_CXX_FLAGS "${tchem_CXX_FLAGS}")
 endif()
 
-# dependency 3: obnet
-if(NOT obnet_FOUND)
-    find_package(obnet REQUIRED PATHS ~/Software/Mine/diabatz/library/obnet)
-    list(APPEND Hd_INCLUDE_DIRS ${obnet_INCLUDE_DIRS})
-    list(APPEND Hd_LIBRARIES ${obnet_LIBRARIES})
-endif()
-
-# dependency 4: Hderiva
-if(NOT Hderiva_FOUND)
-    find_package(Hderiva REQUIRED PATHS ~/Software/Mine/diabatz/library/Hderiva)
-    list(APPEND Hd_INCLUDE_DIRS ${Hderiva_INCLUDE_DIRS})
-    list(APPEND Hd_LIBRARIES ${Hderiva_LIBRARIES})
+# dependency 1: Cpp-Library
+if(NOT CL_FOUND)
+    find_package(CL REQUIRED PATHS ~/Library/Cpp-Library)
+    list(APPEND Hd_INCLUDE_DIRS ${CL_INCLUDE_DIRS})
+    list(APPEND Hd_LIBRARIES ${CL_LIBRARIES})
 endif()
 
 # import location

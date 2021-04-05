@@ -10,7 +10,7 @@ void compare();
 argparse::ArgumentParser parse_args(const size_t & argc, const char ** & argv) {
     CL::utility::echo_command(argc, argv, std::cout);
     std::cout << '\n';
-    argparse::ArgumentParser parser("Root mean square deviation analyzer for diabatz version 0");
+    argparse::ArgumentParser parser("Root mean square deviation analyzer for diabatz");
 
     // required arguments
     parser.add_argument("-d","--diabatz",  '+', false, "diabatz definition files");
@@ -24,7 +24,7 @@ argparse::ArgumentParser parse_args(const size_t & argc, const char ** & argv) {
 }
 
 int main(size_t argc, const char ** argv) {
-    std::cout << "Root mean square deviation analyzer for diabatz version 0\n"
+    std::cout << "Root mean square deviation analyzer for diabatz\n"
               << "Yifan Shen 2021\n\n";
     argparse::ArgumentParser args = parse_args(argc, argv);
     CL::utility::show_time(std::cout);
