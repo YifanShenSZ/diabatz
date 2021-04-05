@@ -1,0 +1,53 @@
+Determining if the pthread_create exist failed with the following output:
+Change Dir: /home/yshen/Software/Mine/diabatz/tools/gh/v0/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_f7e5b/fast"
+/usr/bin/make -f CMakeFiles/cmTC_f7e5b.dir/build.make CMakeFiles/cmTC_f7e5b.dir/build
+make[1]: Entering directory '/home/yshen/Software/Mine/diabatz/tools/gh/v0/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_f7e5b.dir/CheckSymbolExists.c.o
+/opt/intel/compilers_and_libraries_2019.4.243/linux/bin/intel64/icc    -o CMakeFiles/cmTC_f7e5b.dir/CheckSymbolExists.c.o   -c /home/yshen/Software/Mine/diabatz/tools/gh/v0/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_f7e5b
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_f7e5b.dir/link.txt --verbose=1
+/opt/intel/compilers_and_libraries_2019.4.243/linux/bin/intel64/icc      -rdynamic CMakeFiles/cmTC_f7e5b.dir/CheckSymbolExists.c.o  -o cmTC_f7e5b 
+CMakeFiles/cmTC_f7e5b.dir/CheckSymbolExists.c.o: In function `main':
+CheckSymbolExists.c:(.text+0x23): undefined reference to `pthread_create'
+CMakeFiles/cmTC_f7e5b.dir/build.make:97: recipe for target 'cmTC_f7e5b' failed
+make[1]: *** [cmTC_f7e5b] Error 1
+make[1]: Leaving directory '/home/yshen/Software/Mine/diabatz/tools/gh/v0/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_f7e5b/fast' failed
+make: *** [cmTC_f7e5b/fast] Error 2
+
+File /home/yshen/Software/Mine/diabatz/tools/gh/v0/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <pthread.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef pthread_create
+  return ((int*)(&pthread_create))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the function pthread_create exists in the pthreads failed with the following output:
+Change Dir: /home/yshen/Software/Mine/diabatz/tools/gh/v0/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_39cd4/fast"
+/usr/bin/make -f CMakeFiles/cmTC_39cd4.dir/build.make CMakeFiles/cmTC_39cd4.dir/build
+make[1]: Entering directory '/home/yshen/Software/Mine/diabatz/tools/gh/v0/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_39cd4.dir/CheckFunctionExists.c.o
+/opt/intel/compilers_and_libraries_2019.4.243/linux/bin/intel64/icc   -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_39cd4.dir/CheckFunctionExists.c.o   -c /usr/share/cmake-3.10/Modules/CheckFunctionExists.c
+Linking C executable cmTC_39cd4
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_39cd4.dir/link.txt --verbose=1
+/opt/intel/compilers_and_libraries_2019.4.243/linux/bin/intel64/icc  -DCHECK_FUNCTION_EXISTS=pthread_create    -rdynamic CMakeFiles/cmTC_39cd4.dir/CheckFunctionExists.c.o  -o cmTC_39cd4 -lpthreads 
+ld: cannot find -lpthreads
+CMakeFiles/cmTC_39cd4.dir/build.make:97: recipe for target 'cmTC_39cd4' failed
+make[1]: *** [cmTC_39cd4] Error 1
+make[1]: Leaving directory '/home/yshen/Software/Mine/diabatz/tools/gh/v0/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_39cd4/fast' failed
+make: *** [cmTC_39cd4/fast] Error 2
+
+
