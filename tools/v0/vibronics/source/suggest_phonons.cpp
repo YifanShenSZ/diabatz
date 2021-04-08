@@ -125,24 +125,31 @@ const tchem::chem::SANormalMode & init_vib, const tchem::chem::SANormalMode & fi
     ofs.close();
     ofs.open("phonons.txt"); {
         ofs << "phonons for initial-state totally symemtric irreducible only:\n";
-        ofs << "(";
-        for (size_t i = 0; i < init_qs[0].size(0) - 1; i++) ofs << phonons[i] << ", ";
-        ofs << phonons[init_qs[0].size(0) - 1] << "),\n";
-        size_t count = init_qs[0].size(0);
-        for (size_t irred = 1; irred < init_qs.size(); irred++) {
+        size_t count = 0;
+        for (size_t irred = 0; irred < final_qs.size(); irred++) {
             ofs << "(";
-            for (size_t i = 0; i < init_qs[irred].size(0) - 1; i++) {
-                ofs << 0 << ", ";
+            if (count < init_qs[0].size(0)) {
+                for (size_t i = 0; i < final_qs[irred].size(0) - 1; i++) {
+                    ofs << phonons[count] << ", ";
+                    count++;
+                }
+                ofs << phonons[count] << "),\n";
                 count++;
             }
-            ofs << 0 << "),\n";
-            count++;
+            else {
+                for (size_t i = 0; i < final_qs[irred].size(0) - 1; i++) {
+                    ofs << 0 << ", ";
+                    count++;
+                }
+                ofs << 0 << "),\n";
+                count++;
+            }
         }
         ofs << "phonons:\n";
         count = 0;
-        for (size_t irred = 0; irred < init_qs.size(); irred++) {
+        for (size_t irred = 0; irred < final_qs.size(); irred++) {
             ofs << "(";
-            for (size_t i = 0; i < init_qs[irred].size(0) - 1; i++) {
+            for (size_t i = 0; i < final_qs[irred].size(0) - 1; i++) {
                 ofs << phonons[count] << ", ";
                 count++;
             }
