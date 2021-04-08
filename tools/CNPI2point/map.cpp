@@ -21,7 +21,7 @@ void map(const std::shared_ptr<abinitio::Geometry> & ham) {
     else {
         std::cout << "The nonzero CNPI group irreducibles are:\n";
         for (size_t i = 0; i < qs.size(); i++)
-        if (qNotZero[i]) std::cout << i << ' ';
+        if (qNotZero[i]) std::cout << i + 1 << ' ';
         std::cout << '\n';
     }
 }

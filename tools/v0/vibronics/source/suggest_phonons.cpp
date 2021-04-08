@@ -101,7 +101,8 @@ const tchem::chem::SANormalMode & init_vib, const tchem::chem::SANormalMode & fi
     for (size_t i = 0; i < intdim; i++) {
         double bound = std::max(std::abs(lower_bound[i]), std::abs(upper_bound[i]));
         dble_phonons[i] = final_freqs[i].item<double>() * bound * bound - 0.5;
-        phonons[i] = ceil(dble_phonons[i]);
+        if (dble_phonons[i] < 0.0) phonons[i] = 0;
+        else phonons[i] = ceil(dble_phonons[i]);
     }
     // Output
     std::ofstream ofs;

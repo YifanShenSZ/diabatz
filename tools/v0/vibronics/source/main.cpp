@@ -38,8 +38,7 @@ argparse::ArgumentParser parse_args(const size_t & argc, const char ** & argv) {
     parser.add_argument("--contour", 1, false, "contour value");
 
     // optional argument
-    parser.add_argument("--init_CPNI2point",  '+', true, "how CNPI group irreducibles map to point group irreducibles at initial-state equilibrium geometry");
-    parser.add_argument("--final_CPNI2point", '+', true, "how CNPI group irreducibles map to point group irreducibles at   final-state equilibrium geometry");
+    parser.add_argument("--init_CNPI2point",  '+', true, "how CNPI group irreducibles map to point group irreducibles at initial-state equilibrium geometry");
 
     parser.parse_args(argc, argv);
     return parser;
@@ -96,19 +95,10 @@ int main(size_t argc, const char ** argv) {
     std::vector<at::Tensor> final_CNPI_qs, final_CNPI_Js;
     std::tie(final_CNPI_qs, final_CNPI_Js) = cart2int(final_r);
     std::vector<size_t> final_CNPI2point(final_CNPI_qs.size());
-    if (args.gotArgument("final_CNPI2point")) {
-        final_CNPI2point = args.retrieve<std::vector<size_t>>("final_CNPI2point");
-        for (size_t & irred : final_CNPI2point) irred -= 1;
-    }
-    else {
-        for (size_t i = 1; i < final_CNPI_qs.size(); i++)
-        if (final_CNPI_qs[i].norm().item<double>() > 1e-6) {
-            std::cerr << "Warning: the point group of the final-state equilibirum geometry may not be isomorphic to the CNPI group\n"
-                      << "Please consider adding argument --final_CPNI2point\n";
-            break;
-        }
-        std::iota(final_CNPI2point.begin(), final_CNPI2point.end(), 0);
-    }
+    for (size_t i = 1; i < final_CNPI_qs.size(); i++)
+    if (final_CNPI_qs[i].norm().item<double>() > 1e-6) throw std::invalid_argument(
+    "the point group of the final-state equilibirum geometry must be isomorphic to the CNPI group\n");
+    std::iota(final_CNPI2point.begin(), final_CNPI2point.end(), 0);
     abinitio::SAGeometry final_SAgeom(final_r, final_CNPI2point, cart2int);
     std::vector<at::Tensor> final_qs = final_SAgeom.cat(final_CNPI_qs),
                             final_Js = final_SAgeom.cat(final_CNPI_Js);
@@ -132,6 +122,8 @@ int main(size_t argc, const char ** argv) {
     tchem::chem::SANormalMode final_vib(final_geom.masses(), final_Js, final_Hs);
     final_vib.kernel();
 
+    std::cout << "Initial-state zero-point harmonic vibrational energy = "
+              << 0.5 * at::cat(init_vib.frequencies()).sum().item<double>() / 4.556335830019422e-6 << " cm^-1\n";
     for (size_t i = 0; i < init_vib.frequencies().size(); i++) {
         const at::Tensor & frequency = init_vib.frequencies()[i];
         std::ofstream ofs; ofs.open("initial-freq-" + std::to_string(i + 1) + ".txt");
@@ -147,6 +139,8 @@ int main(size_t argc, const char ** argv) {
         avogadro.print("init-" + std::to_string(i + 1) + ".log");
     }
 
+    std::cout << "Final-state zero-point harmonic vibrational energy = "
+              << 0.5 * at::cat(final_vib.frequencies()).sum().item<double>() / 4.556335830019422e-6 << " cm^-1\n";
     for (size_t i = 0; i < final_vib.frequencies().size(); i++) {
         const at::Tensor & frequency = final_vib.frequencies()[i];
         std::ofstream ofs; ofs.open("final-freq-" + std::to_string(i + 1) + ".txt");

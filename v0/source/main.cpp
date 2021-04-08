@@ -21,6 +21,7 @@ argparse::ArgumentParser parse_args(const size_t & argc, const char ** & argv) {
     // optional arguments
     parser.add_argument("-z","--zero_point",    1, true, "zero of potential energy, default = 0");
     parser.add_argument("-w","--weight",        1, true, "Ethresh in weight adjustment, default = 1");
+    parser.add_argument("-g","--guess_diag",  '+', true, "initial guess of Hd diagonal, default = pytorch initialization");
     parser.add_argument("-c","--checkpoint",    1, true, "a trained Hd parameter to continue with");
     parser.add_argument("-m","--max_iteration", 1, true, "default = 100");
 
@@ -39,13 +40,21 @@ int main(size_t argc, const char ** argv) {
     CL::utility::show_time(std::cout);
     std::cout << '\n';
 
-    std::string format = args.retrieve<std::string>("format");
-    std::string IC     = args.retrieve<std::string>("IC");
-    std::string SAS    = args.retrieve<std::string>("SAS");
+    std::string format = args.retrieve<std::string>("format"),
+                IC     = args.retrieve<std::string>("IC"),
+                SAS    = args.retrieve<std::string>("SAS");
     sasicset = std::make_shared<tchem::IC::SASICSet>(format, IC, SAS);
 
     Hdnet = std::make_shared<obnet::symat>(args.retrieve<std::string>("net"));
     Hdnet->train();
+    if (args.gotArgument("guess_diag")) {
+        auto guess_diag = args.retrieve<std::vector<double>>("guess_diag");
+        if (guess_diag.size() != Hdnet->NStates()) throw std::invalid_argument(
+        "argument guess_diag: inconsistent number of diagonal elements");
+        auto ps = Hdnet->parameters();
+        torch::NoGradGuard no_grad;
+        for (size_t i = 0; i < Hdnet->NStates(); i++) ps[i][i][1].fill_(guess_diag[i]);
+    }
     if (args.gotArgument("checkpoint")) torch::load(Hdnet->elements, args.retrieve<std::string>("checkpoint"));
 
     std::vector<std::string> input_layers = args.retrieve<std::vector<std::string>>("input_layers");
