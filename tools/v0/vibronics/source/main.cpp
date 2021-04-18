@@ -110,7 +110,22 @@ int main(size_t argc, const char ** argv) {
     init_vib.kernel();
 
     at::Tensor final_intddHd = compute_intddHd(final_r, Hdkernel);
-    at::Tensor final_inthess = (final_intddHd[0][0] + final_intddHd[1][1]) / 2.0;
+    at::Tensor final_inthess;
+    // Determine representation
+    at::Tensor final_Hd, final_dHd;
+    std::tie(final_Hd, final_dHd) = Hdkernel.compute_Hd_dHd(final_r);
+    at::Tensor final_energy, final_state;
+    std::tie(final_energy, final_state) = final_Hd.symeig(true);
+    if ((final_energy[1] - final_energy[0]).item<double>() < 1e-4) {
+        std::cout << "The final-state equilibirum geometry is a denegerate point, using\n"
+                  << "    Hessian = (▽▽Hd[0][0] + ▽▽Hd[1][1]) / 2\n";
+        final_inthess = (final_intddHd[0][0] + final_intddHd[1][1]) / 2.0;
+    }
+    else {
+        std::cout << "The final-state equilibirum geometry is a minimum, using\n"
+                  << "    Hessian = ▽▽Hd[0][0]\n";
+        final_inthess = final_intddHd[0][0];
+    }
     const auto & Ss_ = final_SAgeom.Ss();
     std::vector<at::Tensor> final_Hs(Ss_.size());
     size_t start = 0;
