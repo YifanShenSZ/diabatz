@@ -8,7 +8,7 @@ for directory in C1 Cs; do
     cd ../../../..
 done
 
-for directory in obnet Hderiva; do
+for directory in DimRed obnet Hderiva; do
     echo
     echo "Entre "$directory"/test"
     cd $directory/test/build

@@ -8,6 +8,7 @@
                 "~/Library/Cpp-Library/include",
                 "~/Library/Torch-Chemistry/include",
                 "library/abinitio/include",
+                "library/DimRed/include",
                 "library/obnet/include",
                 "library/Hderiva/include",
                 "~/Library/Fortran-Library/include",

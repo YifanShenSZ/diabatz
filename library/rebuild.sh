@@ -1,4 +1,4 @@
-for directory in abinitio obnet Hderiva; do
+for directory in abinitio DimRed obnet Hderiva; do
     echo
     echo "Entre "$directory
     cd $directory/build

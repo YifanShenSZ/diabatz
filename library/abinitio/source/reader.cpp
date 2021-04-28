@@ -16,7 +16,7 @@ Reader::Reader() {}
 Reader::Reader(const std::vector<std::string> & user_list) {
     if (user_list.empty()) throw std::invalid_argument(
     "abinitio::Reader::Reader: User should specify files or directories");
-    for (std::string item : user_list) {
+    for (const std::string & item : user_list) {
         if (item.back() == '/') data_directories_.push_back(item);
         else {
             std::string prefix = CL::utility::GetPrefix(item);

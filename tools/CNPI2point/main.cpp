@@ -29,8 +29,8 @@ argparse::ArgumentParser parse_args(const size_t & argc, const char ** & argv) {
 int main(size_t argc, const char ** argv) {
     std::cout << "CNPI2point: Map the global CNPI group to the local point group of a certain data point\n"
               << "Yifan Shen 2021\n\n";
-
     argparse::ArgumentParser args = parse_args(argc, argv);
+    CL::utility::show_time(std::cout);
     std::cout << '\n';
 
     std::string format = args.retrieve<std::string>("format");

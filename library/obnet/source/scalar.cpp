@@ -22,7 +22,7 @@ scalar::scalar(scalar * source) {
 }
 scalar::scalar(const std::vector<size_t> & dimensions, const bool & symmetric) {
     if (dimensions.back() != 1) throw std::invalid_argument(
-    "obnet::scalar::scalar: The last dimension must be 1 to be a scalar");
+    "obnet::scalar: The last dimension must be 1 to be a scalar");
     for (size_t i = 0; i < dimensions.size() - 1; i++) {
         torch::nn::Linear layer = register_module("fc" + std::to_string(i),
             torch::nn::Linear(torch::nn::LinearOptions(dimensions[i], dimensions[i + 1])
@@ -53,6 +53,6 @@ at::Tensor scalar::forward(const at::Tensor & x) {
     y = fcs[fcs->size() - 1]->as<torch::nn::Linear>()->forward(y);
     return y[0];
 }
-at::Tensor scalar::operator()(const at::Tensor & x) {return forward(x);}
+at::Tensor scalar::operator()(const at::Tensor & x) {return this->forward(x);}
 
 } // namespace obnet

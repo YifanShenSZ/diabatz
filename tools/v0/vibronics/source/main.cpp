@@ -88,7 +88,7 @@ int main(size_t argc, const char ** argv) {
         }
         std::iota(init_CNPI2point.begin(), init_CNPI2point.end(), 0);
     }
-    abinitio::SAGeometry init_SAgeom( init_r,  init_CNPI2point, cart2int);
+    abinitio::SAGeometry init_SAgeom(init_r, init_CNPI2point, cart2int);
     std::vector<at::Tensor> init_qs = init_SAgeom.cat(init_CNPI_qs),
                             init_Js = init_SAgeom.cat(init_CNPI_Js);
     // final-state equilibrium internal coordinate geometry
@@ -118,12 +118,12 @@ int main(size_t argc, const char ** argv) {
     std::tie(final_energy, final_state) = final_Hd.symeig(true);
     if ((final_energy[1] - final_energy[0]).item<double>() < 1e-4) {
         std::cout << "The final-state equilibirum geometry is a denegerate point, using\n"
-                  << "    Hessian = (▽▽Hd[0][0] + ▽▽Hd[1][1]) / 2\n";
+                  << "    Hessian = (▽▽Hd[0][0] + ▽▽Hd[1][1]) / 2\n\n";
         final_inthess = (final_intddHd[0][0] + final_intddHd[1][1]) / 2.0;
     }
     else {
         std::cout << "The final-state equilibirum geometry is a minimum, using\n"
-                  << "    Hessian = ▽▽Hd[0][0]\n";
+                  << "    Hessian = ▽▽Hd[0][0]\n\n";
         final_inthess = final_intddHd[0][0];
     }
     const auto & Ss_ = final_SAgeom.Ss();
@@ -169,6 +169,19 @@ int main(size_t argc, const char ** argv) {
         auto mode = tchem::utility::tensor2matrix(final_vib.cartmodes  ()[i]);
         CL::chem::xyz_vib<double> avogadro(final_geom.symbols(), final_geom.coords(), freq, mode, true);
         avogadro.print("final-" + std::to_string(i + 1) + ".log");
+    }
+    std::cout << "The transformation matrix from internal coordiante to final-state normal coordinate can be found in Linv*.txt\n";
+    for (size_t i = 0; i < final_vib.NIrreds(); i++) {
+        const auto & Linv = final_vib.Linvs()[i];
+        std::ofstream ofs;
+        ofs.open("Linv-" + std::to_string(i + 1) + ".txt"); {
+            for (size_t i = 0; i < Linv.size(0); i++) {
+                for (size_t j = 0; j < Linv.size(1); j++)
+                ofs << std::setw(25) << std::scientific << std::setprecision(15) << Linv[i][j].item<double>();
+                ofs << '\n';
+            }
+        }
+        ofs.close();
     }
 
     std::cout << '\n';
