@@ -1,0 +1,47 @@
+Pretrain dimensionality reduction network by training an autoencoder
+Yifan Shen 2021
+
+Echo of user command line input:
+../autoencoder.exe -f default -i IntCoordDef -s SAS.in -I 1 -n encoder.in decoder.in -d min-Cs/ -o SGD
+
+Wed Apr 28 23:22:10 2021
+
+The data set will be read from: 
+    min-Cs/, 
+There are 76 data points
+
+Adopt SGD optimizer
+batch size = 32
+Wed Apr 28 23:22:18 2021
+epoch = 10, RMSD = 0.123427
+
+Wed Apr 28 23:22:18 2021
+epoch = 20, RMSD = 0.0131691
+
+Wed Apr 28 23:22:18 2021
+epoch = 30, RMSD = 0.00803366
+
+Wed Apr 28 23:22:18 2021
+epoch = 40, RMSD = 0.00791209
+
+Wed Apr 28 23:22:19 2021
+epoch = 50, RMSD = 0.00790608
+
+Wed Apr 28 23:22:19 2021
+epoch = 60, RMSD = 0.00790134
+
+Wed Apr 28 23:22:19 2021
+epoch = 70, RMSD = 0.00790327
+
+Wed Apr 28 23:22:19 2021
+epoch = 80, RMSD = 0.00790424
+
+Wed Apr 28 23:22:19 2021
+epoch = 90, RMSD = 0.00790265
+
+Wed Apr 28 23:22:20 2021
+epoch = 100, RMSD = 0.00790844
+
+
+Wed Apr 28 23:22:20 2021
+Mission success

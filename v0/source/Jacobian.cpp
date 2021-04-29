@@ -2,9 +2,9 @@
 
 #include <Hderiva/Hderiva.hpp>
 
-#include "global.hpp"
-#include "data.hpp"
-#include "train.hpp"
+#include "../include/global.hpp"
+#include "../include/data.hpp"
+#include "../include/train.hpp"
 
 namespace train {
 

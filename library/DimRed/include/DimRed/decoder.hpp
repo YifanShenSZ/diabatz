@@ -9,6 +9,9 @@ struct Decoder : torch::nn::Module {
     torch::nn::ModuleList fcs;
 
     Decoder();
+    // This copy constructor performs a somewhat deepcopy,
+    // where new modules are generated and have same values as `source`
+    Decoder(const std::shared_ptr<Decoder> & source);
     Decoder(const std::vector<size_t> & dimensions, const bool & symmetric);
     ~Decoder();
 

@@ -10,8 +10,8 @@
 
 #include <Hd/kernel.hpp>
 
-#include "cart2int.hpp"
-#include "routines.hpp"
+#include "../include/cart2int.hpp"
+#include "../include/routines.hpp"
 
 argparse::ArgumentParser parse_args(const size_t & argc, const char ** & argv) {
     CL::utility::echo_command(argc, argv, std::cout);

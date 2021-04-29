@@ -9,9 +9,6 @@ namespace obnet {
 symat::symat() {}
 // This copy constructor performs a somewhat deepcopy,
 // where new modules are generated and have same values as `source`
-// We do not use const reference because
-// torch::nn::ModuleList::operator[] does not support `const`,
-// although this constructor would not change `source` of course
 symat::symat(const std::shared_ptr<symat> & source) {
     this->NStates_ = source->NStates_;
     this-> irreds_ = source-> irreds_;

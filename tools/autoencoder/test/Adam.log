@@ -1,0 +1,48 @@
+Pretrain dimensionality reduction network by training an autoencoder
+Yifan Shen 2021
+
+Echo of user command line input:
+../autoencoder.exe -f default -i IntCoordDef -s SAS.in -I 1 -n encoder.in decoder.in -d min-Cs/ -o Adam
+
+Wed Apr 28 23:22:20 2021
+
+The data set will be read from: 
+    min-Cs/, 
+There are 76 data points
+
+Adopt Adam optimizer
+batch size = 32
+
+Wed Apr 28 23:22:28 2021
+epoch = 10, RMSD = 0.780031
+
+Wed Apr 28 23:22:28 2021
+epoch = 20, RMSD = 0.439767
+
+Wed Apr 28 23:22:28 2021
+epoch = 30, RMSD = 0.234393
+
+Wed Apr 28 23:22:29 2021
+epoch = 40, RMSD = 0.105865
+
+Wed Apr 28 23:22:29 2021
+epoch = 50, RMSD = 0.0373661
+
+Wed Apr 28 23:22:29 2021
+epoch = 60, RMSD = 0.0116743
+
+Wed Apr 28 23:22:29 2021
+epoch = 70, RMSD = 0.008265
+
+Wed Apr 28 23:22:29 2021
+epoch = 80, RMSD = 0.00803085
+
+Wed Apr 28 23:22:30 2021
+epoch = 90, RMSD = 0.0079315
+
+Wed Apr 28 23:22:30 2021
+epoch = 100, RMSD = 0.00791628
+
+
+Wed Apr 28 23:22:30 2021
+Mission success

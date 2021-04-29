@@ -35,7 +35,7 @@ extern std::vector<std::vector<std::shared_ptr<DegHam>>> degchunk;
 // Thread i works on rows [segstart[i], segstart[i + 1])
 extern std::vector<size_t> segstart;
 
-inline void p2c(const int32_t & thread, double * c) {
+inline void p2c(const size_t & thread, double * c) {
     size_t count = 0;
     for (const at::Tensor & p : Hdnets[thread]->elements->parameters()) {
         size_t numel = p.numel();
@@ -43,7 +43,7 @@ inline void p2c(const int32_t & thread, double * c) {
         count += numel;
     }
 }
-inline void c2p(const double * c, const int32_t & thread) {
+inline void c2p(const double * c, const size_t & thread) {
     torch::NoGradGuard no_grad;
     size_t count = 0;
     for (const at::Tensor & p : Hdnets[thread]->elements->parameters()) {

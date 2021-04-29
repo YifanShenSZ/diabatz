@@ -1,3 +1,5 @@
+#include <CppLibrary/utility.hpp>
+
 #include "../include/global.hpp"
 
 std::shared_ptr<tchem::IC::SASICSet> sasicset;
@@ -26,17 +28,34 @@ std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> cart2int(const at::
     return std::make_tuple(qs, Js);
 }
 
-std::shared_ptr<obnet::symat> Hdnet;
+size_t irreducible;
+std::shared_ptr<DimRed::Encoder> encoder;
+std::shared_ptr<DimRed::Decoder> decoder;
 
-std::shared_ptr<InputGenerator> input_generator;
+std::shared_ptr<abinitio::DataSet<abinitio::SAGeometry>> geom_set;
 
-std::tuple<CL::utility::matrix<at::Tensor>, CL::utility::matrix<at::Tensor>>
-int2input(const std::vector<at::Tensor> & qs) {
-    assert(("Define input layer generator before use", input_generator));
-    size_t NStates = Hdnet->NStates();
-    CL::utility::matrix<at::Tensor> xs(NStates), JTs(NStates);
-    std::tie(xs, JTs) = input_generator->compute_x_JT(qs);
-    return std::make_tuple(xs, JTs);
+std::vector<size_t> read_vector(const std::string & file) {
+    std::vector<size_t> data;
+    std::ifstream ifs; ifs.open(file);
+    if (! ifs.good()) throw CL::utility::file_error(file);
+    else {
+        size_t reader;
+        ifs >> reader;
+        while (ifs.good()) {
+            data.push_back(reader);
+            ifs >> reader;
+        }
+    }
+    ifs.close();
+    return data;
 }
 
-at::Tensor regularization, prior;
+double RMSD() {
+    double rmsd = 0.0;
+    for (const auto & data : geom_set->examples()) {
+        torch::NoGradGuard no_grad;
+        const auto & x = data->qs()[irreducible];
+        rmsd += torch::mse_loss(decoder->forward(encoder->forward(x)), x, at::Reduction::Sum).item<double>();
+    }
+    return sqrt(rmsd / geom_set->size_int());
+}

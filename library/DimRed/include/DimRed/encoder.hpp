@@ -9,6 +9,9 @@ struct Encoder : torch::nn::Module {
     torch::nn::ModuleList fcs;
 
     Encoder();
+    // This copy constructor performs a somewhat deepcopy,
+    // where new modules are generated and have same values as `source`
+    Encoder(const std::shared_ptr<Encoder> & source);
     Encoder(const std::vector<size_t> & dimensions, const bool & symmetric);
     ~Encoder();
 

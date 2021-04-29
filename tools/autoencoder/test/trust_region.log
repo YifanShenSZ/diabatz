@@ -1,0 +1,29 @@
+Pretrain dimensionality reduction network by training an autoencoder
+Yifan Shen 2021
+
+Echo of user command line input:
+../autoencoder.exe -f default -i IntCoordDef -s SAS.in -I 1 -n encoder.in decoder.in -d min-Cs/
+
+Wed Apr 28 23:21:07 2021
+
+The data set will be read from: 
+    min-Cs/, 
+There are 76 data points
+
+The data set corresponds to 2052 least sqaure equations
+There are 962 parameters to train
+
+The number of threads = 4
+Each thread owns 19 data points
+Thread 0 starts with Jacobian row 0
+Thread 1 starts with Jacobian row 513
+Thread 2 starts with Jacobian row 1026
+Thread 3 starts with Jacobian row 1539
+
+The initial RMSD = 0.924462
+ Failed trust region: max iteration exceeded!
+ Final residual =   6.435639510571022E-002
+The final RMSD = 0.00738218
+
+Wed Apr 28 23:21:36 2021
+Mission success

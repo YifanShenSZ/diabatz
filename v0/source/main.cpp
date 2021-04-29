@@ -1,9 +1,9 @@
 #include <CppLibrary/argparse.hpp>
 #include <CppLibrary/utility.hpp>
 
-#include "global.hpp"
-#include "data.hpp"
-#include "train.hpp"
+#include "../include/global.hpp"
+#include "../include/data.hpp"
+#include "../include/train.hpp"
 
 argparse::ArgumentParser parse_args(const size_t & argc, const char ** & argv) {
     CL::utility::echo_command(argc, argv, std::cout);

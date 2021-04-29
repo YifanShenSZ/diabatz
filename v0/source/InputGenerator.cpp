@@ -1,4 +1,4 @@
-#include "InputGenerator.hpp"
+#include "../include/InputGenerator.hpp"
 
 InputGenerator::InputGenerator() {}
 InputGenerator::InputGenerator(const size_t & NStates, const CL::utility::matrix<size_t> & irreds, const std::vector<std::string> & sapoly_files, const std::vector<size_t> & dimensions) {

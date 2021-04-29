@@ -3,6 +3,20 @@
 namespace DimRed {
 
 Encoder::Encoder() {}
+// This copy constructor performs a somewhat deepcopy,
+// where new modules are generated and have same values as `source`
+Encoder::Encoder(const std::shared_ptr<Encoder> & source) {
+    torch::NoGradGuard no_grad;
+    for (size_t i = 0; i < source->fcs->size(); i++) {
+        auto source_layer = source->fcs[i]->as<torch::nn::Linear>();
+        torch::nn::Linear layer = register_module("fc" + std::to_string(i),
+            torch::nn::Linear(source_layer->options));
+        layer->to(torch::kFloat64);
+        layer->weight.copy_(source_layer->weight);
+        if (layer->options.bias()) layer->bias.copy_(source_layer->bias);
+        this->fcs->push_back(layer);
+    }
+}
 Encoder::Encoder(const std::vector<size_t> & dimensions, const bool & symmetric) {
     for (size_t i = 0; i < dimensions.size() - 1; i++) {
         torch::nn::Linear layer = register_module("fc" + std::to_string(i),

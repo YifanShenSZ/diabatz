@@ -38,8 +38,6 @@ set(CMAKE_PREFIX_PATH ~/Software/Mine/diabatz/library/Hderiva)
 find_package(Hderiva REQUIRED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Hderiva_CXX_FLAGS}")
 
-include_directories(include)
-
 add_executable(v0.exe
     source/InputGenerator.cpp
     source/global.cpp

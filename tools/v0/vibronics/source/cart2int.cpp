@@ -1,4 +1,4 @@
-#include "cart2int.hpp"
+#include "../include/cart2int.hpp"
 
 std::shared_ptr<tchem::IC::SASICSet> sasicset;
 

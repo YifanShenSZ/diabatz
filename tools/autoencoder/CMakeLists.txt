@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
 
-project(vibronics)
+project(autoencoder)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
@@ -18,32 +18,25 @@ find_package(Foptim REQUIRED)
 set(CMAKE_PREFIX_PATH ~/Library/Cpp-Library)
 find_package(CL REQUIRED)
 
-# Torch-Chemistry
-set(CMAKE_PREFIX_PATH ~/Library/Torch-Chemistry)
-find_package(tchem REQUIRED)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TCHEM_CXX_FLAGS}")
-
 # abinitio
 set(CMAKE_PREFIX_PATH ~/Software/Mine/diabatz/library/abinitio)
 find_package(abinitio REQUIRED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${abinitio_CXX_FLAGS}")
 
-# libHd
-find_package(Hd REQUIRED)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Hd_CXX_FLAGS}")
+# DimRed
+set(CMAKE_PREFIX_PATH ~/Software/Mine/diabatz/library/DimRed)
+find_package(DimRed REQUIRED)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${DimRed_CXX_FLAGS}")
 
-add_executable(vibronics.exe
-    source/cart2int.cpp
-    source/initHess.cpp
-    source/finalHess.cpp
-    source/final2init.cpp
-    source/suggest_phonons.cpp
-    source/int2normal.cpp
+add_executable(autoencoder.exe
+    source/global.cpp
+    source/Adam.cpp
+    source/SGD.cpp
+    source/trust_region.cpp
     source/main.cpp
 )
 
-target_link_libraries(vibronics.exe
-    ${Hd_LIBRARIES}
-    ${abinitio_LIBRARIES}
-    ${tchem_LIBRARIES} ${CL_LIBRARIES} ${Foptim_LIBRARIES}
+target_link_libraries(autoencoder.exe
+    ${DimRed_LIBRARIES} ${abinitio_LIBRARIES}
+    ${CL_LIBRARIES} ${Foptim_LIBRARIES}
 )

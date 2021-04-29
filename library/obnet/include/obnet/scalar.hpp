@@ -12,8 +12,7 @@ struct scalar : torch::nn::Module {
     scalar();
     // This copy constructor performs a somewhat deepcopy,
     // where new modules are generated and have same values as `source`
-    // We do not use const reference because
-    // torch::nn::ModuleList::operator[] does not support `const`,
+    // We do not use const reference because torch::nn::ModuleList::operator[] does not support `const`,
     // although this constructor would not change `source` of course
     scalar(scalar * source);
     scalar(const std::vector<size_t> & dimensions, const bool & symmetric);

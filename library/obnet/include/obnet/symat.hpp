@@ -27,9 +27,6 @@ struct symat : torch::nn::Module {
         symat();
         // This copy constructor performs a somewhat deepcopy,
         // where new modules are generated and have same values as `source`
-        // We do not use const reference because
-        // torch::nn::ModuleList::operator[] does not support `const`,
-        // although this constructor would not change `source` of course
         symat(const std::shared_ptr<symat> & source);
         symat(const std::string & symat_in);
         ~symat();

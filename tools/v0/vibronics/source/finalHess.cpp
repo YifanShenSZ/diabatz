@@ -1,6 +1,6 @@
 #include <Hd/kernel.hpp>
 
-#include "cart2int.hpp"
+#include "../include/cart2int.hpp"
 
 at::Tensor compute_intddHd(const at::Tensor & r, const Hd::kernel & Hdkernel) {
     const double dq = 1e-3;

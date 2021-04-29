@@ -11,10 +11,7 @@
                 "library/DimRed/include",
                 "library/obnet/include",
                 "library/Hderiva/include",
-                "~/Library/Fortran-Library/include",
-                "v0/include",
-                "tools/v0/libHd/include",
-                "tools/v0/vibronics/include"
+                "tools/v0/libHd/include"
             ],
             "cppStandard": "c++14"
         }

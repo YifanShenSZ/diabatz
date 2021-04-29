@@ -4,9 +4,9 @@
 
 #include <Foptim/trust_region.hpp>
 
-#include "global.hpp"
+#include "../include/global.hpp"
 
-#include "train.hpp"
+#include "../include/train.hpp"
 
 namespace train {
 
@@ -103,7 +103,7 @@ void set_parallelism() {
     std::cout << "Each thread owns " << regchunksize << " data points in adiabatic representation\n"
               << "                 " << degchunksize << " data points in composite representation\n";
     size_t regcount = 0, degcount = 0;
-    // Thread 0 to OMP_NUM_THREADS - 2 each owns `chunksize` data
+    // Thread 0 to OMP_NUM_THREADS - 2 each owns `chunksize` data points
     for (size_t thread = 0; thread < OMP_NUM_THREADS - 1; thread++) {
         regchunk[thread].resize(regchunksize);
         for (size_t i = 0; i < regchunksize; i++) {
@@ -116,7 +116,7 @@ void set_parallelism() {
             degcount++;
         }
     }
-    // The last thread owns all remaining data
+    // The last thread owns all remaining data points
     regchunk.back().resize(regset.size() - (OMP_NUM_THREADS - 1) * regchunksize);
     for (size_t i = 0; i < regchunk.back().size(); i++) {
         regchunk.back()[i] = regset[regcount];

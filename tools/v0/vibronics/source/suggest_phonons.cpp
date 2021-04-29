@@ -2,7 +2,7 @@
 
 #include <tchem/chemistry.hpp>
 
-#include "cart2int.hpp"
+#include "../include/cart2int.hpp"
 
 namespace {
     // constraint (T . Q + b)^T . sigmainv_ . (T . Q + b) - contour^2 = 0

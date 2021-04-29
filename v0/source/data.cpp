@@ -1,8 +1,8 @@
 #include <abinitio/SAreader.hpp>
 
-#include "global.hpp"
+#include "../include/global.hpp"
 
-#include "data.hpp"
+#include "../include/data.hpp"
 
 RegHam::RegHam() {}
 RegHam::RegHam(const std::shared_ptr<abinitio::RegSAHam> & ham,

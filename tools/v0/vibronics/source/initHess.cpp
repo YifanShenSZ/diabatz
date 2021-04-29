@@ -2,7 +2,7 @@
 
 #include <abinitio/SAgeometry.hpp>
 
-#include "cart2int.hpp"
+#include "../include/cart2int.hpp"
 
 at::Tensor read_Columbus(const at::Tensor & r, const std::string & hessian_file) {
     tchem::IC::IntCoordSet intcoordset("Columbus7", "intcfl");
