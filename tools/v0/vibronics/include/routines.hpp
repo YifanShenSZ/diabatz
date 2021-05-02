@@ -20,6 +20,6 @@ void suggest_phonons(const double & contour,
 const std::vector<at::Tensor> & init_qs, const std::vector<at::Tensor> & final_qs,
 const tchem::chem::SANormalMode & init_vib, const tchem::chem::SANormalMode & final_vib);
 
-void int2normal(const Hd::kernel & Hdkernel, const tchem::chem::SANormalMode & final_vib);
+void int2normal(const Hd::kernel & Hdkernel, const tchem::chem::SANormalMode & final_vib, const at::Tensor & shift);
 
 #endif

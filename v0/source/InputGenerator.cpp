@@ -14,7 +14,7 @@ InputGenerator::InputGenerator(const size_t & NStates, const CL::utility::matrix
 }
 InputGenerator::~InputGenerator() {}
 
-CL::utility::matrix<tchem::polynomial::SAPSet> InputGenerator::polynomials() const {return polynomials_;}
+const CL::utility::matrix<tchem::polynomial::SAPSet> & InputGenerator::polynomials() const {return polynomials_;}
 
 CL::utility::matrix<at::Tensor> InputGenerator::operator()(const std::vector<at::Tensor> & qs) const {
     size_t NStates = polynomials_.size();

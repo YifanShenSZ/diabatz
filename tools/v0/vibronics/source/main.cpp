@@ -192,7 +192,7 @@ int main(size_t argc, const char ** argv) {
     suggest_phonons(contour, init_qs, final_qs, init_vib, final_vib);
 
     std::cout << '\n';
-    int2normal(Hdkernel, final_vib);
+    int2normal(Hdkernel, final_vib, final_qs[0]);
 
     std::cout << '\n';
     CL::utility::show_time(std::cout);
