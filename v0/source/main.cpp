@@ -53,7 +53,10 @@ int main(size_t argc, const char ** argv) {
         "argument guess_diag: inconsistent number of diagonal elements");
         auto ps = Hdnet->parameters();
         torch::NoGradGuard no_grad;
-        for (size_t i = 0; i < Hdnet->NStates(); i++) ps[i][i][1].fill_(guess_diag[i]);
+        for (size_t i = 0; i < Hdnet->NStates(); i++) {
+            for (size_t j = 1; j < ps[i][i].size() - 1; j += 2) ps[i][i][j].fill_(0.0);
+            ps[i][i].back().fill_(guess_diag[i]);
+        }
     }
     if (args.gotArgument("checkpoint")) torch::load(Hdnet->elements, args.retrieve<std::string>("checkpoint"));
 

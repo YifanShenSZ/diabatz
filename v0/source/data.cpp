@@ -12,8 +12,8 @@ std::tuple<CL::utility::matrix<at::Tensor>, CL::utility::matrix<at::Tensor>> (*q
 }
 RegHam::~RegHam() {}
 
-CL::utility::matrix<at::Tensor> RegHam::xs() const {return xs_;};
-CL::utility::matrix<at::Tensor> RegHam::JxqTs() const {return JxqTs_;};
+const CL::utility::matrix<at::Tensor> & RegHam::xs() const {return xs_;};
+const CL::utility::matrix<at::Tensor> & RegHam::JxqTs() const {return JxqTs_;};
 
 
 
@@ -27,8 +27,8 @@ std::tuple<CL::utility::matrix<at::Tensor>, CL::utility::matrix<at::Tensor>> (*q
 }
 DegHam::~DegHam() {}
 
-CL::utility::matrix<at::Tensor> DegHam::xs() const {return xs_;};
-CL::utility::matrix<at::Tensor> DegHam::JxqTs() const {return JxqTs_;};
+const CL::utility::matrix<at::Tensor> & DegHam::xs() const {return xs_;};
+const CL::utility::matrix<at::Tensor> & DegHam::JxqTs() const {return JxqTs_;};
 
 
 

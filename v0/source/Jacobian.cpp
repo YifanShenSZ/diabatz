@@ -1,6 +1,8 @@
 #include <tchem/linalg.hpp>
 
-#include <Hderiva/Hderiva.hpp>
+#include <Hderiva/diabatic.hpp>
+#include <Hderiva/adiabatic.hpp>
+#include <Hderiva/composite.hpp>
 
 #include "../include/global.hpp"
 #include "../include/data.hpp"

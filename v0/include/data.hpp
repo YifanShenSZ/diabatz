@@ -14,8 +14,8 @@ class RegHam : public abinitio::RegSAHam {
             std::tuple<CL::utility::matrix<at::Tensor>, CL::utility::matrix<at::Tensor>> (*q2x)(const std::vector<at::Tensor> &));
         ~RegHam();
 
-        CL::utility::matrix<at::Tensor> xs() const;
-        CL::utility::matrix<at::Tensor> JxqTs() const;
+        const CL::utility::matrix<at::Tensor> & xs() const;
+        const CL::utility::matrix<at::Tensor> & JxqTs() const;
 };
 
 class DegHam : public abinitio::DegSAHam {
@@ -28,8 +28,8 @@ class DegHam : public abinitio::DegSAHam {
                std::tuple<CL::utility::matrix<at::Tensor>, CL::utility::matrix<at::Tensor>> (*q2x)(const std::vector<at::Tensor> &));
         ~DegHam();
 
-        CL::utility::matrix<at::Tensor> xs() const;
-        CL::utility::matrix<at::Tensor> JxqTs() const;
+        const CL::utility::matrix<at::Tensor> & xs() const;
+        const CL::utility::matrix<at::Tensor> & JxqTs() const;
 };
 
 std::tuple<std::shared_ptr<abinitio::DataSet<RegHam>>, std::shared_ptr<abinitio::DataSet<DegHam>>>
