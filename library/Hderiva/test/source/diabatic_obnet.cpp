@@ -1,18 +1,15 @@
-#include <CppLibrary/argparse.hpp>
-#include <CppLibrary/utility.hpp>
-
 #include <Hderiva/diabatic.hpp>
 
-#include "global.hpp"
-#include "data.hpp"
+#include "../include/global.hpp"
+#include "../include/data.hpp"
 
-int main(const size_t & argc, const char ** & argv) {
-    sasicset = std::make_shared<tchem::IC::SASICSet>("default", "IntCoordDef", "SAS.in");
+void diabatic_obnet() {
+    std::cout << "Testing Hd computed from *obnet*...\n\n";
 
-    Hdnet = std::make_shared<obnet::symat>("Hd.in");
+    Hdnet = std::make_shared<obnet::symat>("obnet_Hd.in");
     Hdnet->to(torch::kFloat64);
 
-    std::vector<std::string> sapoly_files = {"11.in", "12.in", "22.in"};
+    std::vector<std::string> sapoly_files = {"obnet_11.in", "obnet_12.in", "obnet_22.in"};
     input_generator = std::make_shared<InputGenerator>(Hdnet->NStates(), Hdnet->irreds(), sapoly_files, sasicset->NSASICs());
 
     std::vector<std::string> data = {"min-C1/"};

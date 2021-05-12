@@ -9,8 +9,7 @@ namespace Hderiva {
 
 // d / dc * E = (Ud^T. (d / dc * Hd) . Ud).diag(), by Hellmann–Feynman theorem
 
-// d / dc * (d / dx * H)a = Ud^T. (d / dc * d / dx * Hd) . Ud
-//                        + [(d / dx * H)a, M]
+// d / dc * (d / dx * H)a = Ud^T. (d / dc * d / dx * Hd) . Ud + [(d / dx * H)a, M]
 at::Tensor DcDxHa
 (const at::Tensor & DxHa, const at::Tensor & DcHd, const at::Tensor & DcDxHd,
 const at::Tensor & energy, const at::Tensor & states);

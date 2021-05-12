@@ -2,9 +2,10 @@
 #include <DimRed/decoder.hpp>
 
 int main() {
-    std::vector<size_t> endims = {8, 4, 2}, dedims = {2, 4, 8};
-    auto encoder = std::make_shared<DimRed::Encoder>(endims, true);
-    auto decoder = std::make_shared<DimRed::Decoder>(dedims, true);
+    std::vector<size_t> encoder_dims = {8, 4, 2},
+                        decoder_dims = {2, 4, 8};
+    auto encoder = std::make_shared<DimRed::Encoder>(encoder_dims, true);
+    auto decoder = std::make_shared<DimRed::Decoder>(decoder_dims, true);
 
     auto parameters = encoder->parameters(),
          depars = decoder->parameters();

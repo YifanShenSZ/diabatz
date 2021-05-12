@@ -15,6 +15,8 @@ include_directories(include)
 add_library(Hderiva STATIC
     source/basic.cpp
     source/diabatic.cpp
+    source/diabatic_obnet.cpp
+    source/diabatic_DimRed-obnet.cpp
     source/adiabatic.cpp
     source/composite.cpp
 )

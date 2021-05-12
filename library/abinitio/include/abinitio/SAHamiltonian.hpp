@@ -62,7 +62,7 @@ class DegSAHam : public RegSAHam {
                  std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2int)(const at::Tensor &));
         ~DegSAHam();
 
-        at::Tensor H() const;
+        const at::Tensor & H() const;
 
         void to(const c10::DeviceType & device);
 

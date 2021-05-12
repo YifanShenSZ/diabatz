@@ -16,7 +16,7 @@ class InputGenerator {
         InputGenerator(const size_t & NStates, const CL::utility::matrix<size_t> & irreds, const std::vector<std::string> & sapoly_files, const std::vector<size_t> & dimensions);
         ~InputGenerator();
 
-        CL::utility::matrix<tchem::polynomial::SAPSet> polynomials() const;
+        const CL::utility::matrix<tchem::polynomial::SAPSet> & polynomials() const;
 
         CL::utility::matrix<at::Tensor> operator()(const std::vector<at::Tensor> & qs) const;
         std::tuple<CL::utility::matrix<at::Tensor>, CL::utility::matrix<at::Tensor>> compute_x_JT(const std::vector<at::Tensor> & qs) const;

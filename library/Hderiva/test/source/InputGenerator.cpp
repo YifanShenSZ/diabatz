@@ -1,4 +1,4 @@
-#include "InputGenerator.hpp"
+#include "../include/InputGenerator.hpp"
 
 InputGenerator::InputGenerator() {}
 InputGenerator::InputGenerator(const size_t & NStates, const CL::utility::matrix<size_t> & irreds, const std::vector<std::string> & sapoly_files, const std::vector<size_t> & dimensions) {
@@ -14,7 +14,7 @@ InputGenerator::InputGenerator(const size_t & NStates, const CL::utility::matrix
 }
 InputGenerator::~InputGenerator() {}
 
-CL::utility::matrix<tchem::polynomial::SAPSet> InputGenerator::polynomials() const {return polynomials_;}
+const CL::utility::matrix<tchem::polynomial::SAPSet> & InputGenerator::polynomials() const {return polynomials_;}
 
 CL::utility::matrix<at::Tensor> InputGenerator::operator()(const std::vector<at::Tensor> & qs) const {
     size_t NStates = polynomials_.size();

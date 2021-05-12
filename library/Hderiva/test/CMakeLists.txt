@@ -15,6 +15,11 @@ set(CMAKE_PREFIX_PATH ~/Software/Mine/diabatz/library/abinitio)
 find_package(abinitio REQUIRED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${abinitio_CXX_FLAGS}")
 
+# DimRed
+set(CMAKE_PREFIX_PATH ~/Software/Mine/diabatz/library/DimRed)
+find_package(DimRed REQUIRED)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${DimRed_CXX_FLAGS}")
+
 # obnet
 set(CMAKE_PREFIX_PATH ~/Software/Mine/diabatz/library/obnet)
 find_package(obnet REQUIRED)
@@ -26,10 +31,17 @@ find_package(Hderiva REQUIRED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Hderiva_CXX_FLAGS}")
 
 add_executable(test.exe
-    InputGenerator.cpp
-    global.cpp
-    data.cpp
-    main.cpp
+    source/InputGenerator.cpp
+    source/global.cpp
+    source/data.cpp
+    source/diabatic_obnet.cpp
+    source/diabatic_DimRed-obnet.cpp
+    source/main.cpp
 )
 
-target_link_libraries(test.exe ${abinitio_LIBRARIES} ${obnet_LIBRARIES} ${Hderiva_LIBRARIES})
+target_link_libraries(test.exe
+    ${abinitio_LIBRARIES}
+    ${DimRed_LIBRARIES}
+    ${obnet_LIBRARIES}
+    ${Hderiva_LIBRARIES}
+)

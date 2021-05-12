@@ -119,7 +119,7 @@ std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2int)(const a
 }
 DegSAHam::~DegSAHam() {}
 
-at::Tensor DegSAHam::H() const {return H_;};
+const at::Tensor & DegSAHam::H() const {return H_;};
 
 void DegSAHam::to(const c10::DeviceType & device) {
     RegSAHam::to(device);
