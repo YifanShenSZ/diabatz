@@ -37,3 +37,11 @@ InputGenerator::compute_x_JT(const std::vector<at::Tensor> & qs) const {
     }
     return std::make_tuple(xs, JTs);
 }
+CL::utility::matrix<at::Tensor> InputGenerator::compute_K(const std::vector<at::Tensor> & qs) const {
+    size_t NStates = polynomials_.size();
+    CL::utility::matrix<at::Tensor> Ks(NStates);
+    for (size_t i = 0; i < NStates; i++)
+    for (size_t j = i; j < NStates; j++)
+    auto SAJs = polynomials_[i][j].Jacobian2nd_(qs, Ks[i][j]);
+    return Ks;
+}

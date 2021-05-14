@@ -63,12 +63,14 @@ const CL::utility::matrix<at::Tensor> & JlrTs, const at::Tensor & JrcT) {
 
 // Assuming that Hd is computed from library *DimRed* and *obnet*, `ls` are the input layers, cs = obnet.parameters()
 // `JlrT` is the transposed Jacobian of the input layer over the reduced coordinate
+// `Klr` is the 2nd-order Jacobian of the input layer over the reduced coordinate
+// `JrxT` is the transposed Jacobian of the reduced coordinate over the coordinate
 // `JrcT` is the transposed Jacobian of the reduced coordinate over DimRed.parameters()
-// `KrxcT` is the transposed 2nd-order Jacobian of the reduced coordinate over the coordinate and DimRed.parameters()
-//            The transpose is performed between r and x
+// `Krxc` is the 2nd-order Jacobian of the reduced coordinate over the coordinate and DimRed.parameters()
 // c = at::cat({at::cat(DimRed.parameters()), at::cat(obnet.parameters())})
 at::Tensor DcDxHd(const at::Tensor & Hd, const CL::utility::matrix<at::Tensor> & ls, const std::vector<at::Tensor> & cs,
-const CL::utility::matrix<at::Tensor> & JlrTs, const at::Tensor & JrxT, const at::Tensor & JrcT, const at::Tensor & KrxcT) {
+const CL::utility::matrix<at::Tensor> & JlrTs, const CL::utility::matrix<at::Tensor> & Klrs, 
+const at::Tensor & JrxT, const at::Tensor & JrcT, const at::Tensor & Krxc) {
     if (Hd.sizes().size() != 2) throw std::invalid_argument(
     "Hderiva::DcHd: Hd must be a matrix");
     if (Hd.size(0) != Hd.size(1)) throw std::invalid_argument(
@@ -77,16 +79,31 @@ const CL::utility::matrix<at::Tensor> & JlrTs, const at::Tensor & JrxT, const at
     for (size_t j = i; j < ls.size(1); j++)
     if (! ls[i][j].requires_grad()) throw std::invalid_argument(
     "Hderiva::DcDxHd: The input layers must require gradient");
-    int64_t Nc_DimRed = JrcT.size(0);
+    // Prepare
+    at::Tensor Jrc = JrcT.transpose(0, 1);
+    int64_t Nc_DimRed = Krxc.size(2);
     int64_t Nc_obnet = 0;
     for (const at::Tensor & c : cs) Nc_obnet += c.numel();
+    // Backward propagation and transformation
     at::Tensor ddHd = Hd.new_empty({Hd.size(0), Hd.size(1), JrxT.size(0), Nc_DimRed + Nc_obnet});
     for (size_t i = 0; i < Hd.size(0); i++)
     for (size_t j = i; j < Hd.size(1); j++) {
+        const at::Tensor & JlrT = JlrTs[i][j];
+        at::Tensor Jlr = JlrT.transpose(0, 1);
         std::vector<at::Tensor> g = torch::autograd::grad({Hd[i][j]}, {ls[i][j]}, {}, true, true);
         const at::Tensor & DlHdij = g[0];
         // over DimRed.parameters()
-        ddHd[i][j].slice(1, 0, Nc_DimRed).copy_(at::matmul(JlrTs[i][j].mv(DlHdij), KrxcT));
+        ddHd[i][j].slice(1, 0, Nc_DimRed).copy_(
+            JrxT.mm(at::matmul(DlHdij, Klrs[i][j].transpose(0, 1))).mm(Jrc)
+          + at::matmul(JlrT.mv(DlHdij), Krxc.transpose(0, 1))
+        );
+        at::Tensor DlDlHdij = DlHdij.new_empty({DlHdij.size(0), DlHdij.size(0)});
+        for (size_t k = 0; k < DlHdij.size(0); k++) {
+            auto g = torch::autograd::grad({DlHdij[k]}, {ls[i][j]}, {}, true, false, true);
+            if (g[0].defined()) DlDlHdij[k].copy_(g[0]);
+            else DlDlHdij[k].zero_();
+        }
+        ddHd[i][j].slice(1, 0, Nc_DimRed) += JrxT.mm(JlrT.mm(DlDlHdij).mm(Jlr)).mm(Jrc);
         // over obnet.parameters()
         at::Tensor DcDlHdij = DlHdij.new_empty({DlHdij.size(0), Nc_obnet});
         for (size_t k = 0; k < DlHdij.size(0); k++) {
@@ -97,7 +114,7 @@ const CL::utility::matrix<at::Tensor> & JlrTs, const at::Tensor & JrxT, const at
             }
             DcDlHdij[k].copy_(at::cat(gs));
         }
-        ddHd[i][j].slice(1, Nc_DimRed).copy_(JrxT.mm(JlrTs[i][j].mm(DcDlHdij)));
+        ddHd[i][j].slice(1, Nc_DimRed).copy_(JrxT.mm(JlrT.mm(DcDlHdij)));
     }
     return ddHd;
 }

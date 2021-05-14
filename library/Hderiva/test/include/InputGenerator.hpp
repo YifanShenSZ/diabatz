@@ -20,6 +20,7 @@ class InputGenerator {
 
         CL::utility::matrix<at::Tensor> operator()(const std::vector<at::Tensor> & qs) const;
         std::tuple<CL::utility::matrix<at::Tensor>, CL::utility::matrix<at::Tensor>> compute_x_JT(const std::vector<at::Tensor> & qs) const;
+        CL::utility::matrix<at::Tensor> compute_K(const std::vector<at::Tensor> & qs) const;
 };
 
 #endif

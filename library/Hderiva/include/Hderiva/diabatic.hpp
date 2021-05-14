@@ -37,12 +37,14 @@ const CL::utility::matrix<at::Tensor> & JlrTs, const at::Tensor & JrcT);
 at::Tensor DcDxHd(const at::Tensor & DxHd, const std::vector<at::Tensor> & cs);
 // Assuming that Hd is computed from library *DimRed* and *obnet*, `ls` are the input layers, cs = obnet.parameters()
 // `JlrT` is the transposed Jacobian of the input layer over the reduced coordinate
+// `Klr` is the 2nd-order Jacobian of the input layer over the reduced coordinate
+// `JrxT` is the transposed Jacobian of the reduced coordinate over the coordinate
 // `JrcT` is the transposed Jacobian of the reduced coordinate over DimRed.parameters()
-// `KrxcT` is the transposed 2nd-order Jacobian of the reduced coordinate over the coordinate and DimRed.parameters()
-//            The transpose is performed between r and x
+// `Krxc` is the 2nd-order Jacobian of the reduced coordinate over the coordinate and DimRed.parameters()
 // c = at::cat({at::cat(DimRed.parameters()), at::cat(obnet.parameters())})
 at::Tensor DcDxHd(const at::Tensor & Hd, const CL::utility::matrix<at::Tensor> & ls, const std::vector<at::Tensor> & cs,
-const CL::utility::matrix<at::Tensor> & JlrTs, const at::Tensor & JrxT, const at::Tensor & JrcT, const at::Tensor & KrxcT);
+const CL::utility::matrix<at::Tensor> & JlrTs, const CL::utility::matrix<at::Tensor> & Klrs, 
+const at::Tensor & JrxT, const at::Tensor & JrcT, const at::Tensor & Krxc);
 
 } // namespace Hderiva
 
