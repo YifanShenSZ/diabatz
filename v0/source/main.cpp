@@ -139,8 +139,8 @@ int main(size_t argc, const char ** argv) {
 
     size_t max_iteration = 100;
     if (args.gotArgument("max_iteration")) max_iteration = args.retrieve<size_t>("max_iteration");
-    initialize(regset, degset);
-    optimize(regularized, max_iteration);
+    trust_region::initialize(regset, degset);
+    trust_region::optimize(regularized, max_iteration);
 
     std::cout << '\n';
     CL::utility::show_time(std::cout);

@@ -1,39 +1,10 @@
 #include <omp.h>
 
-#include <CppLibrary/linalg.hpp>
+#include "../../include/global.hpp"
 
-#include <Foptim/trust_region.hpp>
+#include "common.hpp"
 
-#include "../include/global.hpp"
-
-#include "../include/train.hpp"
-
-namespace train {
-
-int64_t NStates;
-
-std::vector<std::shared_ptr<tchem::chem::Phaser>> phasers;
-
-// data set
-std::vector<std::shared_ptr<RegHam>> regset;
-std::vector<std::shared_ptr<DegHam>> degset;
-
-// the "unit" of energy, accounting for the unit difference between energy and gradient
-double unit, unit_square;
-
-// Number of least square equations and fitting parameters
-int32_t NEqs, NPars;
-
-size_t OMP_NUM_THREADS;
-// Each thread owns a copy of Hd network
-// Thread 0 shares the original Hdnet
-std::vector<std::shared_ptr<obnet::symat>> Hdnets;
-// Each thread owns a chunk of data
-std::vector<std::vector<std::shared_ptr<RegHam>>> regchunk;
-std::vector<std::vector<std::shared_ptr<DegHam>>> degchunk;
-// Each thread works on a segment of residue or Jacobian
-// Thread i works on rows [segstart[i], segstart[i + 1])
-std::vector<size_t> segstart;
+namespace trust_region {
 
 void set_unit() {
     assert(("Data set must have been provided", ! regset.empty()));
@@ -161,57 +132,21 @@ void set_parallelism() {
     std::cout << "Thread " << thread << " starts with Jacobian row " << segstart[thread] << '\n';
 }
 
-} // namespace train
-
 void initialize(
-const std::shared_ptr<abinitio::DataSet<RegHam>> & regset,
-const std::shared_ptr<abinitio::DataSet<DegHam>> & degset) {
-    train::NStates = Hdnet->NStates();
+const std::shared_ptr<abinitio::DataSet<RegHam>> & _regset,
+const std::shared_ptr<abinitio::DataSet<DegHam>> & _degset) {
+    NStates = Hdnet->NStates();
 
-    train::phasers.resize(train::NStates + 1);
-    for (size_t i = 0; i < train::phasers.size(); i++)
-    train::phasers[i] = std::make_shared<tchem::chem::Phaser>(i);
+    phasers.resize(NStates + 1);
+    for (size_t i = 0; i < phasers.size(); i++)
+    phasers[i] = std::make_shared<tchem::chem::Phaser>(i);
 
-    train::regset = regset->examples();
-    train::degset = degset->examples();
+    regset = _regset->examples();
+    degset = _degset->examples();
 
-    train::set_unit();
-    train::set_count();
-    train::set_parallelism();
+    set_unit();
+    set_count();
+    set_parallelism();
 }
 
-namespace train {
-void residue (double *  r, const double * c, const int32_t & M, const int32_t & N);
-void Jacobian(double * JT, const double * c, const int32_t & M, const int32_t & N);
-
-void regularized_residue (double *  r, const double * c, const int32_t & M, const int32_t & N);
-void regularized_Jacobian(double * JT, const double * c, const int32_t & M, const int32_t & N);
-} // namespace train
-
-void optimize(const bool & regularized, const size_t & max_iteration) {
-    double * c = new double[train::NPars];
-    train::p2c(0, c);
-    // Display initial residue
-    double * r = new double[train::NEqs];
-    train::residue(r, c, train::NEqs, train::NPars);
-    std::cout << "\nThe initial residue = " << CL::linalg::norm2(r, train::NEqs) << std::endl;
-    delete [] r;
-    // Run optimization
-    if (regularized)
-    Foptim::trust_region(train::regularized_residue, train::regularized_Jacobian,
-                       c, train::NEqs + train::NPars, train::NPars,
-                       max_iteration);
-    else
-    Foptim::trust_region(train::residue, train::Jacobian,
-                       c, train::NEqs, train::NPars,
-                       max_iteration);
-    train::c2p(c, 0);
-    // Display finial residue
-    r = new double[train::NEqs];
-    train::residue(r, c, train::NEqs, train::NPars);
-    std::cout << "The final residue = " << CL::linalg::norm2(r, train::NEqs) << '\n';
-    delete [] r;
-    // Output
-    torch::save(Hdnet->elements, "Hd.net");
-    delete [] c;
-}
+} // namespace trust_region

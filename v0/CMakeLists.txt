@@ -42,9 +42,11 @@ add_executable(v0.exe
     source/InputGenerator.cpp
     source/global.cpp
     source/data.cpp
-    source/residue.cpp
-    source/Jacobian.cpp
-    source/train.cpp
+    source/trust_region/common.cpp
+    source/trust_region/residue.cpp
+    source/trust_region/Jacobian.cpp
+    source/trust_region/initialize.cpp
+    source/trust_region/driver.cpp
     source/main.cpp
 )
 

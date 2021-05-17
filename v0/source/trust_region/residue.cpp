@@ -1,14 +1,13 @@
 #include <tchem/linalg.hpp>
 
 #include <Hderiva/diabatic.hpp>
-#include <Hderiva/adiabatic.hpp>
-#include <Hderiva/composite.hpp>
 
-#include "../include/global.hpp"
-#include "../include/data.hpp"
-#include "../include/train.hpp"
+#include "../../include/global.hpp"
+#include "../../include/data.hpp"
 
-namespace train {
+#include "common.hpp"
+
+namespace trust_region {
 
 inline void reg_residue(const size_t & thread, const std::shared_ptr<RegHam> & data,
 double * r, size_t & start) {
@@ -117,4 +116,4 @@ void regularized_residue(double * r, const double * c, const int32_t & M, const 
     residue.slice(0, M - N, M).copy_(regularization * (p - prior));
 }
 
-}
+} // namespace trust_region
