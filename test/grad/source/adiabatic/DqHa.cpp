@@ -1,7 +1,7 @@
 #include <tchem/linalg.hpp>
 
-#include "Hd.hpp"
-#include "commutor.hpp"
+#include "../Hd.hpp"
+#include "../commutor.hpp"
 
 // Return d / dq of Ha matrix elements, adiabatic energies and states
 std::tuple<at::Tensor, at::Tensor, at::Tensor> DqHa

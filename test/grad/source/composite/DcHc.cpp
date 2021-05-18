@@ -1,8 +1,8 @@
 #include <tchem/linalg.hpp>
 #include <tchem/chemistry.hpp>
 
-#include "Hd.hpp"
-#include "commutor.hpp"
+#include "../Hd.hpp"
+#include "../commutor.hpp"
 
 // Return d / dc of Hc matrix elements,
 // Hc matrix, eigenvalues and eigenvectors of dHd / dq . dHd / dq
@@ -144,7 +144,7 @@ void test_DcHc() {
     std::tie(Dc00Hc_A, Dc01Hc_A, Dc11Hc_A) = analytical_DcHc(c00, c01, c11, q, eigvals, eigvecs);
     at::Tensor Dc00Hc_N, Dc01Hc_N, Dc11Hc_N;
     std::tie(Dc00Hc_N, Dc01Hc_N, Dc11Hc_N) =  numerical_DcHc(c00, c01, c11, q, Hc);
-    std::cout << "\nd / dq * Hc:\n"
+    std::cout << "\nd / dc * Hc:\n"
               << "autograd vs numerical: "
               << (Dc00Hc - Dc00Hc_N).norm().item<double>() << "    "
               << (Dc01Hc - Dc01Hc_N).norm().item<double>() << "    "

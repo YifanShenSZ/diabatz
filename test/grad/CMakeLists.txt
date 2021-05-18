@@ -20,18 +20,18 @@ include_directories(~/Library/Torch-Chemistry/include)
 link_directories(~/Library/Torch-Chemistry/lib)
 
 add_executable(test.exe 
-    Hd.cpp
-    commutor.cpp
-    DqHd.cpp
-    DcHd.cpp
-    DcDqHd.cpp
-    DqHa.cpp
-    DcHa.cpp
-    Dc_DqH_a.cpp
-    composite.cpp
-    DcHc.cpp
-    Dc_DqH_c.cpp
-    main.cpp
+    source/Hd.cpp
+    source/commutor.cpp
+    source/diabatic/DqHd.cpp
+    source/diabatic/DcHd.cpp
+    source/diabatic/DcDqHd.cpp
+    source/adiabatic/DqHa.cpp
+    source/adiabatic/DcHa.cpp
+    source/adiabatic/Dc_DqH_a.cpp
+    source/composite/composite.cpp
+    source/composite/DcHc.cpp
+    source/composite/Dc_DqH_c.cpp
+    source/main.cpp
 )
 
 target_link_libraries(test.exe tchem CL "${TORCH_LIBRARIES}")

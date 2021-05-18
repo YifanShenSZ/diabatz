@@ -1,8 +1,8 @@
 #include <tchem/linalg.hpp>
 #include <tchem/chemistry.hpp>
 
-#include "Hd.hpp"
-#include "commutor.hpp"
+#include "../Hd.hpp"
+#include "../commutor.hpp"
 
 // Return d / dc * (d / dq * H)c matrix elements,
 // (d / dq * H)c, eigenvalues and eigenvectors

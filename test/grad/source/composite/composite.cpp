@@ -1,6 +1,6 @@
 #include <tchem/linalg.hpp>
 
-#include "Hd.hpp"
+#include "../Hd.hpp"
 
 std::tuple<at::Tensor, at::Tensor, at::Tensor> analytical
 (const at::Tensor & c00, const at::Tensor & c01, const at::Tensor & c11, const at::Tensor & q) {

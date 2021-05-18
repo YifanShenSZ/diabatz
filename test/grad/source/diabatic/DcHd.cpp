@@ -1,4 +1,4 @@
-#include "Hd.hpp"
+#include "../Hd.hpp"
 
 void test_DcHd() {
   c10::TensorOptions top = at::TensorOptions().dtype(torch::kFloat64);
