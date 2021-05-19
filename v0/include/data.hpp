@@ -33,6 +33,6 @@ class DegHam : public abinitio::DegSAHam {
 };
 
 std::tuple<std::shared_ptr<abinitio::DataSet<RegHam>>, std::shared_ptr<abinitio::DataSet<DegHam>>>
-read_data(const std::vector<std::string> & user_list, const double & zero_point, const double & weight);
+read_data(const std::vector<std::string> & user_list);
 
 #endif

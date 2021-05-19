@@ -20,7 +20,8 @@ argparse::ArgumentParser parse_args(const size_t & argc, const char ** & argv) {
 
     // optional arguments
     parser.add_argument("-z","--zero_point",    1, true, "zero of potential energy, default = 0");
-    parser.add_argument("-w","--weight",        1, true, "Ethresh in weight adjustment, default = 1");
+    parser.add_argument("-w","--energy_weight", 1, true, "energy threshold in weight adjustment, default = 1");
+    parser.add_argument("--gradient_weight",    1, true, "gradient threshold in weight adjustment, default = infer from energy threshold");
     parser.add_argument("-g","--guess_diag",  '+', true, "initial guess of Hd diagonal, default = pytorch initialization");
     parser.add_argument("-c","--checkpoint",    1, true, "a trained Hd parameter to continue with");
     parser.add_argument("-m","--max_iteration", 1, true, "default = 100");
@@ -66,15 +67,43 @@ int main(size_t argc, const char ** argv) {
     input_generator = std::make_shared<InputGenerator>(Hdnet->NStates(), Hdnet->irreds(), input_layers, sasicset->NSASICs());
 
     std::vector<std::string> data = args.retrieve<std::vector<std::string>>("data");
-    double zero_point = 0.0;
-    if (args.gotArgument("zero_point")) zero_point = args.retrieve<double>("zero_point");
-    double weight = 1.0;
-    if (args.gotArgument("weight")) weight = args.retrieve<double>("weight");
     std::shared_ptr<abinitio::DataSet<RegHam>> regset;
     std::shared_ptr<abinitio::DataSet<DegHam>> degset;
-    std::tie(regset, degset) = read_data(data, zero_point, weight);
+    std::tie(regset, degset) = read_data(data);
     std::cout << "There are " << regset->size_int() << " data points in adiabatic representation\n"
               << "          " << degset->size_int() << " data points in composite representation\n\n";
+
+    double zero_point = 0.0;
+    if (args.gotArgument("zero_point")) zero_point = args.retrieve<double>("zero_point");
+    for (const auto & example : regset->examples()) example->subtract_ZeroPoint(zero_point);
+    for (const auto & example : degset->examples()) example->subtract_ZeroPoint(zero_point);
+
+    double maxe = 0.0, maxg = 0.0;
+    for (const auto & example : regset->examples()) {
+        double temp = example->energy()[0].item<double>();
+        maxe = temp > maxe ? temp : maxe;
+        temp = example->dH()[0][0].abs().max().item<double>();
+        maxg = temp > maxg ? temp : maxg;
+    }
+    std::cout << "maximum ground state energy = " << maxe << '\n'
+              << "maximum ||ground state energy gradient||_infinity = " << maxg << '\n'; 
+    if (maxe > 0.0) unit = maxg / maxe;
+    else            unit = 1.0; // fail safe
+    std::cout << "so we suggest to set gradient / energy scaling to around " << unit << "\n\n";
+    unit_square = unit * unit;
+
+    double H_weight = 1.0;
+    if (args.gotArgument("energy_weight")) H_weight = args.retrieve<double>("energy_weight");
+    double dH_weight = unit * H_weight;
+    if (args.gotArgument("gradient_weight")) {
+        dH_weight = args.retrieve<double>("gradient_weight");
+        unit = dH_weight / H_weight;
+        unit_square = unit * unit;
+        std::cout << "According to user defined energy threshold and gradient threshold,\n"
+                     "set gradient / energy scaling to " << unit << "\n\n";
+    }
+    for (const auto & example : regset->examples()) example->adjust_weight(H_weight, dH_weight);
+    for (const auto & example : degset->examples()) example->adjust_weight(H_weight, dH_weight);
 
     bool regularized = args.gotArgument("regularization");
     if (regularized) {

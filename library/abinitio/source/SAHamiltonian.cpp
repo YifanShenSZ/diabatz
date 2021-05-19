@@ -51,8 +51,9 @@ void RegSAHam::reconstruct_dH_() {
 
 RegSAHam::RegSAHam() {}
 RegSAHam::RegSAHam(const RegSAHam & source) : SAGeometry(source),
-weight_(source.weight_),
 energy_(source.energy_), dH_(source.dH_),
+weight_E_(source.weight_E_), sqrtweight_E_(source.sqrtweight_E_),
+weight_dH_(source.weight_dH_), sqrtweight_dH_(source.sqrtweight_dH_),
 irreds_(source.irreds_), SAdH_(source.SAdH_) {}
 // See the base class constructor for details of `cart2int`
 RegSAHam::RegSAHam(const SAHamLoader & loader,
@@ -64,16 +65,29 @@ energy_(loader.energy.clone()), dH_(loader.dH.clone()) {
     dH_[i][j] *= energy_[j] - energy_[i];
     this->construct_symmetry_();
     this->reconstruct_dH_();
+
+    size_t NStates = energy_.size(0);
+    weight_E_.resize(NStates);
+    std::fill(weight_E_.begin(), weight_E_.end(), 1.0);
+    sqrtweight_E_.resize(NStates);
+    std::fill(sqrtweight_E_.begin(), sqrtweight_E_.end(), 1.0);
+    weight_dH_.resize(NStates);
+    weight_dH_ = 1.0;
+    sqrtweight_dH_.resize(NStates);
+    sqrtweight_dH_ = 1.0;
 }
 RegSAHam::~RegSAHam() {}
 
-const double & RegSAHam::weight() const {return weight_;}
 const at::Tensor & RegSAHam::energy() const {return energy_;}
 const at::Tensor & RegSAHam::dH() const {return dH_;}
 const CL::utility::matrix<size_t> & RegSAHam::irreds() const {return irreds_;}
 const CL::utility::matrix<at::Tensor> & RegSAHam::SAdH() const {return SAdH_;}
 
 size_t RegSAHam::NStates() const {return energy_.size(0);}
+const double & RegSAHam::weight_E(const size_t & index) const {return weight_E_[index];}
+const double & RegSAHam::sqrtweight_E(const size_t & index) const {return sqrtweight_E_[index];}
+const double & RegSAHam::weight_dH(const size_t & row, const size_t & column) const {return weight_dH_[row][column];}
+const double & RegSAHam::sqrtweight_dH(const size_t & row, const size_t & column) const {return sqrtweight_dH_[row][column];}
 
 void RegSAHam::to(const c10::DeviceType & device) {
     SAGeometry::to(device);
@@ -87,12 +101,23 @@ void RegSAHam::to(const c10::DeviceType & device) {
 void RegSAHam::subtract_ZeroPoint(const double & zero_point) {
     energy_ -= zero_point;
 }
-// Lower the weight if energy[0] > thresh
-void RegSAHam::adjust_weight(const double & thresh) {
-    double temp = energy_[0].item<double>();
-    if (temp > thresh) {
-        temp = thresh / temp;
-        weight_ = temp * temp;
+// Lower the weight if energy > E_thresh or ||dH|| > dH_thresh
+void RegSAHam::adjust_weight(const double & E_thresh, const double & dH_thresh) {
+    int64_t NStates = energy_.size(0);
+    for (int64_t i = 0; i < NStates; i++) {
+        double e = energy_[i].item<double>();
+        if (e > E_thresh) {
+            sqrtweight_E_[i] = E_thresh / e;
+            weight_E_[i] = sqrtweight_E_[i] * sqrtweight_E_[i];
+        }
+    }
+    for (int64_t i = 0; i < NStates; i++)
+    for (int64_t j = i; j < NStates; j++) {
+        double g = dH_[i][j].norm().item<double>();
+        if (g > dH_thresh) {
+            sqrtweight_dH_[i][j] = dH_thresh / g;
+            weight_dH_[i][j] = sqrtweight_dH_[i][j] * sqrtweight_dH_[i][j];
+        }
     }
 }
 
@@ -102,7 +127,7 @@ void RegSAHam::adjust_weight(const double & thresh) {
 
 DegSAHam::DegSAHam() {}
 DegSAHam::DegSAHam(const DegSAHam & source) : RegSAHam(source),
-H_(source.H_) {}
+H_(source.H_), weight_H_(source.weight_H_), sqrtweight_H_(source.sqrtweight_H_) {}
 // See the base class constructor for details of `cart2int`
 DegSAHam::DegSAHam(const SAHamLoader & loader,
 std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2int)(const at::Tensor &))
@@ -116,10 +141,19 @@ std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2int)(const a
     for (size_t j = i + 1; j < H_.size(1); j++)
     if (abs(H_[i][j].item<double>()) > 1e-12 && irreds_[i][j] != 0)
     std::cerr << "Warning: inconsistent irreducible between H and ▽H\n";
+
+    size_t NStates = H_.size(0);
+    weight_H_.resize(NStates);
+    weight_H_ = 1.0;
+    sqrtweight_H_.resize(NStates);
+    sqrtweight_H_ = 1.0;
 }
 DegSAHam::~DegSAHam() {}
 
 const at::Tensor & DegSAHam::H() const {return H_;};
+
+const double & DegSAHam::weight_H(const size_t & row, const size_t & column) const {return weight_H_[row][column];}
+const double & DegSAHam::sqrtweight_H(const size_t & row, const size_t & column) const {return sqrtweight_H_[row][column];}
 
 void DegSAHam::to(const c10::DeviceType & device) {
     RegSAHam::to(device);
@@ -130,6 +164,19 @@ void DegSAHam::to(const c10::DeviceType & device) {
 void DegSAHam::subtract_ZeroPoint(const double & zero_point) {
     RegSAHam::subtract_ZeroPoint(zero_point);
     H_ -= zero_point * at::eye(H_.size(0), H_.options());
+}
+// Lower the weight if H > H_thresh or ||dH|| > dH_thresh
+void DegSAHam::adjust_weight(const double & H_thresh, const double & dH_thresh) {
+    RegSAHam::adjust_weight(H_thresh, dH_thresh);
+    int64_t NStates = energy_.size(0);
+    for (int64_t i = 0; i < NStates; i++)
+    for (int64_t j = i; j < NStates; j++) {
+        double h = H_[i][j].item<double>();
+        if (h > H_thresh) {
+            sqrtweight_H_[i][j] = H_thresh / h;
+            weight_H_[i][j] = sqrtweight_H_[i][j] * sqrtweight_H_[i][j];
+        }
+    }
 }
 
 } // namespace abinitio

@@ -40,3 +40,6 @@ int2input(const std::vector<at::Tensor> & qs) {
 }
 
 at::Tensor regularization, prior;
+
+// the "unit" of energy, accounting for the unit difference between energy and gradient
+double unit, unit_square;

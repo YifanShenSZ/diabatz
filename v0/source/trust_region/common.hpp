@@ -6,6 +6,7 @@
 
 #include <obnet/symat.hpp>
 
+#include "../../include/global.hpp"
 #include "../../include/data.hpp"
 
 namespace trust_region {
@@ -17,9 +18,6 @@ extern std::vector<std::shared_ptr<tchem::chem::Phaser>> phasers;
 // data set
 extern std::vector<std::shared_ptr<RegHam>> regset;
 extern std::vector<std::shared_ptr<DegHam>> degset;
-
-// the "unit" of energy, accounting for the unit difference between energy and gradient
-extern double unit, unit_square;
 
 // Number of least square equations and fitting parameters
 extern int32_t NEqs, NPars;

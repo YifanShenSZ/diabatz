@@ -21,4 +21,7 @@ std::tuple<CL::utility::matrix<at::Tensor>, CL::utility::matrix<at::Tensor>> int
 
 extern at::Tensor regularization, prior;
 
+// the "unit" of energy, accounting for the unit difference between energy and gradient
+extern double unit, unit_square;
+
 #endif

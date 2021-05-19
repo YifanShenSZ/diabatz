@@ -40,17 +40,16 @@ at::Tensor & J, size_t & start) {
     for (size_t j = i; j < NStates_data; j++)
     DcSADqHa[i][j] = data->cat(data->split2CNPI(DcDqHa[i][j]))[irreds[i][j]];
     // energy Jacobian
-    double weight = data->weight();
-    at::Tensor J_E = weight * unit * DcHa;
+    at::Tensor J_E = unit * DcHa;
     for (size_t i = 0; i < NStates_data; i++) {
-        J[start].copy_(J_E[i][i]);
+        J[start].copy_(data->sqrtweight_E(i) * J_E[i][i]);
         start++;
     }
     // (▽H)a Jacobian
     std::vector<at::Tensor> sqrtSs = data->sqrtSs();
     for (size_t i = 0; i < NStates_data; i++)
     for (size_t j = i; j < NStates_data; j++) {
-        at::Tensor J_dH = weight * sqrtSs[irreds[i][j]].mm(DcSADqHa[i][j]);
+        at::Tensor J_dH = data->sqrtweight_dH(i, j) * sqrtSs[irreds[i][j]].mm(DcSADqHa[i][j]);
         size_t stop = start + J_dH.size(0);
         J.slice(0, start, stop).copy_(J_dH);
         start = stop;
@@ -87,19 +86,18 @@ at::Tensor & J, size_t & start) {
     for (size_t j = i; j < NStates; j++)
     DcSADqHc[i][j] = data->cat(data->split2CNPI(DcDqHc[i][j]))[irreds[i][j]];
     // Hc Jacobian
-    double weight = data->weight();
-    at::Tensor J_H = weight * unit * DcHc;
+    at::Tensor J_H = unit * DcHc;
     for (size_t i = 0; i < NStates; i++)
     for (size_t j = i; j < NStates; j++)
     if (irreds[i][j] == 0) {
-        J[start].copy_(J_H[i][j]);
+        J[start].copy_(data->sqrtweight_H(i, j) * J_H[i][j]);
         start++;
     }
     // (▽H)c Jacobian
     std::vector<at::Tensor> sqrtSs = data->sqrtSs();
     for (size_t i = 0; i < NStates; i++)
     for (size_t j = i; j < NStates; j++) {
-        at::Tensor J_dH = weight * sqrtSs[irreds[i][j]].mm(DcSADqHc[i][j]);
+        at::Tensor J_dH = data->sqrtweight_dH(i, j) * sqrtSs[irreds[i][j]].mm(DcSADqHc[i][j]);
         size_t stop = start + J_dH.size(0);
         J.slice(0, start, stop).copy_(J_dH);
         start = stop;

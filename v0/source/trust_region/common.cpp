@@ -10,9 +10,6 @@ std::vector<std::shared_ptr<tchem::chem::Phaser>> phasers;
 std::vector<std::shared_ptr<RegHam>> regset;
 std::vector<std::shared_ptr<DegHam>> degset;
 
-// the "unit" of energy, accounting for the unit difference between energy and gradient
-double unit, unit_square;
-
 // Number of least square equations and fitting parameters
 int32_t NEqs, NPars;
 

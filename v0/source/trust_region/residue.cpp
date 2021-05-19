@@ -34,16 +34,17 @@ double * r, size_t & start) {
     for (size_t j = i; j < NStates_data; j++)
     SADqHa[i][j] = data->cat(data->split2CNPI(DqHa[i][j]))[irreds[i][j]];
     // energy residue
-    double weight = data->weight();
-    at::Tensor r_E = weight * unit * (energy - data->energy());
-    std::memcpy(&(r[start]), r_E.data_ptr<double>(), NStates_data * sizeof(double));
-    start += NStates_data;
+    at::Tensor r_E = unit * (energy - data->energy());
+    for (size_t i = 0; i < NStates_data; i++) {
+        r[start] = data->sqrtweight_E(i) * r_E[i].item<double>();
+        start++;
+    }
     // (▽H)a residue
     std::vector<at::Tensor> sqrtSs = data->sqrtSs();
     CL::utility::matrix<at::Tensor> SAdH = data->SAdH();
     for (size_t i = 0; i < NStates_data; i++)
     for (size_t j = i; j < NStates_data; j++) {
-        at::Tensor r_dH = weight * sqrtSs[irreds[i][j]].mv(SADqHa[i][j] - SAdH[i][j]);
+        at::Tensor r_dH = data->sqrtweight_dH(i, j) * sqrtSs[irreds[i][j]].mv(SADqHa[i][j] - SAdH[i][j]);
         std::memcpy(&(r[start]), r_dH.data_ptr<double>(), r_dH.numel() * sizeof(double));
         start += r_dH.numel();
     }
@@ -73,12 +74,11 @@ double * r, size_t & start) {
     for (size_t j = i; j < NStates; j++)
     SADqHc[i][j] = data->cat(data->split2CNPI(DqHc[i][j]))[irreds[i][j]];
     // Hc residue
-    double weight = data->weight();
-    at::Tensor r_H = weight * unit * (Hc - data->H());
+    at::Tensor r_H = unit * (Hc - data->H());
     for (size_t i = 0; i < NStates; i++)
     for (size_t j = i; j < NStates; j++)
     if (irreds[i][j] == 0) {
-        r[start] = r_H[i][j].item<double>();
+        r[start] = data->sqrtweight_H(i, j) * r_H[i][j].item<double>();
         start++;
     }
     // (▽H)c residue
@@ -86,7 +86,7 @@ double * r, size_t & start) {
     CL::utility::matrix<at::Tensor> SAdH = data->SAdH();
     for (size_t i = 0; i < NStates; i++)
     for (size_t j = i; j < NStates; j++) {
-        at::Tensor r_dH = weight * sqrtSs[irreds[i][j]].mv(SADqHc[i][j] - SAdH[i][j]);
+        at::Tensor r_dH = data->sqrtweight_dH(i, j) * sqrtSs[irreds[i][j]].mv(SADqHc[i][j] - SAdH[i][j]);
         std::memcpy(&(r[start]), r_dH.data_ptr<double>(), r_dH.numel() * sizeof(double));
         start += r_dH.numel();
     }

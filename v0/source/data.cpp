@@ -35,8 +35,7 @@ const CL::utility::matrix<at::Tensor> & DegHam::JxqTs() const {return JxqTs_;};
 
 
 std::tuple<std::shared_ptr<abinitio::DataSet<RegHam>>, std::shared_ptr<abinitio::DataSet<DegHam>>>
-read_data(const std::vector<std::string> & user_list,
-const double & zero_point, const double & weight) {
+read_data(const std::vector<std::string> & user_list) {
     abinitio::SAReader reader(user_list, cart2int);
     reader.pretty_print(std::cout);
     // Read the data set in symmetry adapted internal coordinate in standard form
@@ -48,8 +47,6 @@ const double & zero_point, const double & weight) {
     #pragma omp parallel for
     for (size_t i = 0; i < pregs.size(); i++) {
         auto reg = stdregset->get(i);
-        reg->subtract_ZeroPoint(zero_point);
-        reg->adjust_weight(weight);
         // Precompute the input layers
         pregs[i] = std::make_shared<RegHam>(reg, int2input);
     }
@@ -57,7 +54,6 @@ const double & zero_point, const double & weight) {
     #pragma omp parallel for
     for (size_t i = 0; i < pdegs.size(); i++) {
         auto deg = stddegset->get(i);
-        deg->subtract_ZeroPoint(zero_point);
         // Precompute the input layers
         pdegs[i] = std::make_shared<DegHam>(deg, int2input);
     }

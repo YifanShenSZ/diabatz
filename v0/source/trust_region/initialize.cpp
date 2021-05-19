@@ -6,23 +6,6 @@
 
 namespace trust_region {
 
-void set_unit() {
-    assert(("Data set must have been provided", ! regset.empty()));
-    double maxe = 0.0, maxg = 0.0;
-    for (const auto & data : regset) {
-        double temp = data->energy()[0].item<double>();
-        maxe = temp > maxe ? temp : maxe;
-        temp = data->dH()[0][0].abs().max().item<double>();
-        maxg = temp > maxg ? temp : maxg;
-    }
-    std::cout << "maximum ground state energy = " << maxe << '\n'
-              << "maximum ||ground state energy gradient||_infinity = " << maxg << '\n'; 
-    if (maxe > 0.0) unit = maxg / maxe;
-    else            unit = 1.0; // fail safe
-    std::cout << "so set gradient / energy scaling to " << unit << "\n\n";
-    unit_square = unit * unit;
-}
-
 void set_count() {
     NEqs = 0;
     for (const auto & data : regset) {
@@ -144,7 +127,6 @@ const std::shared_ptr<abinitio::DataSet<DegHam>> & _degset) {
     regset = _regset->examples();
     degset = _degset->examples();
 
-    set_unit();
     set_count();
     set_parallelism();
 }
