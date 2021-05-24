@@ -24,11 +24,16 @@ argparse::ArgumentParser parse_args(const size_t & argc, const char ** & argv) {
     parser.add_argument("--gradient_weight",    1, true, "gradient threshold in weight adjustment, default = infer from energy threshold");
     parser.add_argument("-g","--guess_diag",  '+', true, "initial guess of Hd diagonal, default = pytorch initialization");
     parser.add_argument("-c","--checkpoint",    1, true, "a trained Hd parameter to continue with");
-    parser.add_argument("-m","--max_iteration", 1, true, "default = 100");
 
     // regularization arguments
     parser.add_argument("-r","--regularization", 1, true, "enable regularization and set strength, can be a scalar or a vector file");
     parser.add_argument("-p","--priors",       '+', true, "priors for regularization");
+
+    // optimizer arguments
+    parser.add_argument("-o","--optimizer",     1, true, "trust_region, Adam, SGD (default = trust_region)");
+    parser.add_argument("-m","--max_iteration", 1, true, "default = 100");
+    parser.add_argument("-b","--batch_size",    1, true, "for Adam & SGD, default = 32");
+    parser.add_argument("--learning_rate",      1, true, "for Adam & SGD, default = 1e-3");
 
     parser.parse_args(argc, argv);
     return parser;
@@ -166,10 +171,31 @@ int main(size_t argc, const char ** argv) {
         "Prior and fitting parameter must share a same dimension");
     }
 
+    train::initialize();
     size_t max_iteration = 100;
     if (args.gotArgument("max_iteration")) max_iteration = args.retrieve<size_t>("max_iteration");
-    trust_region::initialize(regset, degset);
-    trust_region::optimize(regularized, max_iteration);
+    std::string optimizer = "trust_region";
+    if (args.gotArgument("optimizer")) optimizer = args.retrieve<std::string>("optimizer");
+    if (optimizer == "trust_region") {
+        std::cout << "Optimizer is trust region\n\n";
+        train::trust_region::initialize(regset, degset);
+        train::trust_region::optimize(regularized, max_iteration);
+    }
+    else {
+        size_t batch_size = 32;
+        if (args.gotArgument("batch_size")) batch_size = args.retrieve<size_t>("batch_size");
+        double learning_rate = 1e-3;
+        if (args.gotArgument("learning_rate")) learning_rate = args.retrieve<double>("learning_rate");
+        if (optimizer == "Adam") {
+            std::cout << "Optimizer is adaptive moment estimation (Adam)\n\n";
+            train::torch_optim::Adam(regset, degset, max_iteration, batch_size, learning_rate);
+        }
+        else if (optimizer == "SGD") {
+            std::cout << "Optimizer is stochastic gradient descent (SGD)\n\n";
+            train::torch_optim::SGD(regset, degset, max_iteration, batch_size, learning_rate);
+        }
+        else throw std::invalid_argument("Unsupported optimizer " + optimizer);
+    }
 
     std::cout << '\n';
     CL::utility::show_time(std::cout);

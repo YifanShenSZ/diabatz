@@ -67,6 +67,17 @@ CL::utility::matrix<std::vector<at::Tensor>> symat::parameters() {
     return ps;
 }
 
+void symat::copy_(const std::shared_ptr<symat> & source) {
+    const auto & this_pars = elements->parameters();
+    const auto & src_pars = source->elements->parameters();
+    if (this_pars.size() != src_pars.size()) throw std::invalid_argument(
+    "obnet::symat::copy_: inconsistent size");
+    for (size_t i = 0; i < this_pars.size(); i++) {
+        torch::NoGradGuard no_grad;
+        this_pars[i].copy_(src_pars[i]);
+    }
+}
+
 void symat::freeze(const size_t & NLayers) {
     for (size_t i = 0; i < elements->size(); i++)
     elements[i]->as<scalar>()->freeze(NLayers);

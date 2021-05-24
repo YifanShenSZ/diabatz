@@ -2,12 +2,9 @@
 
 #include <Hderiva/diabatic.hpp>
 
-#include "../../include/global.hpp"
-#include "../../include/data.hpp"
-
 #include "common.hpp"
 
-namespace trust_region {
+namespace train { namespace trust_region {
 
 inline void reg_residue(const size_t & thread, const std::shared_ptr<RegHam> & data,
 double * r, size_t & start) {
@@ -117,3 +114,4 @@ void regularized_residue(double * r, const double * c, const int32_t & M, const 
 }
 
 } // namespace trust_region
+} // namespace train

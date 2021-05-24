@@ -4,12 +4,9 @@
 #include <Hderiva/adiabatic.hpp>
 #include <Hderiva/composite.hpp>
 
-#include "../../include/global.hpp"
-#include "../../include/data.hpp"
-
 #include "common.hpp"
 
-namespace trust_region {
+namespace train { namespace trust_region {
 
 inline void reg_Jacobian(const size_t & thread, const std::shared_ptr<RegHam> & data,
 at::Tensor & J, size_t & start) {
@@ -132,3 +129,4 @@ void regularized_Jacobian(double * JT, const double * c, const int32_t & M, cons
 }
 
 } // namespace trust_region
+} // namespace train

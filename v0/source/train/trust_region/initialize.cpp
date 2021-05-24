@@ -1,54 +1,12 @@
-#include <omp.h>
-
-#include "../../include/global.hpp"
-
 #include "common.hpp"
 
-namespace trust_region {
+namespace train { namespace trust_region {
 
-void set_count() {
-    NEqs = 0;
-    for (const auto & data : regset) {
-        size_t NStates_data = data->NStates();
-        // energy least square equations
-        NEqs += NStates_data;
-        // (▽H)a least square equations
-        CL::utility::matrix<at::Tensor> SAdH = data->SAdH();
-        for (size_t i = 0; i < NStates_data; i++)
-        for (size_t j = i; j < NStates_data; j++)
-        NEqs += SAdH[i][j].size(0);
-    }
-    for (const auto & data : degset) {
-        if (NStates != data->NStates()) throw std::invalid_argument(
-        "Degenerate data must share a same number of electronic states with "
-        "the model to define a comparable composite representation");
-        // Hc least square equations
-        CL::utility::matrix<size_t> irreds = data->irreds();
-        for (size_t i = 0; i < NStates; i++)
-        for (size_t j = i; j < NStates; j++)
-        if (irreds[i][j] == 0) NEqs++;
-        // (▽H)c least square equations
-        CL::utility::matrix<at::Tensor> SAdH = data->SAdH();
-        for (size_t i = 0; i < NStates; i++)
-        for (size_t j = i; j < NStates; j++)
-        NEqs += SAdH[i][j].size(0);
-    }
-    std::cout << "The data set corresponds to " << NEqs << " least square equations\n";
-    NPars = 0;
-    for (const auto & p : Hdnet->elements->parameters()) NPars += p.numel();
-    std::cout << "There are " << NPars << " parameters to train\n\n";
-}
-
-void set_parallelism() {
-    OMP_NUM_THREADS = omp_get_max_threads();
-    std::cout << "The number of threads = " << OMP_NUM_THREADS << '\n';
-
-    Hdnets.resize(OMP_NUM_THREADS);
-    Hdnets[0] = Hdnet;
-    for (size_t i = 1; i < OMP_NUM_THREADS; i++) {
-        Hdnets[i] = std::make_shared<obnet::symat>(Hdnet);
-        Hdnets[i]->train();
-    }
+void initialize(
+const std::shared_ptr<abinitio::DataSet<RegHam>> & _regset,
+const std::shared_ptr<abinitio::DataSet<DegHam>> & _degset) {
+    regset = _regset->examples();
+    degset = _degset->examples();
 
     regchunk.resize(OMP_NUM_THREADS);
     degchunk.resize(OMP_NUM_THREADS);
@@ -113,22 +71,8 @@ void set_parallelism() {
     }
     for (size_t thread = 0; thread < OMP_NUM_THREADS; thread++)
     std::cout << "Thread " << thread << " starts with Jacobian row " << segstart[thread] << '\n';
-}
-
-void initialize(
-const std::shared_ptr<abinitio::DataSet<RegHam>> & _regset,
-const std::shared_ptr<abinitio::DataSet<DegHam>> & _degset) {
-    NStates = Hdnet->NStates();
-
-    phasers.resize(NStates + 1);
-    for (size_t i = 0; i < phasers.size(); i++)
-    phasers[i] = std::make_shared<tchem::chem::Phaser>(i);
-
-    regset = _regset->examples();
-    degset = _degset->examples();
-
-    set_count();
-    set_parallelism();
+    std::cout << '\n';
 }
 
 } // namespace trust_region
+} // namespace train

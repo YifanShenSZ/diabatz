@@ -1,37 +1,22 @@
-#ifndef trust_region_common_hpp
-#define trust_region_common_hpp
+#ifndef train_common_hpp
+#define train_common_hpp
 
 #include <tchem/linalg.hpp>
 #include <tchem/chemistry.hpp>
 
-#include <obnet/symat.hpp>
-
 #include "../../include/global.hpp"
-#include "../../include/data.hpp"
 
-namespace trust_region {
+namespace train {
 
 extern int64_t NStates;
 
 extern std::vector<std::shared_ptr<tchem::chem::Phaser>> phasers;
 
-// data set
-extern std::vector<std::shared_ptr<RegHam>> regset;
-extern std::vector<std::shared_ptr<DegHam>> degset;
-
-// Number of least square equations and fitting parameters
-extern int32_t NEqs, NPars;
-
 extern size_t OMP_NUM_THREADS;
+
 // Each thread owns a copy of Hd network
 // Thread 0 shares the original Hdnet
 extern std::vector<std::shared_ptr<obnet::symat>> Hdnets;
-// Each thread owns a chunk of data
-extern std::vector<std::vector<std::shared_ptr<RegHam>>> regchunk;
-extern std::vector<std::vector<std::shared_ptr<DegHam>>> degchunk;
-// Each thread works on a segment of residue or Jacobian
-// Thread i works on rows [segstart[i], segstart[i + 1])
-extern std::vector<size_t> segstart;
 
 inline void p2c(const size_t & thread, double * c) {
     size_t count = 0;
@@ -68,6 +53,7 @@ const int64_t & NStates_data, const at::Tensor & DrHa_data) {
     phasers[NStates_data]->alter_states_(states_view, iphase);
     return std::make_tuple(energy, states);
 }
+
 inline std::tuple<at::Tensor, at::Tensor> define_composite(
 const at::Tensor & Hd, const at::Tensor & DqHd,
 const at::Tensor & JqrT, const int64_t & cartdim,
@@ -86,6 +72,6 @@ const at::Tensor & Hc_data, const at::Tensor & DrHc_data) {
     return std::make_tuple(eigval, eigvec);
 }
 
-} // namespace trust_region
+} // namespace train
 
 #endif

@@ -42,11 +42,21 @@ add_executable(v0.exe
     source/InputGenerator.cpp
     source/global.cpp
     source/data.cpp
-    source/trust_region/common.cpp
-    source/trust_region/residue.cpp
-    source/trust_region/Jacobian.cpp
-    source/trust_region/initialize.cpp
-    source/trust_region/driver.cpp
+
+    source/train/common.cpp
+    source/train/initialize.cpp
+
+    source/train/trust_region/common.cpp
+    source/train/trust_region/residue.cpp
+    source/train/trust_region/Jacobian.cpp
+    source/train/trust_region/initialize.cpp
+    source/train/trust_region/driver.cpp
+
+    source/train/torch_optim/residue.cpp
+    source/train/torch_optim/gradient.cpp
+    source/train/torch_optim/Adam.cpp
+    source/train/torch_optim/SGD.cpp
+
     source/main.cpp
 )
 
