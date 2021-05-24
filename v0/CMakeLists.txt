@@ -63,4 +63,5 @@ add_executable(v0.exe
 target_link_libraries(v0.exe
     ${Hderiva_LIBRARIES} ${obnet_LIBRARIES} ${abinitio_LIBRARIES}
     ${tchem_LIBRARIES} ${CL_LIBRARIES} ${Foptim_LIBRARIES}
+    stdc++fs
 )

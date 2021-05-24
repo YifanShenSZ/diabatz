@@ -28,7 +28,7 @@ at::Tensor & J, size_t & start) {
         data->JqrT(), data->cartdim(), data->NStates(), data->dH());
     // Compute fitting parameter gradient in adiabatic prediction
     int64_t NStates_data = data->NStates();
-    CL::utility::matrix<size_t> irreds = data->irreds();
+    const CL::utility::matrix<size_t> & irreds = data->irreds();
     at::Tensor DcHa = tchem::linalg::UT_sy_U(DcHd, states);
     at::Tensor DqHa = tchem::linalg::UT_sy_U(DqHd, states);
     at::Tensor DcDqHa = Hderiva::DcDxHa(DqHa, DcHd, DcDqHd, energy, states);
@@ -43,7 +43,7 @@ at::Tensor & J, size_t & start) {
         start++;
     }
     // (▽H)a Jacobian
-    std::vector<at::Tensor> sqrtSs = data->sqrtSs();
+    const std::vector<at::Tensor> & sqrtSs = data->sqrtSs();
     for (size_t i = 0; i < NStates_data; i++)
     for (size_t j = i; j < NStates_data; j++) {
         at::Tensor J_dH = data->sqrtweight_dH(i, j) * sqrtSs[irreds[i][j]].mm(DcSADqHa[i][j]);
@@ -72,7 +72,7 @@ at::Tensor & J, size_t & start) {
     std::tie(eigval, eigvec) = define_composite(Hd, DqHd,
         data->JqrT(), data->cartdim(), data->H(), data->dH());
     // Compute fitting parameter gradient in composite prediction
-    CL::utility::matrix<size_t> irreds = data->irreds();
+    const CL::utility::matrix<size_t> & irreds = data->irreds();
     at::Tensor   Hc = tchem::linalg::UT_sy_U(  Hd, eigvec);
     at::Tensor DqHc = tchem::linalg::UT_sy_U(DqHd, eigvec);
     at::Tensor DcHc, DcDqHc;
@@ -91,7 +91,7 @@ at::Tensor & J, size_t & start) {
         start++;
     }
     // (▽H)c Jacobian
-    std::vector<at::Tensor> sqrtSs = data->sqrtSs();
+    const std::vector<at::Tensor> & sqrtSs = data->sqrtSs();
     for (size_t i = 0; i < NStates; i++)
     for (size_t j = i; j < NStates; j++) {
         at::Tensor J_dH = data->sqrtweight_dH(i, j) * sqrtSs[irreds[i][j]].mm(DcSADqHc[i][j]);

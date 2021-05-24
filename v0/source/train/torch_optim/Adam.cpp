@@ -1,3 +1,5 @@
+#include <experimental/filesystem>
+
 #include "../../../include/data.hpp"
 
 #include "../common.hpp"
@@ -8,8 +10,8 @@ namespace train { namespace torch_optim {
 void Adam(
 const std::shared_ptr<abinitio::DataSet<RegHam>> & regset,
 const std::shared_ptr<abinitio::DataSet<DegHam>> & degset,
-const size_t & max_iteration, const size_t & batch_size, const double & learning_rate
-) {
+const size_t & max_iteration, const size_t & batch_size, const double & learning_rate,
+const std::string & opt_chk) {
     auto reg_loader = torch::data::make_data_loader(* regset,
         torch::data::DataLoaderOptions(batch_size));
     auto deg_loader = torch::data::make_data_loader(* degset,
@@ -20,7 +22,13 @@ const size_t & max_iteration, const size_t & batch_size, const double & learning
     std::cout << "There are " << NPars << " parameters to train\n\n";
     at::Tensor c = at::empty(NPars, c10::TensorOptions().dtype(torch::kFloat64));
     p2c(0, c.data_ptr<double>());
+    // Display initial residue
+    std::cout << "The initial residue = "
+              << at::cat({reg_residue(regset->examples()), deg_residue(degset->examples())})
+                 .norm().item<double>() << '\n' << std::endl;
+
     torch::optim::Adam optimizer({c}, learning_rate);
+    if (std::experimental::filesystem::exists(opt_chk)) torch::load(optimizer, opt_chk);
 
     // Create c.grad()
     c.set_requires_grad(true);
@@ -35,7 +43,18 @@ const size_t & max_iteration, const size_t & batch_size, const double & learning
             #pragma omp parallel for
             for (size_t thread = 0; thread < OMP_NUM_THREADS; thread++) c2p(c.data_ptr<double>(), thread);
         }
-        std::cout << "epoch " << iepoch << " | residue = " << reg_residue(regset->examples()).norm().item<double>() << std::endl;
+        for (const auto & batch : * deg_loader) {
+            c.grad().copy_(deg_gradient(batch));
+            optimizer.step();
+            #pragma omp parallel for
+            for (size_t thread = 0; thread < OMP_NUM_THREADS; thread++) c2p(c.data_ptr<double>(), thread);
+        }
+        CL::utility::show_time(std::cout);
+        std::cout << "epoch " << iepoch << " | residue = "
+                  << at::cat({reg_residue(regset->examples()), deg_residue(degset->examples())})
+                     .norm().item<double>() << '\n' << std::endl;
+        torch::save(Hdnet->elements, std::to_string(iepoch)+"-Hd.net");
+        torch::save(optimizer, std::to_string(iepoch)+"-opt.chk");
     }
 }
 

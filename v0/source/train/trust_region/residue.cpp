@@ -23,7 +23,7 @@ double * r, size_t & start) {
         data->JqrT(), data->cartdim(), data->NStates(), data->dH());
     // Make prediction in adiabatic representation
     int64_t NStates_data = data->NStates();
-    CL::utility::matrix<size_t> irreds = data->irreds();
+    const CL::utility::matrix<size_t> & irreds = data->irreds();
     energy = energy.slice(0, 0, NStates_data);
     at::Tensor DqHa = tchem::linalg::UT_sy_U(DqHd, states);
     CL::utility::matrix<at::Tensor> SADqHa(NStates_data);
@@ -37,8 +37,8 @@ double * r, size_t & start) {
         start++;
     }
     // (▽H)a residue
-    std::vector<at::Tensor> sqrtSs = data->sqrtSs();
-    CL::utility::matrix<at::Tensor> SAdH = data->SAdH();
+    const std::vector<at::Tensor> & sqrtSs = data->sqrtSs();
+    const CL::utility::matrix<at::Tensor> & SAdH = data->SAdH();
     for (size_t i = 0; i < NStates_data; i++)
     for (size_t j = i; j < NStates_data; j++) {
         at::Tensor r_dH = data->sqrtweight_dH(i, j) * sqrtSs[irreds[i][j]].mv(SADqHa[i][j] - SAdH[i][j]);
@@ -63,7 +63,7 @@ double * r, size_t & start) {
     std::tie(eigval, eigvec) = define_composite(Hd, DqHd,
         data->JqrT(), data->cartdim(), data->H(), data->dH());
     // Make prediction in composite representation
-    CL::utility::matrix<size_t> irreds = data->irreds();
+    const CL::utility::matrix<size_t> & irreds = data->irreds();
     at::Tensor   Hc = tchem::linalg::UT_sy_U(  Hd, eigvec);
     at::Tensor DqHc = tchem::linalg::UT_sy_U(DqHd, eigvec);
     CL::utility::matrix<at::Tensor> SADqHc(NStates);
@@ -79,8 +79,8 @@ double * r, size_t & start) {
         start++;
     }
     // (▽H)c residue
-    std::vector<at::Tensor> sqrtSs = data->sqrtSs();
-    CL::utility::matrix<at::Tensor> SAdH = data->SAdH();
+    const std::vector<at::Tensor> & sqrtSs = data->sqrtSs();
+    const CL::utility::matrix<at::Tensor> & SAdH = data->SAdH();
     for (size_t i = 0; i < NStates; i++)
     for (size_t j = i; j < NStates; j++) {
         at::Tensor r_dH = data->sqrtweight_dH(i, j) * sqrtSs[irreds[i][j]].mv(SADqHc[i][j] - SAdH[i][j]);
