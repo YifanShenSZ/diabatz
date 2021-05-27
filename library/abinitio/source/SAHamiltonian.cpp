@@ -110,6 +110,10 @@ void RegSAHam::adjust_weight(const double & E_thresh, const double & dH_thresh) 
             sqrtweight_E_[i] = E_thresh / e;
             weight_E_[i] = sqrtweight_E_[i] * sqrtweight_E_[i];
         }
+        else {
+            sqrtweight_E_[i] = 1.0;
+            weight_E_[i] = 1.0;
+        }
     }
     for (int64_t i = 0; i < NStates; i++)
     for (int64_t j = i; j < NStates; j++) {
@@ -117,6 +121,10 @@ void RegSAHam::adjust_weight(const double & E_thresh, const double & dH_thresh) 
         if (g > dH_thresh) {
             sqrtweight_dH_[i][j] = dH_thresh / g;
             weight_dH_[i][j] = sqrtweight_dH_[i][j] * sqrtweight_dH_[i][j];
+        }
+        else {
+            sqrtweight_dH_[i][j] = 1.0;
+            weight_dH_[i][j] = 1.0;
         }
     }
 }
@@ -175,6 +183,10 @@ void DegSAHam::adjust_weight(const double & H_thresh, const double & dH_thresh) 
         if (h > H_thresh) {
             sqrtweight_H_[i][j] = H_thresh / h;
             weight_H_[i][j] = sqrtweight_H_[i][j] * sqrtweight_H_[i][j];
+        }
+        else {
+            sqrtweight_H_[i][j] = 1.0;
+            weight_H_[i][j] = 1.0;
         }
     }
 }
