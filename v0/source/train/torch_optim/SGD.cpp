@@ -25,7 +25,7 @@ const std::string & opt_chk) {
     // Display initial residue
     std::cout << "The initial residue = "
               << at::cat({reg_residue(regset->examples()), deg_residue(degset->examples())})
-                 .norm().item<double>() << '\n' << std::endl;
+                 .norm().item<double>() << std::endl;
 
     torch::optim::SGD optimizer({c}, torch::optim::SGDOptions(learning_rate).momentum(0.9).nesterov(true));
     if (std::experimental::filesystem::exists(opt_chk)) torch::load(optimizer, opt_chk);
@@ -49,12 +49,13 @@ const std::string & opt_chk) {
             #pragma omp parallel for
             for (size_t thread = 0; thread < OMP_NUM_THREADS; thread++) c2p(c.data_ptr<double>(), thread);
         }
+        std::cout << '\n';
         CL::utility::show_time(std::cout);
         std::cout << "epoch " << iepoch << " | residue = "
                   << at::cat({reg_residue(regset->examples()), deg_residue(degset->examples())})
-                     .norm().item<double>() << '\n' << std::endl;
-        torch::save(Hdnet->elements, std::to_string(iepoch)+"-Hd.net");
-        torch::save(optimizer, std::to_string(iepoch)+"-opt.chk");
+                     .norm().item<double>() << std::endl;
+        torch::save(Hdnet->elements, std::to_string(iepoch) + "-Hd.net");
+        torch::save(optimizer, std::to_string(iepoch) + "-opt.chk");
     }
 }
 

@@ -98,18 +98,18 @@ int main(size_t argc, const char ** argv) {
     std::cout << "so we suggest to set gradient / energy scaling to around " << unit << "\n\n";
     unit_square = unit * unit;
 
-    double H_weight = 1.0;
-    if (args.gotArgument("energy_weight")) H_weight = args.retrieve<double>("energy_weight");
-    double dH_weight = unit * H_weight;
+    double energy_weight = 1.0;
+    if (args.gotArgument("energy_weight")) energy_weight = args.retrieve<double>("energy_weight");
+    double dH_weight = unit * energy_weight;
     if (args.gotArgument("gradient_weight")) {
         dH_weight = args.retrieve<double>("gradient_weight");
-        unit = dH_weight / H_weight;
+        unit = dH_weight / energy_weight;
         unit_square = unit * unit;
         std::cout << "According to user defined energy threshold and gradient threshold,\n"
                      "set gradient / energy scaling to " << unit << "\n\n";
     }
-    for (const auto & example : regset->examples()) example->adjust_weight(H_weight, dH_weight);
-    for (const auto & example : degset->examples()) example->adjust_weight(H_weight, dH_weight);
+    for (const auto & example : regset->examples()) example->adjust_weight(energy_weight, dH_weight);
+    // Always set full weight for degenerate examples
 
     bool regularized = args.gotArgument("regularization");
     if (regularized) {
