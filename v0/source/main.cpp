@@ -26,8 +26,8 @@ argparse::ArgumentParser parse_args(const size_t & argc, const char ** & argv) {
     parser.add_argument("-c","--checkpoint",    1, true, "a trained Hd parameter to continue from");
 
     // regularization arguments
-    parser.add_argument("-r","--regularization", 1, true, "enable regularization and set strength, can be a scalar or a vector file");
-    parser.add_argument("-p","--priors",       '+', true, "priors for regularization");
+    parser.add_argument("-r","--regularization", 1, true, "enable regularization and set strength, can be a scalar or files regularization_state1-state2_layer.txt");
+    parser.add_argument("-p","--prior",          1, true, "prior for regularization are taken from files prior_state1-state2_layer.txt");
 
     // optimizer arguments
     parser.add_argument("-o","--optimizer",     1, true, "trust_region, Adam, SGD (default = trust_region)");
@@ -38,6 +38,98 @@ argparse::ArgumentParser parse_args(const size_t & argc, const char ** & argv) {
 
     parser.parse_args(argc, argv);
     return parser;
+}
+
+void read_parameters(const std::string & prefix, at::Tensor & x) {
+    auto pmat = Hdnet->parameters();
+    size_t start = 0;
+    for (size_t istate = 0     ; istate < Hdnet->NStates(); istate++)
+    for (size_t jstate = istate; jstate < Hdnet->NStates(); jstate++) {
+        std::string prefix_now = prefix + "_" + std::to_string(istate + 1) + "-" + std::to_string(jstate + 1) + "_";
+        const auto & ps = pmat[istate][jstate];
+        // The 1st layer is interpretable
+        std::string file = prefix_now + "1.txt";
+        std::ifstream ifs; ifs.open(file);
+        at::Tensor A = ps[0].new_empty(ps[0].sizes());
+        for (size_t i = 0; i < A.size(1); i++) {
+            std::string line;
+            std::getline(ifs, line);
+            if (! ifs.good()) throw CL::utility::file_error(file);
+            std::getline(ifs, line);
+            if (! ifs.good()) throw CL::utility::file_error(file);
+            auto strs = CL::utility::split(line);
+            if (strs.size() != A.size(0)) throw std::invalid_argument("inconsisten line");
+            for (size_t j = 0; j < A.size(0); j++) A[j][i].fill_(std::stod(strs[j]));
+        }
+        size_t stop = start + A.numel();
+        x.slice(0, start, stop).copy_(A.view(A.numel()));
+        start = stop;
+        if (Hdnet->irreds()[istate][jstate] == 0) {
+            at::Tensor b = ps[1].new_empty(ps[1].sizes());
+            std::string line;
+            std::getline(ifs, line);
+            if (! ifs.good()) throw CL::utility::file_error(file);
+            std::getline(ifs, line);
+            if (! ifs.good()) throw CL::utility::file_error(file);
+            auto strs = CL::utility::split(line);
+            if (strs.size() != b.size(0)) throw std::invalid_argument("inconsisten line");
+            for (size_t j = 0; j < A.size(0); j++) b[j].fill_(std::stod(strs[j]));
+            size_t stop = start + b.numel();
+            x.slice(0, start, stop).copy_(b);
+            start = stop;
+        }
+        ifs.close();
+        // The other layers are uninterpretable
+        if (Hdnet->irreds()[istate][jstate] == 0)
+        for (size_t layer = 2; layer < ps.size(); layer += 2) {
+            std::string file = prefix_now + std::to_string(layer / 2 + 1) + ".txt";
+            std::ifstream ifs; ifs.open(file);
+            at::Tensor A = ps[layer].new_empty(ps[layer].sizes());
+            std::string line;
+            std::getline(ifs, line);
+            for (size_t i = 0; i < A.size(1); i++)
+            for (size_t j = 0; j < A.size(0); j++) {
+                double dbletemp;
+                ifs >> dbletemp;
+                if (! ifs.good()) throw CL::utility::file_error(file);
+                A[j][i].fill_(dbletemp);
+            }
+            at::Tensor b = ps[layer + 1].new_empty(ps[layer + 1].sizes());
+            ifs >> line;
+            for (size_t i = 0; i < b.size(0); i++) {
+                double dbletemp;
+                ifs >> dbletemp;
+                if (! ifs.good()) throw CL::utility::file_error(file);
+                b[i].fill_(dbletemp);
+            }
+            size_t stop = start + A.numel();
+            x.slice(0, start, stop).copy_(A.view(A.numel()));
+            start = stop;
+            stop = start + b.numel();
+            x.slice(0, start, stop).copy_(b);
+            start = stop;
+            ifs.close();
+        }
+        else
+        for (size_t layer = 1; layer < ps.size(); layer++) {
+            std::string file = prefix_now + std::to_string(layer + 1) + ".txt";
+            std::ifstream ifs; ifs.open(file);
+            at::Tensor A = ps[layer].new_empty(ps[layer].sizes());
+            std::string line;
+            std::getline(ifs, line);
+            for (size_t i = 0; i < A.size(1); i++)
+            for (size_t j = 0; j < A.size(0); j++) {
+                double dbletemp;
+                ifs >> dbletemp;
+                if (! ifs.good()) throw CL::utility::file_error(file);
+                A[j][i].fill_(dbletemp);
+            }
+            size_t stop = start + A.numel();
+            x.slice(0, start, stop).copy_(A.view(A.numel()));
+            start = stop;
+            ifs.close();
+        }
+    }
 }
 
 int main(size_t argc, const char ** argv) {
@@ -114,62 +206,20 @@ int main(size_t argc, const char ** argv) {
     bool regularized = args.gotArgument("regularization");
     if (regularized) {
         std::cout << "Got regularization strength, enable regularization\n\n";
-        // Count the number of fitting parameters
         size_t NPars = 0;
         for (const at::Tensor & p : Hdnet->elements->parameters()) NPars += p.numel();
         // Get regularization strength
         regularization = Hdnet->elements->parameters()[0].new_empty(NPars);
-        std::string regularization_input = args.retrieve<std::string>("regularization");
-        std::ifstream ifs; ifs.open(regularization_input);
-        if (ifs.good()) {
-            size_t count = 0;
-            while (true) {
-                std::string line;
-                std::getline(ifs, line);
-                if (! ifs.good()) break;
-                std::getline(ifs, line);
-                if (! ifs.good()) break;
-                double temp = std::stod(line);
-                if (count >= NPars) throw std::invalid_argument(
-                "Regularization strength and fitting parameter must share a same dimension");
-                regularization[count] = temp;
-                count++;
-            }
-            if (count != NPars) throw std::invalid_argument(
-            "Regularization strength and fitting parameter must share a same dimension");
-        }
-        else {
-            regularization.fill_(std::stod(regularization_input));
-        }
+        std::string reg_prefix = args.retrieve<std::string>("regularization");
+        std::ifstream ifs; ifs.open(reg_prefix + "_1-1_1.txt");
+        if (ifs.good()) read_parameters(reg_prefix, regularization);
+        else regularization.fill_(std::stod(reg_prefix));
+        ifs.close();
         // Get prior
         prior = Hdnet->elements->parameters()[0].new_empty(NPars);
-        if (! args.gotArgument("priors")) throw std::invalid_argument(
-        "Priors must be provided for regularization");
-        std::vector<std::string> priors_in = args.retrieve<std::vector<std::string>>("priors");
-        if (priors_in.size() != (Hdnet->NStates() + 1) * Hdnet->NStates() / 2) throw std::invalid_argument(
-        "The number of priors must match the number of Hd upper-triangle elements");
-        size_t count_prior = 0, count_in = 0;
-        for (size_t i = 0; i < Hdnet->NStates(); i++)
-        for (size_t j = i; j < Hdnet->NStates(); j++) {
-            std::ifstream ifs; ifs.open(priors_in[count_in]);
-            if (! ifs.good()) throw CL::utility::file_error(priors_in[count_in]);
-            while (true) {
-                std::string line;
-                std::getline(ifs, line);
-                if (! ifs.good()) break;
-                std::getline(ifs, line);
-                if (! ifs.good()) break;
-                double temp = std::stod(line);
-                if (count_prior >= NPars) throw std::invalid_argument(
-                "Prior and fitting parameter must share a same dimension");
-                prior[count_prior] = temp;
-                count_prior++;
-            }
-            ifs.close();
-            count_in++;
-        }
-        if (count_prior != NPars) throw std::invalid_argument(
-        "Prior and fitting parameter must share a same dimension");
+        if (! args.gotArgument("prior")) throw std::invalid_argument("Prior must be provided for regularization");
+        std::string prior_prefix = args.retrieve<std::string>("prior");
+        read_parameters(prior_prefix, prior);
     }
 
     train::initialize();
