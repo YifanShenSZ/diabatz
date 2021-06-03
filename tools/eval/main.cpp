@@ -70,7 +70,7 @@ int main(size_t argc, const char ** argv) {
         std::cout << "energy =\n";
         for (size_t i = 0; i < energy.size(0); i++)
         std::cout << std::setw(16) << std::scientific << std::setprecision(6) << energy[i].item<double>();
-        std::cout << '\n';
+        std::cout << "\n\n";
         // states
         std::cout << "states are:\n";
         print_matrix(states, std::cout);
