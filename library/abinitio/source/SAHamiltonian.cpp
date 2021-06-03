@@ -50,15 +50,17 @@ void RegSAHam::reconstruct_dH_() {
 }
 
 RegSAHam::RegSAHam() {}
+
 RegSAHam::RegSAHam(const RegSAHam & source) : SAGeometry(source),
 energy_(source.energy_), dH_(source.dH_),
 weight_E_(source.weight_E_), sqrtweight_E_(source.sqrtweight_E_),
 weight_dH_(source.weight_dH_), sqrtweight_dH_(source.sqrtweight_dH_),
 irreds_(source.irreds_), SAdH_(source.SAdH_) {}
+
 // See the base class constructor for details of `cart2int`
 RegSAHam::RegSAHam(const SAHamLoader & loader,
 std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2int)(const at::Tensor &))
-: SAGeometry(loader.geom, loader.CNPI2point, cart2int),
+: SAGeometry(loader.weight, loader.geom, loader.CNPI2point, cart2int),
 energy_(loader.energy.clone()), dH_(loader.dH.clone()) {
     for (size_t i = 0    ; i < dH_.size(0); i++)
     for (size_t j = i + 1; j < dH_.size(1); j++)
@@ -76,6 +78,7 @@ energy_(loader.energy.clone()), dH_(loader.dH.clone()) {
     sqrtweight_dH_.resize(NStates);
     sqrtweight_dH_ = 1.0;
 }
+
 RegSAHam::~RegSAHam() {}
 
 const at::Tensor & RegSAHam::energy() const {return energy_;}
@@ -106,26 +109,16 @@ void RegSAHam::adjust_weight(const double & E_thresh, const double & dH_thresh) 
     int64_t NStates = energy_.size(0);
     for (int64_t i = 0; i < NStates; i++) {
         double e = energy_[i].item<double>();
-        if (e > E_thresh) {
-            sqrtweight_E_[i] = E_thresh / e;
-            weight_E_[i] = sqrtweight_E_[i] * sqrtweight_E_[i];
-        }
-        else {
-            sqrtweight_E_[i] = 1.0;
-            weight_E_[i] = 1.0;
-        }
+        if (e > E_thresh) sqrtweight_E_[i] = sqrtweight_ * E_thresh / e;
+        else              sqrtweight_E_[i] = sqrtweight_;
+        weight_E_[i] = sqrtweight_E_[i] * sqrtweight_E_[i];
     }
     for (int64_t i = 0; i < NStates; i++)
     for (int64_t j = i; j < NStates; j++) {
         double g = dH_[i][j].norm().item<double>();
-        if (g > dH_thresh) {
-            sqrtweight_dH_[i][j] = dH_thresh / g;
-            weight_dH_[i][j] = sqrtweight_dH_[i][j] * sqrtweight_dH_[i][j];
-        }
-        else {
-            sqrtweight_dH_[i][j] = 1.0;
-            weight_dH_[i][j] = 1.0;
-        }
+        if (g > dH_thresh) sqrtweight_dH_[i][j] = sqrtweight_ * dH_thresh / g;
+        else               sqrtweight_dH_[i][j] = sqrtweight_;
+        weight_dH_[i][j] = sqrtweight_dH_[i][j] * sqrtweight_dH_[i][j];
     }
 }
 
@@ -134,8 +127,10 @@ void RegSAHam::adjust_weight(const double & E_thresh, const double & dH_thresh) 
 
 
 DegSAHam::DegSAHam() {}
+
 DegSAHam::DegSAHam(const DegSAHam & source) : RegSAHam(source),
 H_(source.H_), weight_H_(source.weight_H_), sqrtweight_H_(source.sqrtweight_H_) {}
+
 // See the base class constructor for details of `cart2int`
 DegSAHam::DegSAHam(const SAHamLoader & loader,
 std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2int)(const at::Tensor &))
@@ -156,6 +151,7 @@ std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2int)(const a
     sqrtweight_H_.resize(NStates);
     sqrtweight_H_ = 1.0;
 }
+
 DegSAHam::~DegSAHam() {}
 
 const at::Tensor & DegSAHam::H() const {return H_;};
@@ -180,14 +176,9 @@ void DegSAHam::adjust_weight(const double & H_thresh, const double & dH_thresh) 
     for (int64_t i = 0; i < NStates; i++)
     for (int64_t j = i; j < NStates; j++) {
         double h = H_[i][j].item<double>();
-        if (h > H_thresh) {
-            sqrtweight_H_[i][j] = H_thresh / h;
-            weight_H_[i][j] = sqrtweight_H_[i][j] * sqrtweight_H_[i][j];
-        }
-        else {
-            sqrtweight_H_[i][j] = 1.0;
-            weight_H_[i][j] = 1.0;
-        }
+        if (h > H_thresh) sqrtweight_H_[i][j] = sqrtweight_ * H_thresh / h;
+        else              sqrtweight_H_[i][j] = sqrtweight_;
+        weight_H_[i][j] = sqrtweight_H_[i][j] * sqrtweight_H_[i][j];
     }
 }
 

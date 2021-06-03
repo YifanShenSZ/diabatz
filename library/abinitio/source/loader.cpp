@@ -4,14 +4,14 @@ namespace abinitio {
 
 GeomLoader::GeomLoader() {}
 GeomLoader::GeomLoader(const int64_t & dimension) {
-    c10::TensorOptions top = at::TensorOptions().dtype(torch::kFloat64);
-    geom = at::empty(dimension, top);
+    weight = 1.0;
+    geom = at::empty(dimension, at::TensorOptions().dtype(torch::kFloat64));
 }
 GeomLoader::~GeomLoader() {}
 
 void GeomLoader::reset(const int64_t & dimension) {
-    c10::TensorOptions top = at::TensorOptions().dtype(torch::kFloat64);
-    geom = at::empty(dimension, top);
+    weight = 1.0;
+    geom = at::empty(dimension, at::TensorOptions().dtype(torch::kFloat64));
 }
 
 

@@ -21,6 +21,7 @@ std::shared_ptr<DataSet<SAGeometry>> SAReader::read_SAGeomSet() const {
     for (const std::string & data_directory : data_directories_) {
         std::vector<SAGeomLoader> loaders(NData(data_directory));
         for (auto & loader : loaders) loader.reset(3 * NAtoms());
+        load_weight(loaders, data_directory);
         load_geom(loaders, data_directory);
         load_CNPI2point(loaders, data_directory);
         for (const auto & loader : loaders) pgeoms.push_back(std::make_shared<SAGeometry>(loader, cart2int_));
@@ -37,6 +38,7 @@ SAReader::read_SAHamSet() const {
     for (const std::string & data_directory : data_directories_) {
         std::vector<SAHamLoader> loaders(NData(data_directory));
         for (auto & loader : loaders) loader.reset(3 * NAtoms(), NStates(data_directory));
+        load_weight(loaders, data_directory);
         load_geom(loaders, data_directory);
         load_CNPI2point(loaders, data_directory);
         load_energy(loaders, data_directory);

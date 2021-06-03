@@ -34,7 +34,7 @@ class SAGeometry : public Geometry {
         SAGeometry(const SAGeometry & source);
         // `cart2int` takes in Cartesian coordinate,
         // returns CNPI group symmetry adapted internal coordinates and corresponding Jacobians
-        SAGeometry(const at::Tensor & _geom, const std::vector<size_t> & _CNPI2point,
+        SAGeometry(const double & _weight, const at::Tensor & _geom, const std::vector<size_t> & _CNPI2point,
                    std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2int)(const at::Tensor &));
         // See the base constructor for details of `cart2int`
         SAGeometry(const SAGeomLoader & loader,

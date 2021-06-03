@@ -84,6 +84,7 @@ std::shared_ptr<DataSet<Geometry>> Reader::read_GeomSet() const {
     for (const std::string & data_directory : data_directories_) {
         std::vector<GeomLoader> loaders(NData(data_directory));
         for (auto & loader : loaders) loader.reset(3 * NAtoms());
+        load_weight(loaders, data_directory);
         load_geom(loaders, data_directory);
         for (auto & loader : loaders) pgeoms.push_back(std::make_shared<Geometry>(loader));
     }
@@ -99,6 +100,7 @@ Reader::read_HamSet() const {
     for (const std::string & data_directory : data_directories_) {
         std::vector<HamLoader> loaders(NData(data_directory));
         for (auto & loader : loaders) loader.reset(3 * NAtoms(), NStates(data_directory));
+        load_weight(loaders, data_directory);
         load_geom(loaders, data_directory);
         load_energy(loaders, data_directory);
         load_dH(loaders, data_directory);

@@ -34,17 +34,24 @@ class Reader {
         // Number of electronic states in this directory
         size_t NStates(const std::string & data_directory) const;
 
+        template <typename T> void load_weight(std::vector<T> & loaders, const std::string & data_directory) const {
+            std::string file = data_directory + "weight.txt";
+            std::ifstream ifs; ifs.open(file);
+            if (! ifs.good()) throw CL::utility::file_error(file);
+            for (T & loader : loaders) ifs >> loader.weight;
+            ifs.close();
+        }
         template <typename T> void load_geom(std::vector<T> & loaders, const std::string & data_directory) const {
             std::string file = data_directory + "geom.data";
             std::ifstream ifs; ifs.open(file);
             if (! ifs.good()) throw CL::utility::file_error(file);
             for (T & loader : loaders)
             for (size_t i = 0; i < loader.geom.numel() / 3; i++) {
-                std::string line; ifs >> line;
+                std::string symbol; ifs >> symbol;
                 double dbletemp;
-                ifs >> dbletemp; loader.geom[3 * i    ] = dbletemp;
-                ifs >> dbletemp; loader.geom[3 * i + 1] = dbletemp;
-                ifs >> dbletemp; loader.geom[3 * i + 2] = dbletemp;
+                ifs >> dbletemp; loader.geom[3 * i    ].fill_(dbletemp);
+                ifs >> dbletemp; loader.geom[3 * i + 1].fill_(dbletemp);
+                ifs >> dbletemp; loader.geom[3 * i + 2].fill_(dbletemp);
             }
             ifs.close();
         }
@@ -52,12 +59,10 @@ class Reader {
             std::string file = data_directory + "energy.data";
             std::ifstream ifs; ifs.open(file);
             if (! ifs.good()) throw CL::utility::file_error(file);
-            for (T & loader : loaders) {
-                std::string line;
-                std::getline(ifs, line);
-                std::vector<std::string> strs = CL::utility::split(line);
-                for (size_t j = 0; j < loader.energy.size(0); j++)
-                loader.energy[j] = std::stod(strs[j]);
+            for (T & loader : loaders)
+            for (size_t j = 0; j < loader.energy.size(0); j++) {
+                double dbletemp; ifs >> dbletemp;
+                loader.energy[j].fill_(dbletemp);
             }
             ifs.close();
         }
@@ -69,20 +74,21 @@ class Reader {
                 for (T & loader : loaders)
                 for (size_t j = 0; j < loader.geom.numel(); j++) {
                     double dbletemp; ifs >> dbletemp;
-                    loader.dH[istate][istate][j] = dbletemp;
+                    loader.dH[istate][istate][j].fill_(dbletemp);
                 }
                 ifs.close();
-            for (size_t jstate = istate + 1; jstate < loaders[0].dH.size(1); jstate++) {
-                std::string file = data_directory + "cartgrad-" + std::to_string(istate + 1) + "-" + std::to_string(jstate + 1) + ".data";
-                std::ifstream ifs; ifs.open(file);
-                if (! ifs.good()) throw CL::utility::file_error(file);
-                for (T & loader : loaders)
-                for (size_t j = 0; j < loader.geom.numel(); j++) {
-                    double dbletemp; ifs >> dbletemp;
-                    loader.dH[istate][jstate][j] = dbletemp;
+                for (size_t jstate = istate + 1; jstate < loaders[0].dH.size(1); jstate++) {
+                    std::string file = data_directory + "cartgrad-" + std::to_string(istate + 1) + "-" + std::to_string(jstate + 1) + ".data";
+                    std::ifstream ifs; ifs.open(file);
+                    if (! ifs.good()) throw CL::utility::file_error(file);
+                    for (T & loader : loaders)
+                    for (size_t j = 0; j < loader.geom.numel(); j++) {
+                        double dbletemp; ifs >> dbletemp;
+                        loader.dH[istate][jstate][j].fill_(dbletemp);
+                    }
+                    ifs.close();
                 }
-                ifs.close();
-            } }
+            }
         }
 
         // Read geometries

@@ -7,14 +7,17 @@ namespace abinitio {
 
 class Geometry {
     protected:
+        double sqrtweight_ = 1.0, weight_ = 1.0;
         at::Tensor geom_;
     public:
         Geometry();
         Geometry(const Geometry & source);
-        Geometry(const at::Tensor & _geom);
+        Geometry(const double & _weight, const at::Tensor & _geom);
         Geometry(const GeomLoader & loader);
         ~Geometry();
 
+        const double & sqrtweight() const;
+        const double & weight() const;
         const at::Tensor & geom() const;
 
         size_t cartdim() const;

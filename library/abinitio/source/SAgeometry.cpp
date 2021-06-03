@@ -28,6 +28,7 @@ void SAGeometry::construct_symmetry_() {
 }
 
 SAGeometry::SAGeometry() {}
+
 SAGeometry::SAGeometry(const SAGeometry & source) : Geometry(source),
 CNPI2point_(source.CNPI2point_), intdim_(source.intdim_),
 q_(source.q_), Jqr_(source.Jqr_), JqrT_(source.JqrT_),
@@ -35,11 +36,12 @@ S_(source.S_),
 point2CNPI_(source.point2CNPI_),
 qs_(source.qs_), Jqrs_(source.Jqrs_), JqrTs_(source.JqrTs_),
 Ss_(source.Ss_), sqrtSs_(source.sqrtSs_) {}
+
 // `cart2int` takes in Cartesian coordinate,
 // returns symmetry adapted internal coordinates and corresponding Jacobians
-SAGeometry::SAGeometry(const at::Tensor & _geom, const std::vector<size_t> & _CNPI2point,
+SAGeometry::SAGeometry(const double & _weight, const at::Tensor & _geom, const std::vector<size_t> & _CNPI2point,
 std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2int)(const at::Tensor &))
-: Geometry(_geom), CNPI2point_(_CNPI2point) {
+: Geometry(_weight, _geom), CNPI2point_(_CNPI2point) {
     std::tie(qs_, Jqrs_) = cart2int(_geom);
     JqrTs_ = Jqrs_;
     for (at::Tensor & JqrT : JqrTs_) JqrT = JqrT.transpose(0, 1);
@@ -51,10 +53,12 @@ std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2int)(const a
     S_    = Jqr_.mm(JqrT_);
     this->construct_symmetry_();
 }
+
 // See the base constructor for details of `cart2int`
 SAGeometry::SAGeometry(const SAGeomLoader & loader,
 std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2int)(const at::Tensor &))
-: SAGeometry(loader.geom, loader.CNPI2point, cart2int) {}
+: SAGeometry(loader.weight, loader.geom, loader.CNPI2point, cart2int) {}
+
 SAGeometry::~SAGeometry() {}
 
 const std::vector<size_t> & SAGeometry::CNPI2point() const {return CNPI2point_;}

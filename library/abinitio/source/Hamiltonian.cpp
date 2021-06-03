@@ -5,7 +5,7 @@
 namespace abinitio {
 
 RegHam::RegHam() {}
-RegHam::RegHam(const HamLoader & loader) : Geometry(loader.geom),
+RegHam::RegHam(const HamLoader & loader) : Geometry(loader.weight, loader.geom),
 energy_(loader.energy.clone()), dH_(loader.dH.clone()) {
     for (size_t i = 0    ; i < dH_.size(0); i++)
     for (size_t j = i + 1; j < dH_.size(1); j++)
@@ -47,26 +47,16 @@ void RegHam::adjust_weight(const double & E_thresh, const double & dH_thresh) {
     int64_t NStates = energy_.size(0);
     for (int64_t i = 0; i < NStates; i++) {
         double e = energy_[i].item<double>();
-        if (e > E_thresh) {
-            sqrtweight_E_[i] = E_thresh / e;
-            weight_E_[i] = sqrtweight_E_[i] * sqrtweight_E_[i];
-        }
-        else {
-            sqrtweight_E_[i] = 1.0;
-            weight_E_[i] = 1.0;
-        }
+        if (e > E_thresh) sqrtweight_E_[i] = sqrtweight_ * E_thresh / e;
+        else              sqrtweight_E_[i] = sqrtweight_;
+        weight_E_[i] = sqrtweight_E_[i] * sqrtweight_E_[i];
     }
     for (int64_t i = 0; i < NStates; i++)
     for (int64_t j = i; j < NStates; j++) {
         double g = dH_[i][j].norm().item<double>();
-        if (g > dH_thresh) {
-            sqrtweight_dH_[i][j] = dH_thresh / g;
-            weight_dH_[i][j] = sqrtweight_dH_[i][j] * sqrtweight_dH_[i][j];
-        }
-        else {
-            sqrtweight_dH_[i][j] = 1.0;
-            weight_dH_[i][j] = 1.0;
-        }
+        if (g > dH_thresh) sqrtweight_dH_[i][j] = sqrtweight_ * dH_thresh / g;
+        else               sqrtweight_dH_[i][j] = sqrtweight_;
+        weight_dH_[i][j] = sqrtweight_dH_[i][j] * sqrtweight_dH_[i][j];
     }
 }
 
@@ -109,14 +99,9 @@ void DegHam::adjust_weight(const double & H_thresh, const double & dH_thresh) {
     for (int64_t i = 0; i < NStates; i++)
     for (int64_t j = i; j < NStates; j++) {
         double h = H_[i][j].item<double>();
-        if (h > H_thresh) {
-            sqrtweight_H_[i][j] = H_thresh / h;
-            weight_H_[i][j] = sqrtweight_H_[i][j] * sqrtweight_H_[i][j];
-        }
-        else {
-            sqrtweight_H_[i][j] = 1.0;
-            weight_H_[i][j] = 1.0;
-        }
+        if (h > H_thresh) sqrtweight_H_[i][j] = sqrtweight_ * H_thresh / h;
+        else              sqrtweight_H_[i][j] = sqrtweight_;
+        weight_H_[i][j] = sqrtweight_H_[i][j] * sqrtweight_H_[i][j];
     }
 }
 

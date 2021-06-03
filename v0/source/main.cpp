@@ -34,7 +34,7 @@ argparse::ArgumentParser parse_args(const size_t & argc, const char ** & argv) {
     parser.add_argument("-m","--max_iteration", 1, true, "default = 100");
     parser.add_argument("-b","--batch_size",    1, true, "for Adam or SGD, default = 32");
     parser.add_argument("--learning_rate",      1, true, "for Adam or SGD, default = 1e-3");
-    parser.add_argument("--opt_chk",            1, true, "a checkpoint for Adam or SGD");
+    parser.add_argument("--opt_chk",            1, true, "optimizer checkpoint for Adam or SGD");
 
     parser.parse_args(argc, argv);
     return parser;
