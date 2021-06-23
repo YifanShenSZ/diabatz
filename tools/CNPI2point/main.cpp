@@ -55,6 +55,7 @@ int main(size_t argc, const char ** argv) {
     for (auto & example : GeomSet->examples()) {
         std::cout << "Geometry number " << count << '\n';
         map(example);
+        std::cout << '\n';
         count++;
     }
 }

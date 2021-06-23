@@ -135,10 +135,14 @@ H_(source.H_), weight_H_(source.weight_H_), sqrtweight_H_(source.sqrtweight_H_) 
 DegSAHam::DegSAHam(const SAHamLoader & loader,
 std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2int)(const at::Tensor &))
 : RegSAHam(loader, cart2int) {
-    // Transform H and ▽H to composite representation
     H_ = energy_.clone();
+    dH_ = loader.dH.clone();
+    for (size_t i = 0    ; i < dH_.size(0); i++)
+    for (size_t j = i + 1; j < dH_.size(1); j++)
+    dH_[i][j] *= energy_[j] - energy_[i];
     tchem::chem::composite_representation_(H_, dH_);
     this->construct_symmetry_();
+    this->reconstruct_dH_();
     // point group symmetry consistency check
     for (size_t i = 0    ; i < H_.size(0); i++)
     for (size_t j = i + 1; j < H_.size(1); j++)

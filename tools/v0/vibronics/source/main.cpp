@@ -38,7 +38,7 @@ argparse::ArgumentParser parse_args(const size_t & argc, const char ** & argv) {
     parser.add_argument("--contour", 1, false, "contour value");
 
     // optional argument
-    parser.add_argument("--init_CNPI2point",  '+', true, "how CNPI group irreducibles map to point group irreducibles at initial-state equilibrium geometry");
+    parser.add_argument("--init_CNPI2point", '+', true, "how CNPI group irreducibles map to point group irreducibles at initial-state equilibrium geometry");
 
     parser.parse_args(argc, argv);
     return parser;
@@ -88,7 +88,7 @@ int main(size_t argc, const char ** argv) {
         }
         std::iota(init_CNPI2point.begin(), init_CNPI2point.end(), 0);
     }
-    abinitio::SAGeometry init_SAgeom(init_r, init_CNPI2point, cart2int);
+    abinitio::SAGeometry init_SAgeom(1.0, init_r, init_CNPI2point, cart2int);
     std::vector<at::Tensor> init_qs = init_SAgeom.cat(init_CNPI_qs),
                             init_Js = init_SAgeom.cat(init_CNPI_Js);
     // final-state equilibrium internal coordinate geometry
@@ -99,7 +99,7 @@ int main(size_t argc, const char ** argv) {
     if (final_CNPI_qs[i].norm().item<double>() > 1e-6) throw std::invalid_argument(
     "the point group of the final-state equilibirum geometry must be isomorphic to the CNPI group\n");
     std::iota(final_CNPI2point.begin(), final_CNPI2point.end(), 0);
-    abinitio::SAGeometry final_SAgeom(final_r, final_CNPI2point, cart2int);
+    abinitio::SAGeometry final_SAgeom(1.0, final_r, final_CNPI2point, cart2int);
     std::vector<at::Tensor> final_qs = final_SAgeom.cat(final_CNPI_qs),
                             final_Js = final_SAgeom.cat(final_CNPI_Js);
 
@@ -126,6 +126,7 @@ int main(size_t argc, const char ** argv) {
                   << "    Hessian = ▽▽Hd[0][0]\n\n";
         final_inthess = final_intddHd[0][0];
     }
+    // Split internal coordinate Hessian to different irreducibles
     const auto & Ss_ = final_SAgeom.Ss();
     std::vector<at::Tensor> final_Hs(Ss_.size());
     size_t start = 0;
@@ -134,6 +135,7 @@ int main(size_t argc, const char ** argv) {
         final_Hs[i] = final_inthess.slice(0, start, end).slice(1, start, end);
         start = end;
     }
+    // Generate normal mode
     tchem::chem::SANormalMode final_vib(final_geom.masses(), final_Js, final_Hs);
     final_vib.kernel();
 

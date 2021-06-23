@@ -48,7 +48,7 @@ at::Tensor read_Columbus(const at::Tensor & r, const std::string & hessian_file)
 
 std::vector<at::Tensor> Hessian_cart2int(
 const at::Tensor & r, const std::vector<size_t> & CNPI2point, const at::Tensor & carthess) {
-    abinitio::SAGeometry init_SAgeom(r, CNPI2point, cart2int);
+    abinitio::SAGeometry init_SAgeom(1.0, r, CNPI2point, cart2int);
     // CNPI group symmetry adapted internal coordinate
     std::vector<at::Tensor> CNPI_qs, CNPI_Js;
     std::tie(CNPI_qs, CNPI_Js) = cart2int(r);
