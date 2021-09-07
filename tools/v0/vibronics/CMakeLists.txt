@@ -29,6 +29,7 @@ find_package(abinitio REQUIRED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${abinitio_CXX_FLAGS}")
 
 # libHd
+set(CMAKE_PREFIX_PATH ~/Software/Mine/diabatz/tools/v0/libHd)
 find_package(Hd REQUIRED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Hd_CXX_FLAGS}")
 
