@@ -1,7 +1,7 @@
 #include <abinitio/reader.hpp>
 
 int main() {
-    std::vector<std::string> user_list = {"mex-A1-B1/", "list"};
+    std::vector<std::string> user_list = {"mex-A1-B1/", "list.txt"};
     abinitio::Reader reader(user_list);
     reader.pretty_print(std::cout);
 
