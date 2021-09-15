@@ -27,7 +27,7 @@ set(obnet_LIBRARIES obnet)
 
 # dependency 1: libtorch
 if(NOT TORCH_FOUND)
-    find_package(Torch REQUIRED PATHS ~/Software/Programming/libtorch-cuda10.1-1.7.1) 
+    find_package(Torch REQUIRED PATHS ~/Software/Programming/libtorch) 
     list(APPEND obnet_INCLUDE_DIRS ${TORCH_INCLUDE_DIRS})
     list(APPEND obnet_LIBRARIES ${TORCH_LIBRARIES})
     set(obnet_CXX_FLAGS "${TORCH_CXX_FLAGS}")

@@ -27,7 +27,7 @@ set(DimRed_LIBRARIES DimRed)
 
 # dependency: libtorch
 if(NOT TORCH_FOUND)
-    find_package(Torch REQUIRED PATHS ~/Software/Programming/libtorch-cuda10.1-1.7.1) 
+    find_package(Torch REQUIRED PATHS ~/Software/Programming/libtorch) 
     list(APPEND DimRed_INCLUDE_DIRS ${TORCH_INCLUDE_DIRS})
     list(APPEND DimRed_LIBRARIES ${TORCH_LIBRARIES})
     set(DimRed_CXX_FLAGS "${TORCH_CXX_FLAGS}")

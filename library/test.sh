@@ -4,7 +4,8 @@ for directory in C1 Cs; do
     cd abinitio/test/$directory/build
     rm -f test.exe
     cmake --build .
-    ./test.exe
+    cd ../input
+    ../build/test.exe
     cd ../../../..
 done
 
@@ -14,6 +15,13 @@ for directory in DimRed obnet Hderiva; do
     cd $directory/test/build
     rm -f test.exe
     cmake --build .
-    ./test.exe
-    cd ../../..
+    cd ..
+    if [ -d input ]; then
+        cd input
+        ../build/test.exe
+        cd ../../..
+    else
+       ./build/test.exe
+       cd ../..
+    fi
 done
