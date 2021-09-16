@@ -2,7 +2,7 @@ for directory in abinitio DimRed obnet Hderiva; do
     echo
     echo "Entre "$directory
     cd $directory/build
-    rm -f lib*
+    rm lib*
     cmake --build .
     cd ../..
 done
