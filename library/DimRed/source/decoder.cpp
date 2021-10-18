@@ -5,7 +5,9 @@ namespace DimRed {
 Decoder::Decoder() {}
 // This copy constructor performs a somewhat deepcopy,
 // where new modules are generated and have same values as `source`
-Decoder::Decoder(const std::shared_ptr<Decoder> & source) {
+// We do not use const reference because torch::nn::ModuleList::operator[] does not support `const`,
+// although this constructor would not change `source` of course
+Decoder::Decoder(Decoder * source) {
     torch::NoGradGuard no_grad;
     for (size_t i = 0; i < source->fcs->size(); i++) {
         auto source_layer = source->fcs[i]->as<torch::nn::Linear>();

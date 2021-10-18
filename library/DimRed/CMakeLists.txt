@@ -15,6 +15,7 @@ include_directories(include)
 add_library(DimRed STATIC
     source/encoder.cpp
     source/decoder.cpp
+    source/RedCoordSet.cpp
 )
 
 target_link_libraries(DimRed "${TORCH_LIBRARIES}")
