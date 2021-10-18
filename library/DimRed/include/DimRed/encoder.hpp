@@ -11,7 +11,9 @@ struct Encoder : torch::nn::Module {
     Encoder();
     // This copy constructor performs a somewhat deepcopy,
     // where new modules are generated and have same values as `source`
-    Encoder(const std::shared_ptr<Encoder> & source);
+    // We do not use const reference because torch::nn::ModuleList::operator[] does not support `const`,
+    // although this constructor would not change `source` of course
+    Encoder(Encoder * source);
     Encoder(const std::vector<size_t> & dimensions, const bool & symmetric);
     ~Encoder();
 

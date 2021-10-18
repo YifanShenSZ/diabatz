@@ -88,10 +88,6 @@ at::Tensor symat::forward(const CL::utility::matrix<at::Tensor> & xs) {
     "obnet::symat::forward: xs must be an NStates_ x NStates_ matrix");
     if (xs.size(1) != NStates_) throw std::invalid_argument(
     "obnet::symat::forward: xs must be an NStates_ x NStates_ matrix");
-    for (int64_t i = 0; i < NStates_; i++)
-    for (int64_t j = i; j < NStates_; j++)
-    if (xs[i][j].sizes().size() != 1) throw std::invalid_argument(
-    "obnet::symat::forward: Elements in xs must be vectors");
     at::Tensor y = xs[0][0].new_empty({NStates_, NStates_});
     size_t count = 0;
     for (int64_t i = 0; i < NStates_; i++)

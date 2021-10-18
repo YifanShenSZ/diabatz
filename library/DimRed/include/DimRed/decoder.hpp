@@ -11,7 +11,9 @@ struct Decoder : torch::nn::Module {
     Decoder();
     // This copy constructor performs a somewhat deepcopy,
     // where new modules are generated and have same values as `source`
-    Decoder(const std::shared_ptr<Decoder> & source);
+    // We do not use const reference because torch::nn::ModuleList::operator[] does not support `const`,
+    // although this constructor would not change `source` of course
+    Decoder(Decoder * source);
     Decoder(const std::vector<size_t> & dimensions, const bool & symmetric);
     ~Decoder();
 
