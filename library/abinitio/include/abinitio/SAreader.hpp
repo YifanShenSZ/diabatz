@@ -40,18 +40,20 @@ class SAReader : public Reader {
             ifs.close();
         }
         template <typename T> void load_pointDefs(std::vector<T> & loaders, const std::string & data_directory) const {
-            // count number of point group irreducibles
-            size_t NIrreds;
-            std::string file_pattern = data_directory + "irred*.IntCoordDef";
-            glob_t gl;
-            if(glob(file_pattern.c_str(), GLOB_NOSORT, NULL, & gl) == 0) NIrreds = gl.gl_pathc;
-            else throw CL::utility::file_error(file_pattern);
-            globfree(& gl);
-            // fill in loader.point_defs
+            std::string file = data_directory + "point_defs.txt";
+            std::ifstream ifs; ifs.open(file);
+            if (! ifs.good()) throw CL::utility::file_error(file);
             for (auto & loader : loaders) {
+                std::string line;
+                std::getline(ifs, line);
+                std::vector<std::string> strs = CL::utility::split(line);
+                size_t NIrreds = strs.size();
                 loader.point_defs.resize(NIrreds);
-                for (size_t i = 0; i < NIrreds; i++) loader.point_defs[i] = "irred" + std::to_string(i + 1) + ".IntCoordDef";
+                for (size_t i = 0; i < NIrreds; i++) {
+                    loader.point_defs[i] = strs[i];
+                }
             }
+            ifs.close();
         }
 
         // Read geometries in symmetry adapted internal coordinates

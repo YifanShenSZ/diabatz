@@ -25,27 +25,16 @@ int main() {
     std::shared_ptr<abinitio::DataSet<abinitio::DegSAHam>> DegSet;
     std::tie(RegSet, DegSet) = reader.read_SAHamSet();
     auto reg_loader = torch::data::make_data_loader(* RegSet);
-    auto deg_loader = torch::data::make_data_loader(* DegSet);
     count = 0;
     for (auto & batch : * reg_loader)
     for (auto & data : batch) {
-        for (size_t i = 0; i < data->energy().size(0); i++) {
-            std::cout << data->energy()[i].item<double>() << "    ";
+        for (size_t i = 0; i < data->energy().size(0); i++)
+        for (size_t j = i + 1; j < data->energy().size(0); j++) {
+            std::cout << data->irreds()[i][j] + 1 << "    ";
         }
         std::cout << '\n';
         count++;
     }
     std::cout << "Number of regular Hamiltonians = " << count << ' '
               << RegSet->size_int() << '\n';
-    count = 0;
-    for (auto & batch : * deg_loader)
-    for (auto & data : batch) {
-        std::cout << data->qs()[1].norm().item<double>() << '\n';
-        std::cout << data->irreds()[0][1] << '\n';
-        std::cout << data->dH()[0][1].size(0) << '\n';
-        std::cout << data->H() << '\n';
-        count++;
-    }
-    std::cout << "Number of degenerate Hamiltonians = " << count << ' '
-              << DegSet->size_int() << '\n';
 }

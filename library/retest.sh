@@ -1,4 +1,4 @@
-for directory in C1 Cs; do
+for directory in C1 C2v; do
     echo
     echo "Entre abinitio/test/"$directory
     cd abinitio/test/$directory/build
