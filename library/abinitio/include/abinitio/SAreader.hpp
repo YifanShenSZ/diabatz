@@ -49,9 +49,7 @@ class SAReader : public Reader {
                 std::vector<std::string> strs = CL::utility::split(line);
                 size_t NIrreds = strs.size();
                 loader.point_defs.resize(NIrreds);
-                for (size_t i = 0; i < NIrreds; i++) {
-                    loader.point_defs[i] = strs[i];
-                }
+                for (size_t i = 0; i < NIrreds; i++) loader.point_defs[i] = data_directory + strs[i];
             }
             ifs.close();
         }
