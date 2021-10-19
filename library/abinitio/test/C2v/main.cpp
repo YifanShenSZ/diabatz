@@ -30,7 +30,7 @@ int main() {
     for (auto & data : batch) {
         for (size_t i = 0; i < data->energy().size(0); i++)
         for (size_t j = i + 1; j < data->energy().size(0); j++) {
-            std::cout << data->irreds()[i][j] + 1 << "    ";
+            std::cout << data->irreds(i, j) + 1 << "    ";
         }
         std::cout << '\n';
         count++;

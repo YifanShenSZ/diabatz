@@ -68,9 +68,12 @@ std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2CNPI)(const 
 SAGeometry::~SAGeometry() {}
 
 const std::vector<size_t> & SAGeometry::CNPI_intdims() const {return CNPI_intdims_;}
-const std::vector<at::Tensor> & SAGeometry::qs    () const {return qs_    ;}
-const std::vector<at::Tensor> & SAGeometry::Jqrs  () const {return Jqrs_  ;}
-const std::vector<at::Tensor> & SAGeometry::JqrTs () const {return JqrTs_ ;}
+const std::vector<at::Tensor> & SAGeometry::qs   () const {return qs_   ;}
+const std::vector<at::Tensor> & SAGeometry::Jqrs () const {return Jqrs_ ;}
+const std::vector<at::Tensor> & SAGeometry::JqrTs() const {return JqrTs_;}
+const at::Tensor & SAGeometry::qs   (const size_t & irred) const {return qs_   [irred];}
+const at::Tensor & SAGeometry::Jqrs (const size_t & irred) const {return Jqrs_ [irred];}
+const at::Tensor & SAGeometry::JqrTs(const size_t & irred) const {return JqrTs_[irred];}
 const at::Tensor & SAGeometry::Jqr () const {return Jqr_ ;}
 const at::Tensor & SAGeometry::JqrT() const {return JqrT_;}
 const at::Tensor & SAGeometry::Sq  () const {return Sq_  ;}
@@ -81,6 +84,12 @@ const std::vector<at::Tensor> & SAGeometry::JQrTs  () const {return JQrTs_  ;}
 const std::vector<at::Tensor> & SAGeometry::C2Qs   () const {return C2Qs_   ;}
 const std::vector<at::Tensor> & SAGeometry::SQs    () const {return SQs_    ;}
 const std::vector<at::Tensor> & SAGeometry::sqrtSQs() const {return sqrtSQs_;}
+const at::Tensor & SAGeometry::Qs     (const size_t & irred) const {return Qs_     [irred];}
+const at::Tensor & SAGeometry::JQrs   (const size_t & irred) const {return JQrs_   [irred];}
+const at::Tensor & SAGeometry::JQrTs  (const size_t & irred) const {return JQrTs_  [irred];}
+const at::Tensor & SAGeometry::C2Qs   (const size_t & irred) const {return C2Qs_   [irred];}
+const at::Tensor & SAGeometry::SQs    (const size_t & irred) const {return SQs_    [irred];}
+const at::Tensor & SAGeometry::sqrtSQs(const size_t & irred) const {return sqrtSQs_[irred];}
 const std::vector<size_t> & SAGeometry::CNPI2point() const {return CNPI2point_;}
 const std::vector<std::vector<size_t>> & SAGeometry::point2CNPI() const {return point2CNPI_;}
 

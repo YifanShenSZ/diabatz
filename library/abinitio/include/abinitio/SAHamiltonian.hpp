@@ -40,14 +40,12 @@ class RegSAHam : public SAGeometry {
 
         const at::Tensor & energy() const;
         const at::Tensor & dH() const;
-        // point group irreducible of each matrix element
-        const CL::utility::matrix<size_t> & irreds() const;
-        // nonzero segment of ▽H elements in point group symmetry adapted internal coordinate
-        const CL::utility::matrix<at::Tensor> & SAdH() const;
+        const size_t & irreds(const size_t & row, const size_t & column) const;
+        const at::Tensor & SAdH(const size_t & row, const size_t & column) const;
 
         size_t NStates() const;
-        const double & weight_E(const size_t & index) const;
-        const double & sqrtweight_E(const size_t & index) const;
+        const double & weight_E(const size_t & state) const;
+        const double & sqrtweight_E(const size_t & state) const;
         const double & weight_dH(const size_t & row, const size_t & column) const;
         const double & sqrtweight_dH(const size_t & row, const size_t & column) const;
 

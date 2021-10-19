@@ -75,12 +75,12 @@ RegSAHam::~RegSAHam() {}
 
 const at::Tensor & RegSAHam::energy() const {return energy_;}
 const at::Tensor & RegSAHam::dH() const {return dH_;}
-const CL::utility::matrix<size_t> & RegSAHam::irreds() const {return irreds_;}
-const CL::utility::matrix<at::Tensor> & RegSAHam::SAdH() const {return SAdH_;}
+const size_t & RegSAHam::irreds(const size_t & row, const size_t & column) const {return irreds_[row][column];}
+const at::Tensor & RegSAHam::SAdH(const size_t & row, const size_t & column) const {return SAdH_[row][column];}
 
 size_t RegSAHam::NStates() const {return energy_.size(0);}
-const double & RegSAHam::weight_E(const size_t & index) const {return weight_E_[index];}
-const double & RegSAHam::sqrtweight_E(const size_t & index) const {return sqrtweight_E_[index];}
+const double & RegSAHam::weight_E(const size_t & state) const {return weight_E_[state];}
+const double & RegSAHam::sqrtweight_E(const size_t & state) const {return sqrtweight_E_[state];}
 const double & RegSAHam::weight_dH(const size_t & row, const size_t & column) const {return weight_dH_[row][column];}
 const double & RegSAHam::sqrtweight_dH(const size_t & row, const size_t & column) const {return sqrtweight_dH_[row][column];}
 

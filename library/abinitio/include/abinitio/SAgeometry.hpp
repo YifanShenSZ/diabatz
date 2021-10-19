@@ -45,9 +45,12 @@ class SAGeometry : public Geometry {
         ~SAGeometry();
 
         const std::vector<size_t> & CNPI_intdims() const;
-        const std::vector<at::Tensor> & qs    () const;
-        const std::vector<at::Tensor> & Jqrs  () const;
-        const std::vector<at::Tensor> & JqrTs () const;
+        const std::vector<at::Tensor> & qs   () const;
+        const std::vector<at::Tensor> & Jqrs () const;
+        const std::vector<at::Tensor> & JqrTs() const;
+        const at::Tensor & qs   (const size_t & irred) const;
+        const at::Tensor & Jqrs (const size_t & irred) const;
+        const at::Tensor & JqrTs(const size_t & irred) const;
         const at::Tensor & Jqr () const;
         const at::Tensor & JqrT() const;
         const at::Tensor & Sq  () const;
@@ -58,6 +61,12 @@ class SAGeometry : public Geometry {
         const std::vector<at::Tensor> & C2Qs   () const;
         const std::vector<at::Tensor> & SQs    () const;
         const std::vector<at::Tensor> & sqrtSQs() const;
+        const at::Tensor & Qs     (const size_t & irred) const;
+        const at::Tensor & JQrs   (const size_t & irred) const;
+        const at::Tensor & JQrTs  (const size_t & irred) const;
+        const at::Tensor & C2Qs   (const size_t & irred) const;
+        const at::Tensor & SQs    (const size_t & irred) const;
+        const at::Tensor & sqrtSQs(const size_t & irred) const;
         const std::vector<size_t> & CNPI2point() const;
         const std::vector<std::vector<size_t>> & point2CNPI() const;
 
