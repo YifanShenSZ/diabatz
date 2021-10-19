@@ -28,14 +28,13 @@ at::Tensor & J, size_t & start) {
         data->JqrT(), data->cartdim(), data->NStates(), data->dH());
     // Compute fitting parameter gradient in adiabatic prediction
     int64_t NStates_data = data->NStates();
-    const CL::utility::matrix<size_t> & irreds = data->irreds();
     at::Tensor DcHa = tchem::linalg::UT_sy_U(DcHd, states);
     at::Tensor DqHa = tchem::linalg::UT_sy_U(DqHd, states);
     at::Tensor DcDqHa = Hderiva::DcDxHa(DqHa, DcHd, DcDqHd, energy, states);
-    CL::utility::matrix<at::Tensor> DcSADqHa(NStates_data);
+    CL::utility::matrix<at::Tensor> DcSADQHa(NStates_data);
     for (size_t i = 0; i < NStates_data; i++)
     for (size_t j = i; j < NStates_data; j++)
-    DcSADqHa[i][j] = data->cat(data->split2CNPI(DcDqHa[i][j]))[irreds[i][j]];
+    DcSADQHa[i][j] = data->C2Qs(data->irreds(i, j)).mm(data->JqrT().mm(DcDqHa[i][j]));
     // energy Jacobian
     at::Tensor J_E = unit * DcHa;
     for (size_t i = 0; i < NStates_data; i++) {
@@ -43,10 +42,9 @@ at::Tensor & J, size_t & start) {
         start++;
     }
     // (▽H)a Jacobian
-    const std::vector<at::Tensor> & sqrtSs = data->sqrtSs();
     for (size_t i = 0; i < NStates_data; i++)
     for (size_t j = i; j < NStates_data; j++) {
-        at::Tensor J_dH = data->sqrtweight_dH(i, j) * sqrtSs[irreds[i][j]].mm(DcSADqHa[i][j]);
+        at::Tensor J_dH = data->sqrtweight_dH(i, j) * data->sqrtSQs(data->irreds(i, j)).mm(DcSADQHa[i][j]);
         size_t stop = start + J_dH.size(0);
         J.slice(0, start, stop).copy_(J_dH);
         start = stop;
@@ -72,29 +70,27 @@ at::Tensor & J, size_t & start) {
     std::tie(eigval, eigvec) = define_composite(Hd, DqHd,
         data->JqrT(), data->cartdim(), data->H(), data->dH());
     // Compute fitting parameter gradient in composite prediction
-    const CL::utility::matrix<size_t> & irreds = data->irreds();
     at::Tensor   Hc = tchem::linalg::UT_sy_U(  Hd, eigvec);
     at::Tensor DqHc = tchem::linalg::UT_sy_U(DqHd, eigvec);
     at::Tensor DcHc, DcDqHc;
     std::tie(DcHc, DcDqHc) = Hderiva::DcHc_DcDxHc(Hc, DqHc,
-        DqHd, DcHd, DcDqHd, eigval, eigvec, data->S());
-    CL::utility::matrix<at::Tensor> DcSADqHc(NStates);
+        DqHd, DcHd, DcDqHd, eigval, eigvec, data->Sq());
+    CL::utility::matrix<at::Tensor> DcSADQHc(NStates);
     for (size_t i = 0; i < NStates; i++)
     for (size_t j = i; j < NStates; j++)
-    DcSADqHc[i][j] = data->cat(data->split2CNPI(DcDqHc[i][j]))[irreds[i][j]];
+    DcSADQHc[i][j] = data->C2Qs(data->irreds(i, j)).mm(data->JqrT().mm(DcDqHc[i][j]));
     // Hc Jacobian
     at::Tensor J_H = unit * DcHc;
     for (size_t i = 0; i < NStates; i++)
     for (size_t j = i; j < NStates; j++)
-    if (irreds[i][j] == 0) {
+    if (data->irreds(i, j) == 0) {
         J[start].copy_(data->sqrtweight_H(i, j) * J_H[i][j]);
         start++;
     }
     // (▽H)c Jacobian
-    const std::vector<at::Tensor> & sqrtSs = data->sqrtSs();
     for (size_t i = 0; i < NStates; i++)
     for (size_t j = i; j < NStates; j++) {
-        at::Tensor J_dH = data->sqrtweight_dH(i, j) * sqrtSs[irreds[i][j]].mm(DcSADqHc[i][j]);
+        at::Tensor J_dH = data->sqrtweight_dH(i, j) * data->sqrtSQs(data->irreds(i, j)).mm(DcSADQHc[i][j]);
         size_t stop = start + J_dH.size(0);
         J.slice(0, start, stop).copy_(J_dH);
         start = stop;

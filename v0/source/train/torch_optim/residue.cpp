@@ -37,23 +37,20 @@ at::Tensor reg_residue(const std::vector<std::shared_ptr<RegHam>> & batch) {
                 data->JqrT(), data->cartdim(), data->NStates(), data->dH());
             // Make prediction in adiabatic representation
             int64_t NStates_data = data->NStates();
-            const CL::utility::matrix<size_t> & irreds = data->irreds();
             energy = energy.slice(0, 0, NStates_data);
             at::Tensor DqHa = tchem::linalg::UT_sy_U(DqHd, states);
-            CL::utility::matrix<at::Tensor> SADqHa(NStates_data);
+            CL::utility::matrix<at::Tensor> SADQHa(NStates_data);
             for (size_t i = 0; i < NStates_data; i++)
             for (size_t j = i; j < NStates_data; j++)
-            SADqHa[i][j] = data->cat(data->split2CNPI(DqHa[i][j]))[irreds[i][j]];
+            SADQHa[i][j] = data->C2Qs(data->irreds(i, j)).mv(data->JqrT().mv(DqHa[i][j]));
             // energy residue
             std::vector<at::Tensor> r;
             r.push_back(unit * (energy - data->energy()));
             for (size_t i = 0; i < NStates_data; i++) r[0][i] *= data->sqrtweight_E(i);
             // (▽H)a residue
-            const std::vector<at::Tensor> & sqrtSs = data->sqrtSs();
-            const CL::utility::matrix<at::Tensor> & SAdH = data->SAdH();
             for (size_t i = 0; i < NStates_data; i++)
             for (size_t j = i; j < NStates_data; j++)
-            r.push_back(data->sqrtweight_dH(i, j) * sqrtSs[irreds[i][j]].mv(SADqHa[i][j] - SAdH[i][j]));
+            r.push_back(data->sqrtweight_dH(i, j) * data->sqrtSQs(data->irreds(i, j)).mv(SADQHa[i][j] - data->SAdH(i, j)));
             // total residue
             residues[idata] = at::cat(r);
         }
@@ -85,28 +82,25 @@ at::Tensor deg_residue(const std::vector<std::shared_ptr<DegHam>> & batch) {
             std::tie(eigval, eigvec) = define_composite(Hd, DqHd,
                 data->JqrT(), data->cartdim(), data->H(), data->dH());
             // Make prediction in composite representation
-            const CL::utility::matrix<size_t> & irreds = data->irreds();
             at::Tensor   Hc = tchem::linalg::UT_sy_U(  Hd, eigvec);
             at::Tensor DqHc = tchem::linalg::UT_sy_U(DqHd, eigvec);
-            CL::utility::matrix<at::Tensor> SADqHc(NStates);
+            CL::utility::matrix<at::Tensor> SADQHc(NStates);
             for (size_t i = 0; i < NStates; i++)
             for (size_t j = i; j < NStates; j++)
-            SADqHc[i][j] = data->cat(data->split2CNPI(DqHc[i][j]))[irreds[i][j]];
+            SADQHc[i][j] = data->C2Qs(data->irreds(i, j)).mv(data->JqrT().mv(DqHc[i][j]));
             // Hc residue
             std::vector<at::Tensor> r;
             at::Tensor r_H = unit * (Hc - data->H());
             for (size_t i = 0; i < NStates; i++)
             for (size_t j = i; j < NStates; j++)
-            if (irreds[i][j] == 0) {
+            if (data->irreds(i, j) == 0) {
                 r.push_back(data->sqrtweight_H(i, j) * r_H[i][j]);
                 r.back().resize_({1});
             }
             // (▽H)c residue
-            const std::vector<at::Tensor> & sqrtSs = data->sqrtSs();
-            const CL::utility::matrix<at::Tensor> & SAdH = data->SAdH();
             for (size_t i = 0; i < NStates; i++)
             for (size_t j = i; j < NStates; j++)
-            r.push_back(data->sqrtweight_dH(i, j) * sqrtSs[irreds[i][j]].mv(SADqHc[i][j] - SAdH[i][j]));
+            r.push_back(data->sqrtweight_dH(i, j) * data->sqrtSQs(data->irreds(i, j)).mv(SADQHc[i][j] - data->SAdH(i, j)));
             // total residue
             residues[idata] = at::cat(r);
         }

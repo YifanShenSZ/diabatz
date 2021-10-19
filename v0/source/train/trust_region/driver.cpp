@@ -1,4 +1,4 @@
-#include <Foptim/trust_region.hpp>
+#include <Foptim/trust_region_verbose.hpp>
 
 #include <CppLibrary/linalg.hpp>
 
@@ -13,25 +13,22 @@ std::tuple<int32_t, int32_t> count_eq_par() {
         // energy least square equations
         NEqs += NStates_data;
         // (▽H)a least square equations
-        CL::utility::matrix<at::Tensor> SAdH = data->SAdH();
         for (size_t i = 0; i < NStates_data; i++)
         for (size_t j = i; j < NStates_data; j++)
-        NEqs += SAdH[i][j].size(0);
+        NEqs += data->SAdH(i, j).size(0);
     }
     for (const auto & data : degset) {
         if (NStates != data->NStates()) throw std::invalid_argument(
         "Degenerate data must share a same number of electronic states with "
         "the model to define a comparable composite representation");
         // Hc least square equations
-        CL::utility::matrix<size_t> irreds = data->irreds();
         for (size_t i = 0; i < NStates; i++)
         for (size_t j = i; j < NStates; j++)
-        if (irreds[i][j] == 0) NEqs++;
+        if (data->irreds(i, j) == 0) NEqs++;
         // (▽H)c least square equations
-        CL::utility::matrix<at::Tensor> SAdH = data->SAdH();
         for (size_t i = 0; i < NStates; i++)
         for (size_t j = i; j < NStates; j++)
-        NEqs += SAdH[i][j].size(0);
+        NEqs += data->SAdH(i, j).size(0);
     }
     std::cout << "The data set corresponds to " << NEqs << " least square equations\n";
 
@@ -61,13 +58,13 @@ void optimize(const bool & regularized, const size_t & max_iteration) {
     delete [] r;
 
     if (regularized)
-    Foptim::trust_region(regularized_residue, regularized_Jacobian,
-                       c, NEqs + NPars, NPars,
-                       max_iteration);
+    Foptim::trust_region_verbose(regularized_residue, regularized_Jacobian,
+                                 c, NEqs + NPars, NPars,
+                                 max_iteration);
     else
-    Foptim::trust_region(residue, Jacobian,
-                       c, NEqs, NPars,
-                       max_iteration);
+    Foptim::trust_region_verbose(residue, Jacobian,
+                                 c, NEqs, NPars,
+                                 max_iteration);
     c2p(c, 0);
 
     r = new double[NEqs];

@@ -51,22 +51,19 @@ const std::shared_ptr<abinitio::DataSet<DegHam>> & _degset) {
             // energy least square equations
             segstart[thread] += NStates_data;
             // (▽H)a least square equations
-            CL::utility::matrix<at::Tensor> SAdH = data->SAdH();
             for (size_t i = 0; i < NStates_data; i++)
             for (size_t j = i; j < NStates_data; j++)
-            segstart[thread] += SAdH[i][j].size(0);
+            segstart[thread] += data->SAdH(i, j).size(0);
         }
         for (const auto & data : degchunk[thread - 1]) {
             // Hc least square equations
-            CL::utility::matrix<size_t> irreds = data->irreds();
             for (size_t i = 0; i < NStates; i++)
             for (size_t j = i; j < NStates; j++)
-            if (irreds[i][j] == 0) segstart[thread]++;
+            if (data->irreds(i, j) == 0) segstart[thread]++;
             // (▽H)c least square equations
-            CL::utility::matrix<at::Tensor> SAdH = data->SAdH();
             for (size_t i = 0; i < NStates; i++)
             for (size_t j = i; j < NStates; j++)
-            segstart[thread] += SAdH[i][j].size(0);
+            segstart[thread] += data->SAdH(i, j).size(0);
         }
     }
     for (size_t thread = 0; thread < OMP_NUM_THREADS; thread++)
