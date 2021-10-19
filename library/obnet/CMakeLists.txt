@@ -21,4 +21,4 @@ add_library(obnet STATIC
     source/symat.cpp
 )
 
-target_link_libraries(obnet CL "${TORCH_LIBRARIES}")
+target_link_libraries(obnet ${CL_LIBRARIES} ${TORCH_LIBRARIES})

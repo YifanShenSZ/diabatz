@@ -21,4 +21,4 @@ add_library(Hderiva STATIC
     source/composite.cpp
 )
 
-target_link_libraries(Hderiva "${tchem_LIBRARIES}")
+target_link_libraries(Hderiva ${tchem_LIBRARIES})

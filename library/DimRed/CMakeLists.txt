@@ -10,6 +10,10 @@ set(CMAKE_PREFIX_PATH ~/Software/Programming/libtorch)
 find_package(Torch REQUIRED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
 
+# Cpp-Library
+set(CMAKE_PREFIX_PATH ~/Library/Cpp-Library)
+find_package(CL REQUIRED)
+
 include_directories(include)
 
 add_library(DimRed STATIC
@@ -18,4 +22,4 @@ add_library(DimRed STATIC
     source/RedCoordSet.cpp
 )
 
-target_link_libraries(DimRed "${TORCH_LIBRARIES}")
+target_link_libraries(DimRed ${CL_LIBRARIES} ${TORCH_LIBRARIES})

@@ -23,4 +23,4 @@ add_library(abinitio STATIC
     source/SAreader.cpp
 )
 
-target_link_libraries(abinitio "${tchem_LIBRARIES}")
+target_link_libraries(abinitio ${tchem_LIBRARIES})
