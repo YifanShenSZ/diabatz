@@ -64,6 +64,8 @@
         "variant": "cpp",
         "*.rh": "cpp",
         "codecvt": "cpp",
-        "filesystem": "cpp"
+        "filesystem": "cpp",
+        "cfenv": "cpp",
+        "random": "cpp"
     }
 }

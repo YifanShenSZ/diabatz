@@ -85,7 +85,7 @@ std::shared_ptr<DataSet<Geometry>> Reader::read_GeomSet() const {
         std::vector<GeomLoader> loaders(NData(data_directory));
         for (auto & loader : loaders) loader.reset(3 * NAtoms());
         load_weight(loaders, data_directory);
-        load_geom(loaders, data_directory);
+        load_geom  (loaders, data_directory);
         for (auto & loader : loaders) pgeoms.push_back(std::make_shared<Geometry>(loader));
     }
     std::shared_ptr<DataSet<Geometry>> GeomSet = std::make_shared<DataSet<Geometry>>(pgeoms);

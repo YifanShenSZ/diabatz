@@ -14,15 +14,15 @@ class RegSAHam : public SAGeometry {
         // By regular Hamiltonian I mean energy
         at::Tensor energy_, dH_;
 
-        // energy weight, default = 1
-        std::vector<double> weight_E_, sqrtweight_E_;
-        // gradient weight, default = 1
-        CL::utility::matrix<double> weight_dH_, sqrtweight_dH_;
-
         // point group irreducible of each matrix element
         CL::utility::matrix<size_t> irreds_;
         // nonzero segment of ▽H elements in point group symmetry adapted internal coordinate
         CL::utility::matrix<at::Tensor> SAdH_;
+
+        // energy weight, default = 1
+        std::vector<double> weight_E_, sqrtweight_E_;
+        // gradient weight, default = 1
+        CL::utility::matrix<double> weight_dH_, sqrtweight_dH_;
 
         // Construct `SAdH_` based on constructed `dH_`
         // Determine `irreds_` by finding the largest segment of each `SAdH_` element
@@ -33,9 +33,9 @@ class RegSAHam : public SAGeometry {
     public:
         RegSAHam();
         RegSAHam(const RegSAHam & source);
-        // See the base class constructor for details of `cart2int`
+        // See the base class constructor for details of `cart2CNPI`
         RegSAHam(const SAHamLoader & loader,
-                 std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2int)(const at::Tensor &));
+                 std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2CNPI)(const at::Tensor &));
         ~RegSAHam();
 
         const at::Tensor & energy() const;
@@ -69,9 +69,9 @@ class DegSAHam : public RegSAHam {
     public:
         DegSAHam();
         DegSAHam(const DegSAHam & source);
-        // See the base class constructor for details of `cart2int`
+        // See the base class constructor for details of `cart2CNPI`
         DegSAHam(const SAHamLoader & loader,
-                 std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2int)(const at::Tensor &));
+                 std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2CNPI)(const at::Tensor &));
         ~DegSAHam();
 
         const at::Tensor & H() const;

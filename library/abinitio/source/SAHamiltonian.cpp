@@ -7,28 +7,20 @@ namespace abinitio {
 // Construct `SAdH_` based on constructed `dH_`
 // Determine `irreds_` by finding the largest segment of each `SAdH_` element
 void RegSAHam::construct_symmetry_() {
-    assert(("`dH_` must have been constructed", dH_.defined()));
-    std::vector<at::Tensor> Js_point = this->cat(Jqrs_);
-    std::vector<at::Tensor> cart2int(NPointIrreds());
-    for (size_t i = 0; i < NPointIrreds(); i++) {
-        at::Tensor JJT = Ss_[i];
-        at::Tensor cholesky = JJT.cholesky(true);
-        at::Tensor inverse = at::cholesky_inverse(cholesky, true);
-        cart2int[i] = inverse.mm(Js_point[i]);
-    }
-    SAdH_.resize(dH_.size(0));
-    irreds_.resize(dH_.size(0));
-    for (size_t i = 0; i < dH_.size(0); i++) {
-        // Diagonals must be totally symmetric
-        SAdH_[i][i] = cart2int[0].mv(dH_[i][i]);
+    size_t NStates = dH_.size(0), NIrreds = NPointIrreds();
+    SAdH_  .resize(NStates);
+    irreds_.resize(NStates);
+    for (size_t i = 0; i < NStates; i++) {
+        // diagonals must be totally symmetric
+        SAdH_  [i][i] = C2Qs_[0].mv(dH_[i][i]);
         irreds_[i][i] = 0;
         // Try out every irreducible for off-diagonals
-        for (size_t j = i + 1; j < dH_.size(1); j++) {
-            SAdH_[i][j] = cart2int[0].mv(dH_[i][j]);
+        for (size_t j = i + 1; j < NStates; j++) {
+            SAdH_[i][j] = C2Qs_[0].mv(dH_[i][j]);
             double infnorm = at::max(at::abs(SAdH_[i][j])).item<double>();
             irreds_[i][j] = 0;
-            for (size_t irred = 1; irred < NPointIrreds(); irred++) {
-                at::Tensor candidate = cart2int[irred].mv(dH_[i][j]);
+            for (size_t irred = 1; irred < NIrreds; irred++) {
+                at::Tensor candidate = C2Qs_[irred].mv(dH_[i][j]);
                 double cannorm = at::max(at::abs(candidate)).item<double>();
                 if (cannorm > infnorm) {
                     SAdH_[i][j] = candidate;
@@ -42,33 +34,33 @@ void RegSAHam::construct_symmetry_() {
 // Reconstruct `dH_` based on constructed `SAdH_`
 // to eliminate the symmetry breaking flaw in original data
 void RegSAHam::reconstruct_dH_() {
-    assert(("`SAdH_` must have been constructed", ! SAdH_.empty()));
-    std::vector<at::Tensor> JTs_point = cat(JqrTs_, 1);
     for (size_t i = 0; i < dH_.size(0); i++)
     for (size_t j = i; j < dH_.size(1); j++)
-    dH_[i][j] = JTs_point[irreds_[i][j]].mv(SAdH_[i][j]);
+    dH_[i][j] = JQrTs_[irreds_[i][j]].mv(SAdH_[i][j]);
 }
 
 RegSAHam::RegSAHam() {}
 
 RegSAHam::RegSAHam(const RegSAHam & source) : SAGeometry(source),
 energy_(source.energy_), dH_(source.dH_),
+irreds_(source.irreds_), SAdH_(source.SAdH_),
 weight_E_(source.weight_E_), sqrtweight_E_(source.sqrtweight_E_),
-weight_dH_(source.weight_dH_), sqrtweight_dH_(source.sqrtweight_dH_),
-irreds_(source.irreds_), SAdH_(source.SAdH_) {}
+weight_dH_(source.weight_dH_), sqrtweight_dH_(source.sqrtweight_dH_) {}
 
 // See the base class constructor for details of `cart2int`
 RegSAHam::RegSAHam(const SAHamLoader & loader,
-std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2int)(const at::Tensor &))
-: SAGeometry(loader.weight, loader.geom, loader.CNPI2point, cart2int),
+std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2CNPI)(const at::Tensor &))
+: SAGeometry(loader, cart2CNPI),
 energy_(loader.energy.clone()), dH_(loader.dH.clone()) {
-    for (size_t i = 0    ; i < dH_.size(0); i++)
-    for (size_t j = i + 1; j < dH_.size(1); j++)
+    size_t NStates = energy_.size(0);
+    // convert nonadiabatic coupling to ▽H
+    for (size_t i = 0    ; i < NStates; i++)
+    for (size_t j = i + 1; j < NStates; j++)
     dH_[i][j] *= energy_[j] - energy_[i];
+    // adapt symmetry
     this->construct_symmetry_();
     this->reconstruct_dH_();
-
-    size_t NStates = energy_.size(0);
+    // weights
     weight_E_.resize(NStates);
     std::fill(weight_E_.begin(), weight_E_.end(), 1.0);
     sqrtweight_E_.resize(NStates);
@@ -95,9 +87,8 @@ const double & RegSAHam::sqrtweight_dH(const size_t & row, const size_t & column
 void RegSAHam::to(const c10::DeviceType & device) {
     SAGeometry::to(device);
     energy_.to(device);
-    for (size_t i = 0; i < dH_.size(0); i++)
-    for (size_t j = i; j < dH_.size(0); j++)
-    dH_[i][j].to(device);
+    dH_.to(device);
+    for (auto & row : SAdH_) for (auto & col : row) col.to(device);
 }
 
 // Subtract zero point from energy
@@ -106,15 +97,15 @@ void RegSAHam::subtract_ZeroPoint(const double & zero_point) {
 }
 // Lower the weight if energy > E_thresh or ||dH|| > dH_thresh
 void RegSAHam::adjust_weight(const double & E_thresh, const double & dH_thresh) {
-    int64_t NStates = energy_.size(0);
-    for (int64_t i = 0; i < NStates; i++) {
+    size_t NStates = energy_.size(0);
+    for (size_t i = 0; i < NStates; i++) {
         double e = energy_[i].item<double>();
         if (e > E_thresh) sqrtweight_E_[i] = sqrtweight_ * E_thresh / e;
         else              sqrtweight_E_[i] = sqrtweight_;
         weight_E_[i] = sqrtweight_E_[i] * sqrtweight_E_[i];
     }
-    for (int64_t i = 0; i < NStates; i++)
-    for (int64_t j = i; j < NStates; j++) {
+    for (size_t i = 0; i < NStates; i++)
+    for (size_t j = i; j < NStates; j++) {
         double g = dH_[i][j].norm().item<double>();
         if (g > dH_thresh) sqrtweight_dH_[i][j] = sqrtweight_ * dH_thresh / g;
         else               sqrtweight_dH_[i][j] = sqrtweight_;
@@ -131,25 +122,23 @@ DegSAHam::DegSAHam() {}
 DegSAHam::DegSAHam(const DegSAHam & source) : RegSAHam(source),
 H_(source.H_), weight_H_(source.weight_H_), sqrtweight_H_(source.sqrtweight_H_) {}
 
-// See the base class constructor for details of `cart2int`
+// See the base class constructor for details of `cart2CNPI`
 DegSAHam::DegSAHam(const SAHamLoader & loader,
-std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2int)(const at::Tensor &))
-: RegSAHam(loader, cart2int) {
+std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2CNPI)(const at::Tensor &))
+: RegSAHam(loader, cart2CNPI) {
+    size_t NStates = energy_.size(0);
+    // adiabatic representation -> composite representation
     H_ = energy_.clone();
-    dH_ = loader.dH.clone();
-    for (size_t i = 0    ; i < dH_.size(0); i++)
-    for (size_t j = i + 1; j < dH_.size(1); j++)
-    dH_[i][j] *= energy_[j] - energy_[i];
     tchem::chem::composite_representation_(H_, dH_);
+    // since the state ordering may have changed during a->c transformation,
+    // run `construct_symmetry_` again to update `irreds_` and `SAdH_`
     this->construct_symmetry_();
-    this->reconstruct_dH_();
     // point group symmetry consistency check
-    for (size_t i = 0    ; i < H_.size(0); i++)
-    for (size_t j = i + 1; j < H_.size(1); j++)
+    for (size_t i = 0    ; i < NStates; i++)
+    for (size_t j = i + 1; j < NStates; j++)
     if (abs(H_[i][j].item<double>()) > 1e-12 && irreds_[i][j] != 0)
     std::cerr << "Warning: inconsistent irreducible between H and ▽H\n";
-
-    size_t NStates = H_.size(0);
+    // weights
     weight_H_.resize(NStates);
     weight_H_ = 1.0;
     sqrtweight_H_.resize(NStates);
@@ -176,9 +165,9 @@ void DegSAHam::subtract_ZeroPoint(const double & zero_point) {
 // Lower the weight if H > H_thresh or ||dH|| > dH_thresh
 void DegSAHam::adjust_weight(const double & H_thresh, const double & dH_thresh) {
     RegSAHam::adjust_weight(H_thresh, dH_thresh);
-    int64_t NStates = energy_.size(0);
-    for (int64_t i = 0; i < NStates; i++)
-    for (int64_t j = i; j < NStates; j++) {
+    size_t NStates = energy_.size(0);
+    for (size_t i = 0; i < NStates; i++)
+    for (size_t j = i; j < NStates; j++) {
         double h = H_[i][j].item<double>();
         if (h > H_thresh) sqrtweight_H_[i][j] = sqrtweight_ * H_thresh / h;
         else              sqrtweight_H_[i][j] = sqrtweight_;

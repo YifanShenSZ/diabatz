@@ -3,13 +3,13 @@
 namespace abinitio {
 
 SAGeomLoader::SAGeomLoader() {}
-SAGeomLoader::SAGeomLoader(const int64_t & dimension)
-: GeomLoader(dimension) {}
+SAGeomLoader::SAGeomLoader(const int64_t & dimension) : GeomLoader(dimension) {}
 SAGeomLoader::~SAGeomLoader() {}
 
 void SAGeomLoader::reset(const int64_t & dimension) {
     GeomLoader::reset(dimension);
-    CNPI2point.resize(0);
+    CNPI2point.clear();
+    point_defs.clear();
 }
 
 

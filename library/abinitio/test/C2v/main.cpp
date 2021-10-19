@@ -5,8 +5,7 @@
 int main() {
     sasicset = std::make_shared<tchem::IC::SASICSet>("default", "IntCoordDef", "SAS.in");
 
-    std::vector<std::string> user_list = {"mex/"};
-    abinitio::SAReader reader(user_list, cart2int);
+    abinitio::SAReader reader({"min-B1/"}, cart2CNPI);
     reader.pretty_print(std::cout);
 
     std::shared_ptr<abinitio::DataSet<abinitio::SAGeometry>> GeomSet = reader.read_SAGeomSet();

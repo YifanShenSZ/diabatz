@@ -12,6 +12,8 @@ struct SAGeomLoader : GeomLoader {
     // mapping from CNPI group to point group
     // CNPI irreducible i becomes point irreducible CNPI2point[i]
     std::vector<size_t> CNPI2point;
+    // point group symmetry adapted internal coordinate definitions
+    std::vector<std::string> point_defs;
 
     SAGeomLoader();
     SAGeomLoader(const int64_t & dimension);

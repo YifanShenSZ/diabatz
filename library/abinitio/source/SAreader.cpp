@@ -8,11 +8,10 @@ namespace abinitio {
 
 SAReader::SAReader() {}
 // See the base class constructor for details of `user_list`
-// `cart2int` takes in Cartesian coordinate,
-// returns symmetry adapted internal coordinates and corresponding Jacobians
+// `cart2CNPI` takes in Cartesian coordinate r, returns CNPI group symmetry adapted internal coordinates and their Jacobians over r
 SAReader::SAReader(const std::vector<std::string> & user_list,
-std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*_cart2int)(const at::Tensor &))
-: Reader(user_list), cart2int_(_cart2int) {}
+std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*_cart2CNPI)(const at::Tensor &))
+: Reader(user_list), cart2CNPI_(_cart2CNPI) {}
 SAReader::~SAReader() {}
 
 // Read geometries
@@ -21,10 +20,11 @@ std::shared_ptr<DataSet<SAGeometry>> SAReader::read_SAGeomSet() const {
     for (const std::string & data_directory : data_directories_) {
         std::vector<SAGeomLoader> loaders(NData(data_directory));
         for (auto & loader : loaders) loader.reset(3 * NAtoms());
-        load_weight(loaders, data_directory);
-        load_geom(loaders, data_directory);
+        load_weight    (loaders, data_directory);
+        load_geom      (loaders, data_directory);
         load_CNPI2point(loaders, data_directory);
-        for (const auto & loader : loaders) pgeoms.push_back(std::make_shared<SAGeometry>(loader, cart2int_));
+        load_pointDefs (loaders, data_directory);
+        for (const auto & loader : loaders) pgeoms.push_back(std::make_shared<SAGeometry>(loader, cart2CNPI_));
     }
     std::shared_ptr<DataSet<SAGeometry>> GeomSet = std::make_shared<DataSet<SAGeometry>>(pgeoms);
     return GeomSet;
@@ -38,17 +38,15 @@ SAReader::read_SAHamSet() const {
     for (const std::string & data_directory : data_directories_) {
         std::vector<SAHamLoader> loaders(NData(data_directory));
         for (auto & loader : loaders) loader.reset(3 * NAtoms(), NStates(data_directory));
-        load_weight(loaders, data_directory);
-        load_geom(loaders, data_directory);
+        load_weight    (loaders, data_directory);
+        load_geom      (loaders, data_directory);
         load_CNPI2point(loaders, data_directory);
-        load_energy(loaders, data_directory);
-        load_dH(loaders, data_directory);
+        load_pointDefs (loaders, data_directory);
+        load_energy    (loaders, data_directory);
+        load_dH        (loaders, data_directory);
         for (auto & loader : loaders) {
-            if (tchem::chem::check_degeneracy(loader.energy, deg_thresh_)) {
-                pdegs.push_back(std::make_shared<DegSAHam>(loader, cart2int_));
-            } else {
-                pregs.push_back(std::make_shared<RegSAHam>(loader, cart2int_));
-            }
+            if (tchem::chem::check_degeneracy(loader.energy, deg_thresh_)) pdegs.push_back(std::make_shared<DegSAHam>(loader, cart2CNPI_));
+            else                                                           pregs.push_back(std::make_shared<RegSAHam>(loader, cart2CNPI_));
         }
     }
     std::shared_ptr<DataSet<RegSAHam>> RegSet = std::make_shared<DataSet<RegSAHam>>(pregs);
