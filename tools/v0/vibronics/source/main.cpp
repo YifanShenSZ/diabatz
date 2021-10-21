@@ -10,7 +10,7 @@
 
 #include <Hd/kernel.hpp>
 
-#include "../include/cart2int.hpp"
+#include "../include/CNPI.hpp"
 #include "../include/routines.hpp"
 
 argparse::ArgumentParser parse_args(const size_t & argc, const char ** & argv) {
@@ -73,7 +73,7 @@ int main(size_t argc, const char ** argv) {
 
     // initial-state equilibrium internal coordinate geometry
     std::vector<at::Tensor> init_CNPI_qs, init_CNPI_Js;
-    std::tie(init_CNPI_qs, init_CNPI_Js) = cart2int(init_r);
+    std::tie(init_CNPI_qs, init_CNPI_Js) = cart2CNPI(init_r);
     std::vector<size_t> init_CNPI2point(init_CNPI_qs.size());
     if (args.gotArgument("init_CNPI2point")) {
         init_CNPI2point = args.retrieve<std::vector<size_t>>("init_CNPI2point");
@@ -88,20 +88,22 @@ int main(size_t argc, const char ** argv) {
         }
         std::iota(init_CNPI2point.begin(), init_CNPI2point.end(), 0);
     }
-    abinitio::SAGeometry init_SAgeom(1.0, init_r, init_CNPI2point, cart2int);
-    std::vector<at::Tensor> init_qs = init_SAgeom.cat(init_CNPI_qs),
-                            init_Js = init_SAgeom.cat(init_CNPI_Js);
+    // create mapping from point group to CNPI group
+    // point irreducible i contains CNPI irreducibles point2CNPI[i]
+    size_t n_point_irreds = *std::max_element(init_CNPI2point.begin(), init_CNPI2point.end()) + 1;
+    std::vector<std::vector<size_t>> init_point2CNPI(n_point_irreds);
+    for (size_t i = 0; i < n_point_irreds; i++)
+    for (size_t j = 0; j < init_CNPI2point.size(); j++)
+    if (init_CNPI2point[j] == i) init_point2CNPI[i].push_back(j);
+    std::vector<at::Tensor> init_qs = cat(init_CNPI_qs, init_point2CNPI),
+                            init_Js = cat(init_CNPI_Js, init_point2CNPI);
+
     // final-state equilibrium internal coordinate geometry
-    std::vector<at::Tensor> final_CNPI_qs, final_CNPI_Js;
-    std::tie(final_CNPI_qs, final_CNPI_Js) = cart2int(final_r);
-    std::vector<size_t> final_CNPI2point(final_CNPI_qs.size());
-    for (size_t i = 1; i < final_CNPI_qs.size(); i++)
-    if (final_CNPI_qs[i].norm().item<double>() > 1e-6) throw std::invalid_argument(
+    std::vector<at::Tensor> final_qs, final_Js;
+    std::tie(final_qs, final_Js) = cart2CNPI(final_r);
+    for (size_t i = 1; i < final_qs.size(); i++)
+    if (final_qs[i].norm().item<double>() > 1e-6) throw std::invalid_argument(
     "the point group of the final-state equilibirum geometry must be isomorphic to the CNPI group\n");
-    std::iota(final_CNPI2point.begin(), final_CNPI2point.end(), 0);
-    abinitio::SAGeometry final_SAgeom(1.0, final_r, final_CNPI2point, cart2int);
-    std::vector<at::Tensor> final_qs = final_SAgeom.cat(final_CNPI_qs),
-                            final_Js = final_SAgeom.cat(final_CNPI_Js);
 
     std::string init_hess_file = args.retrieve<std::string>("init_hess");
     at::Tensor init_carthess = read_Columbus(init_r, init_hess_file);
@@ -127,11 +129,10 @@ int main(size_t argc, const char ** argv) {
         final_inthess = final_intddHd[0][0];
     }
     // Split internal coordinate Hessian to different irreducibles
-    const auto & Ss_ = final_SAgeom.Ss();
-    std::vector<at::Tensor> final_Hs(Ss_.size());
+    std::vector<at::Tensor> final_Hs(final_qs.size());
     size_t start = 0;
     for (size_t i = 0; i < final_Hs.size(); i++) {
-        size_t end = start + Ss_[i].size(0);
+        size_t end = start + final_qs[i].size(0);
         final_Hs[i] = final_inthess.slice(0, start, end).slice(1, start, end);
         start = end;
     }

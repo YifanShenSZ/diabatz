@@ -1,10 +1,10 @@
-#include "../include/cart2int.hpp"
+#include "../include/CNPI.hpp"
 
 std::shared_ptr<tchem::IC::SASICSet> sasicset;
 
-// Given Cartesian coordinate r,
+// given Cartesian coordinate r,
 // return CNPI group symmetry adapted internal coordinates and corresponding Jacobians
-std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> cart2int(const at::Tensor & r) {
+std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> cart2CNPI(const at::Tensor & r) {
     assert(("Define CNPI group symmetry adaptated and scaled internal coordinate before use", sasicset));
     // Cartesian coordinate -> internal coordinate
     at::Tensor q, J;
@@ -26,17 +26,14 @@ std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> cart2int(const at::
     return std::make_tuple(qs, Js);
 }
 
-at::Tensor dHd_cart2int(const at::Tensor & r, const at::Tensor & cartdHd) {
-    std::vector<at::Tensor> qs, Js;
-    std::tie(qs, Js) = cart2int(r);
-    at::Tensor q = at::cat(qs), J = at::cat(Js);
-    at::Tensor JJT = J.mm(J.transpose(0, 1));
-    at::Tensor cholesky = JJT.cholesky();
-    at::Tensor inverse = at::cholesky_inverse(cholesky);
-    at::Tensor mat4cart2int = inverse.mm(J);
-    at::Tensor intdHd = r.new_empty({cartdHd.size(0), cartdHd.size(1), q.size(0)});
-    for (size_t i = 0; i < intdHd.size(0); i++)
-    for (size_t j = i; j < intdHd.size(1); j++)
-    intdHd[i][j].copy_(mat4cart2int.mv(cartdHd[i][j]));
-    return intdHd;
+// concatenate CNPI group symmetry adapted tensors to point group symmetry adapted tensors
+std::vector<at::Tensor> cat(const std::vector<at::Tensor> & xs, const std::vector<std::vector<size_t>> & point2CNPI) {
+    size_t n_point_irreds = point2CNPI.size();
+    std::vector<at::Tensor> ys(n_point_irreds);
+    for (size_t i = 0; i < n_point_irreds; i++) {
+        std::vector<at::Tensor> xmatches(point2CNPI[i].size());
+        for (size_t j = 0; j < point2CNPI[i].size(); j++) xmatches[j] = xs[point2CNPI[i][j]];
+        ys[i] = at::cat(xmatches);
+    }
+    return ys;
 }

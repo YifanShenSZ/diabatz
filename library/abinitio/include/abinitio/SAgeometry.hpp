@@ -70,15 +70,17 @@ class SAGeometry : public Geometry {
         const std::vector<size_t> & CNPI2point() const;
         const std::vector<std::vector<size_t>> & point2CNPI() const;
 
-        // Number of point group irreducibles
+        // number of point group irreducibles
         size_t NPointIrreds() const;
 
         void to(const c10::DeviceType & device);
 
-        // Split an internal coordinate tensor to CNPI group symmetry adapted tensors
+        // concatenate CNPI group symmetry adapted tensors to point group symmetry adapted tensors
+        std::vector<at::Tensor> cat(const std::vector<at::Tensor> & xs, const int64_t & dim = 0) const;
+        // split an internal coordinate tensor to CNPI group symmetry adapted tensors
         // `x` is assumed to be the concatenation of CNPI group symmetry adapted internal coordinate tensors
         std::vector<at::Tensor> split2CNPI(const at::Tensor & x, const int64_t & dim = 0) const;
-        // Split an internal coordinate tensor to point group symmetry adapted tensors
+        // split an internal coordinate tensor to point group symmetry adapted tensors
         // `x` is assumed to be the concatenation of point group symmetry adapted internal coordinate tensors
         std::vector<at::Tensor> split2point(const at::Tensor & x, const int64_t & dim = 0) const;
 };

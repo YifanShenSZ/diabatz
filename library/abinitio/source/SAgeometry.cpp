@@ -54,7 +54,6 @@ std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2CNPI)(const 
         sqrtSQs_[i] = eigvecs.mm(eigvals.diag().mm(eigvecs.transpose(0, 1)));
     }
     // mapping between CNPI group and point group
-    std::vector<size_t> copy = CNPI2point_;
     point2CNPI_.resize(n_point_irreds);
     for (size_t i = 0; i < n_point_irreds; i++)
     for (size_t j = 0; j < CNPI2point_.size(); j++)
@@ -109,6 +108,19 @@ void SAGeometry::to(const c10::DeviceType & device) {
     for (at::Tensor & sqrtS : sqrtSQs_) sqrtS.to(device);
 }
 
+// concatenate CNPI group symmetry adapted tensors to point group symmetry adapted tensors
+std::vector<at::Tensor> SAGeometry::cat(const std::vector<at::Tensor> & xs, const int64_t & dim) const {
+    assert(("`point2CNPI_` must have been constructed", ! point2CNPI_.empty()));
+    if (xs.size() != qs_.size()) throw std::invalid_argument(
+    "abinitio::SAGeometry::cat: the number of CNPI group symmetry adapted tensors must equal to CNPI group order");
+    std::vector<at::Tensor> ys(NPointIrreds());
+    for (size_t i = 0; i < ys.size(); i++) {
+        std::vector<at::Tensor> xmatches(point2CNPI_[i].size());
+        for (size_t j = 0; j < point2CNPI_[i].size(); j++) xmatches[j] = xs[point2CNPI_[i][j]];
+        ys[i] = at::cat(xmatches, dim);
+    }
+    return ys;
+}
 // split an internal coordinate tensor to CNPI group symmetry adapted blocks
 // `x` is assumed to be the concatenation of CNPI group symmetry adapted blocks
 std::vector<at::Tensor> SAGeometry::split2CNPI(const at::Tensor & x, const int64_t & dim) const {

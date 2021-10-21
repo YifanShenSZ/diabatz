@@ -2,12 +2,12 @@
 
 #include <abinitio/SAgeometry.hpp>
 
-#include "../include/cart2int.hpp"
+#include "../include/CNPI.hpp"
 
 at::Tensor read_Columbus(const at::Tensor & r, const std::string & hessian_file) {
     tchem::IC::IntCoordSet intcoordset("Columbus7", "intcfl");
-    size_t intdim = intcoordset.size();
-    at::Tensor inthess = at::empty({(int64_t)intdim, (int64_t)intdim}, c10::TensorOptions().dtype(torch::kFloat64));
+    int64_t intdim = intcoordset.size();
+    at::Tensor inthess = at::empty({intdim, intdim}, c10::TensorOptions().dtype(torch::kFloat64));
     // Read Columbus internal coordinate Hessian
     std::ifstream ifs; ifs.open(hessian_file);
     for (size_t i = 0; i < intdim; i++) {
@@ -48,13 +48,19 @@ at::Tensor read_Columbus(const at::Tensor & r, const std::string & hessian_file)
 
 std::vector<at::Tensor> Hessian_cart2int(
 const at::Tensor & r, const std::vector<size_t> & CNPI2point, const at::Tensor & carthess) {
-    abinitio::SAGeometry init_SAgeom(1.0, r, CNPI2point, cart2int);
+    // create mapping from point group to CNPI group
+    // point irreducible i contains CNPI irreducibles point2CNPI[i]
+    size_t n_point_irreds = *std::max_element(CNPI2point.begin(), CNPI2point.end()) + 1;
+    std::vector<std::vector<size_t>> point2CNPI(n_point_irreds);
+    for (size_t i = 0; i < n_point_irreds; i++)
+    for (size_t j = 0; j < CNPI2point.size(); j++)
+    if (CNPI2point[j] == i) point2CNPI[i].push_back(j);
     // CNPI group symmetry adapted internal coordinate
     std::vector<at::Tensor> CNPI_qs, CNPI_Js;
-    std::tie(CNPI_qs, CNPI_Js) = cart2int(r);
+    std::tie(CNPI_qs, CNPI_Js) = cart2CNPI(r);
     // CNPI group -> point group
-    std::vector<at::Tensor> qs = init_SAgeom.cat(CNPI_qs),
-                            Js = init_SAgeom.cat(CNPI_Js);
+    std::vector<at::Tensor> qs = cat(CNPI_qs, point2CNPI),
+                            Js = cat(CNPI_Js, point2CNPI);
     // Cartesian coordinate -> point group symmetry adapted internal coordinate
     std::vector<at::Tensor> Hs(qs.size());
     for (size_t i = 0; i < qs.size(); i++) {

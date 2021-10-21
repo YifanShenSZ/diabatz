@@ -1,6 +1,6 @@
 #include <tchem/chemistry.hpp>
 
-#include "../include/cart2int.hpp"
+#include "../include/CNPI.hpp"
 
 void final2init(
 const std::vector<at::Tensor> & init_qs, const std::vector<at::Tensor> & final_qs,

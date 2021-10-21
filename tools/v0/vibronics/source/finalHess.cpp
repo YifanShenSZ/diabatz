@@ -1,11 +1,11 @@
 #include <Hd/kernel.hpp>
 
-#include "../include/cart2int.hpp"
+#include "../include/CNPI.hpp"
 
 at::Tensor compute_intddHd(const at::Tensor & r, const Hd::kernel & Hdkernel) {
     const double dq = 1e-3;
     std::vector<at::Tensor> qs, Js;
-    std::tie(qs, Js) = cart2int(r);
+    std::tie(qs, Js) = cart2CNPI(r);
     int64_t intdim = sasicset->intdim();
     // Finite difference
     std::vector<at::Tensor> plus(intdim), minus(intdim);

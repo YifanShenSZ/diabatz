@@ -34,7 +34,7 @@ find_package(Hd REQUIRED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Hd_CXX_FLAGS}")
 
 add_executable(vibronics.exe
-    source/cart2int.cpp
+    source/CNPI.cpp
     source/initHess.cpp
     source/finalHess.cpp
     source/final2init.cpp
