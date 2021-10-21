@@ -38,17 +38,22 @@ void RegHam::to(const c10::DeviceType & device) {
     dH_    .to(device);
 }
 
-// Subtract zero point from energy
+// subtract zero point from energy
 void RegHam::subtract_ZeroPoint(const double & zero_point) {
     energy_ -= zero_point;
 }
-// Lower the weight if energy > E_thresh or ||dH|| > dH_thresh
-void RegHam::adjust_weight(const double & E_thresh, const double & dH_thresh) {
+// lower the energy weight for each state who has (energy - E_ref) > E_thresh
+// lower the gradient weight for each gradient who has norm > dH_thresh
+void RegHam::adjust_weight(const std::vector<std::pair<double, double>> & E_ref_thresh, const double & dH_thresh) {
     int64_t NStates = energy_.size(0);
+    if (E_ref_thresh.size() < NStates) throw std::invalid_argument(
+    "abinitio::RegHam::adjust_weight: each state must have a reference and a threshold");
     for (int64_t i = 0; i < NStates; i++) {
-        double e = energy_[i].item<double>();
-        if (e > E_thresh) sqrtweight_E_[i] = sqrtweight_ * E_thresh / e;
-        else              sqrtweight_E_[i] = sqrtweight_;
+        const double & ref    = E_ref_thresh[i].first ,
+                     & thresh = E_ref_thresh[i].second;
+        double e = energy_[i].item<double>() - ref;
+        if (e > thresh) sqrtweight_E_[i] = sqrtweight_ * thresh / e;
+        else            sqrtweight_E_[i] = sqrtweight_;
         weight_E_[i] = sqrtweight_E_[i] * sqrtweight_E_[i];
     }
     for (int64_t i = 0; i < NStates; i++)
@@ -87,21 +92,24 @@ void DegHam::to(const c10::DeviceType & device) {
     H_.to(device);
 }
 
-// Subtract zero point from energy and H
+// subtract zero point from energy and H
 void DegHam::subtract_ZeroPoint(const double & zero_point) {
     RegHam::subtract_ZeroPoint(zero_point);
     H_ -= zero_point * at::eye(H_.size(0), H_.options());
 }
-// Lower the weight if H > H_thresh or ||dH|| > dH_thresh
-void DegHam::adjust_weight(const double & H_thresh, const double & dH_thresh) {
-    RegHam::adjust_weight(H_thresh, dH_thresh);
-    int64_t NStates = energy_.size(0);
-    for (int64_t i = 0; i < NStates; i++)
-    for (int64_t j = i; j < NStates; j++) {
-        double h = H_[i][j].item<double>();
-        if (h > H_thresh) sqrtweight_H_[i][j] = sqrtweight_ * H_thresh / h;
-        else              sqrtweight_H_[i][j] = sqrtweight_;
-        weight_H_[i][j] = sqrtweight_H_[i][j] * sqrtweight_H_[i][j];
+// lower the Hamiltonian diagonal weight as energy, does not decrease off-diagonal weight
+void DegHam::adjust_weight(const std::vector<std::pair<double, double>> & E_ref_thresh, const double & dH_thresh) {
+    RegHam::adjust_weight(E_ref_thresh, dH_thresh);
+    int64_t NStates = H_.size(0);
+    if (E_ref_thresh.size() < NStates) throw std::invalid_argument(
+    "abinitio::DegHam::adjust_weight: each state must have a reference and a threshold");
+    for (int64_t i = 0; i < NStates; i++) {
+        const double & ref    = E_ref_thresh[i].first ,
+                     & thresh = E_ref_thresh[i].second;
+        double h = H_[i][i].item<double>() - ref;
+        if (h > thresh) sqrtweight_H_[i][i] = sqrtweight_ * thresh / h;
+        else            sqrtweight_H_[i][i] = sqrtweight_;
+        weight_H_[i][i] = sqrtweight_H_[i][i] * sqrtweight_H_[i][i];
     }
 }
 

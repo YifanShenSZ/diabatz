@@ -20,7 +20,7 @@ argparse::ArgumentParser parse_args(const size_t & argc, const char ** & argv) {
 
     // optional arguments
     parser.add_argument("-z","--zero_point",    1, true, "zero of potential energy, default = 0");
-    parser.add_argument("-w","--energy_weight", 1, true, "energy threshold in weight adjustment, default = 1");
+    parser.add_argument("--energy_weight"  ,  '+', true, "energy (reference, threshold) for each state in weight adjustment, default = (0, 1)");
     parser.add_argument("--gradient_weight",    1, true, "gradient threshold in weight adjustment, default = infer from energy threshold");
     parser.add_argument("-g","--guess_diag",  '+', true, "initial guess of Hd diagonal, default = pytorch initialization");
     parser.add_argument("-c","--checkpoint",    1, true, "a trained Hd parameter to continue from");
@@ -32,7 +32,7 @@ argparse::ArgumentParser parse_args(const size_t & argc, const char ** & argv) {
     // optimizer arguments
     parser.add_argument("-o","--optimizer",     1, true, "trust_region, Adam, SGD (default = trust_region)");
     parser.add_argument("-m","--max_iteration", 1, true, "default = 100");
-    parser.add_argument("-b","--batch_size",    1, true, "for Adam or SGD, default = 32");
+    parser.add_argument("--batch_size",         1, true, "for Adam or SGD, default = 32");
     parser.add_argument("--learning_rate",      1, true, "for Adam or SGD, default = 1e-3");
     parser.add_argument("--opt_chk",            1, true, "optimizer checkpoint for Adam or SGD");
 
@@ -190,12 +190,24 @@ int main(size_t argc, const char ** argv) {
     std::cout << "so we suggest to set gradient / energy scaling to around " << unit << "\n\n";
     unit_square = unit * unit;
 
-    double energy_weight = 1.0;
-    if (args.gotArgument("energy_weight")) energy_weight = args.retrieve<double>("energy_weight");
-    double dH_weight = unit * energy_weight;
+    std::vector<std::pair<double, double>> energy_weight(Hdnet->NStates(), {0.0, 1.0});
+    if (args.gotArgument("energy_weight")) {
+        auto temp = args.retrieve<std::vector<double>>("energy_weight");
+        if (temp.size() < 2 * Hdnet->NStates()) throw std::invalid_argument(
+        "argument energy_weight: insufficient number of energy (reference, threshold) for each state");
+        size_t count = 0;
+        for (auto & ref_thresh : energy_weight) {
+            ref_thresh.first  = temp[count    ];
+            ref_thresh.second = temp[count + 1];
+            count += 2;
+        }
+    }
+    double dH_weight = unit * energy_weight[0].second;
     if (args.gotArgument("gradient_weight")) {
         dH_weight = args.retrieve<double>("gradient_weight");
-        unit = dH_weight / energy_weight;
+        double sum_ethresh = 0.0;
+        for (const auto & e_ref_thresh : energy_weight) sum_ethresh += e_ref_thresh.second;
+        unit = dH_weight / (sum_ethresh / Hdnet->NStates());
         unit_square = unit * unit;
         std::cout << "According to user defined energy threshold and gradient threshold,\n"
                      "set gradient / energy scaling to " << unit << "\n\n";

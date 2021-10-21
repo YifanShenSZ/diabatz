@@ -8,10 +8,10 @@
 
 namespace abinitio {
 
-// Store regular Hamiltonian and gradient in adiabatic representation
+// store regular Hamiltonian and gradient in adiabatic representation
 class RegHam : public Geometry {
     protected:
-        // By regular Hamiltonian I mean energy
+        // by regular Hamiltonian I mean energy
         at::Tensor energy_, dH_;
 
         // energy weight, default = 1
@@ -34,13 +34,14 @@ class RegHam : public Geometry {
 
         void to(const c10::DeviceType & device);
 
-        // Subtract zero point from energy
+        // subtract zero point from energy
         void subtract_ZeroPoint(const double & zero_point);
-        // Lower the weight if energy > E_thresh or ||dH|| > dH_thresh
-        void adjust_weight(const double & E_thresh, const double & dH_thresh);
+        // lower the energy weight for each state who has (energy - E_ref) > E_thresh
+        // lower the gradient weight for each gradient who has norm > dH_thresh
+        void adjust_weight(const std::vector<std::pair<double, double>> & E_ref_thresh, const double & dH_thresh);
 };
 
-// Store degenerate Hamiltonian and gradient in composite representation
+// store degenerate Hamiltonian and gradient in composite representation
 class DegHam : public RegHam {
     protected:
         at::Tensor H_;
@@ -59,10 +60,10 @@ class DegHam : public RegHam {
 
         void to(const c10::DeviceType & device);
 
-        // Subtract zero point from energy and H
+        // subtract zero point from energy and H
         void subtract_ZeroPoint(const double & zero_point);
-        // Lower the weight if H > H_thresh or ||dH|| > dH_thresh
-        void adjust_weight(const double & H_thresh, const double & dH_thresh);
+        // lower the Hamiltonian diagonal weight as energy, does not decrease off-diagonal weight
+        void adjust_weight(const std::vector<std::pair<double, double>> & E_ref_thresh, const double & dH_thresh);
 };
 
 } // namespace abinitio
