@@ -46,6 +46,7 @@ void RegHam::subtract_ZeroPoint(const double & zero_point) {
 // lower the gradient weight for each gradient who has norm > dH_thresh
 void RegHam::adjust_weight(const std::vector<std::pair<double, double>> & E_ref_thresh, const double & dH_thresh) {
     int64_t NStates = energy_.size(0);
+    // energy weight
     if (E_ref_thresh.size() < NStates) throw std::invalid_argument(
     "abinitio::RegHam::adjust_weight: each state must have a reference and a threshold");
     for (int64_t i = 0; i < NStates; i++) {
@@ -56,9 +57,10 @@ void RegHam::adjust_weight(const std::vector<std::pair<double, double>> & E_ref_
         else            sqrtweight_E_[i] = sqrtweight_;
         weight_E_[i] = sqrtweight_E_[i] * sqrtweight_E_[i];
     }
+    // ▽H weight
     for (int64_t i = 0; i < NStates; i++)
     for (int64_t j = i; j < NStates; j++) {
-        double g = dH_[i][j].norm().item<double>();
+        double g = dH_[i][j].abs().max().item<double>();
         if (g > dH_thresh) sqrtweight_dH_[i][j] = sqrtweight_ * dH_thresh / g;
         else               sqrtweight_dH_[i][j] = sqrtweight_;
         weight_dH_[i][j] = sqrtweight_dH_[i][j] * sqrtweight_dH_[i][j];
@@ -101,6 +103,7 @@ void DegHam::subtract_ZeroPoint(const double & zero_point) {
 void DegHam::adjust_weight(const std::vector<std::pair<double, double>> & E_ref_thresh, const double & dH_thresh) {
     RegHam::adjust_weight(E_ref_thresh, dH_thresh);
     int64_t NStates = H_.size(0);
+    // H weight
     if (E_ref_thresh.size() < NStates) throw std::invalid_argument(
     "abinitio::DegHam::adjust_weight: each state must have a reference and a threshold");
     for (int64_t i = 0; i < NStates; i++) {
