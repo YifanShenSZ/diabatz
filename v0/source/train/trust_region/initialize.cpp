@@ -12,35 +12,41 @@ const std::shared_ptr<abinitio::DataSet<DegHam>> & _degset) {
     degchunk.resize(OMP_NUM_THREADS);
     size_t regchunksize = regset.size() / OMP_NUM_THREADS,
            degchunksize = degset.size() / OMP_NUM_THREADS;
-    std::cout << "Each thread owns " << regchunksize << " data points in adiabatic representation\n"
-              << "                 " << degchunksize << " data points in composite representation\n";
     size_t regcount = 0, degcount = 0;
-    // Thread 0 to OMP_NUM_THREADS - 2 each owns `chunksize` data points
-    for (size_t thread = 0; thread < OMP_NUM_THREADS - 1; thread++) {
+    // the leading threads may have 1 more data point
+    size_t leading_regthreads   = regset.size() % OMP_NUM_THREADS,
+           leading_regchunksize = regchunksize + 1;
+    for (size_t thread = 0; thread < leading_regthreads; thread++) {
+        regchunk[thread].resize(leading_regchunksize);
+        for (size_t i = 0; i < leading_regchunksize; i++) {
+            regchunk[thread][i] = regset[regcount];
+            regcount++;
+        }
+    }
+    size_t leading_degthreads   = degset.size() % OMP_NUM_THREADS,
+           leading_degchunksize = degchunksize + 1;
+    for (size_t thread = 0; thread < leading_degthreads; thread++) {
+        degchunk[thread].resize(leading_degchunksize);
+        for (size_t i = 0; i < leading_degchunksize; i++) {
+            degchunk[thread][i] = degset[degcount];
+            degcount++;
+        }
+    }
+    // the remaining threads each has `chunk size` data points
+    for (size_t thread = leading_regthreads; thread < OMP_NUM_THREADS; thread++) {
         regchunk[thread].resize(regchunksize);
         for (size_t i = 0; i < regchunksize; i++) {
             regchunk[thread][i] = regset[regcount];
             regcount++;
         }
+    }
+    for (size_t thread = leading_degthreads; thread < OMP_NUM_THREADS; thread++) {
         degchunk[thread].resize(degchunksize);
         for (size_t i = 0; i < degchunksize; i++) {
             degchunk[thread][i] = degset[degcount];
             degcount++;
         }
     }
-    // The last thread owns all remaining data points
-    regchunk.back().resize(regset.size() - (OMP_NUM_THREADS - 1) * regchunksize);
-    for (size_t i = 0; i < regchunk.back().size(); i++) {
-        regchunk.back()[i] = regset[regcount];
-        regcount++;
-    }
-    degchunk.back().resize(degset.size() - (OMP_NUM_THREADS - 1) * degchunksize);
-    for (size_t i = 0; i < degchunk.back().size(); i++) {
-        degchunk.back()[i] = degset[degcount];
-        degcount++;
-    }
-    std::cout << "The last thread owns " << regchunk.back().size() << " data points in adiabatic representation\n"
-              << "                     " << degchunk.back().size() << " data points in composite representation\n";
 
     segstart.resize(OMP_NUM_THREADS);
     segstart[0] = 0;
@@ -66,8 +72,13 @@ const std::shared_ptr<abinitio::DataSet<DegHam>> & _degset) {
             segstart[thread] += data->SAdH(i, j).size(0);
         }
     }
-    for (size_t thread = 0; thread < OMP_NUM_THREADS; thread++)
-    std::cout << "Thread " << thread << " starts with Jacobian row " << segstart[thread] << '\n';
+
+    for (size_t thread = 0; thread < OMP_NUM_THREADS; thread++) {
+        std::cout << "Thread " << thread + 1 << ":\n"
+                  << "* owns " << regchunk[thread].size() << " adiabatic data points\n"
+                  << "* owns " << degchunk[thread].size() << " composite data points\n"
+                  << "* starts with Jacobian row " << segstart[thread] << '\n';
+    }
     std::cout << '\n';
 }
 
