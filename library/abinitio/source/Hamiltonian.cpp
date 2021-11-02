@@ -7,11 +7,12 @@ namespace abinitio {
 RegHam::RegHam() {}
 RegHam::RegHam(const HamLoader & loader) : Geometry(loader.weight, loader.geom),
 energy_(loader.energy.clone()), dH_(loader.dH.clone()) {
-    for (size_t i = 0    ; i < dH_.size(0); i++)
-    for (size_t j = i + 1; j < dH_.size(1); j++)
-    dH_[i][j] *= energy_[j] - energy_[i];
-
     size_t NStates = energy_.size(0);
+    // convert nonadiabatic coupling to ▽H
+    for (size_t i = 0    ; i < NStates; i++)
+    for (size_t j = i + 1; j < NStates; j++)
+    dH_[i][j] *= energy_[j] - energy_[i];
+    // weights
     weight_E_.resize(NStates);
     std::fill(weight_E_.begin(), weight_E_.end(), 1.0);
     sqrtweight_E_.resize(NStates);
