@@ -58,7 +58,7 @@ int main(size_t argc, const char ** argv) {
     std::vector<std::string> diabatz_inputs = args.retrieve<std::vector<std::string>>("diabatz");
     Hd::kernel Hdkernel(diabatz_inputs);
 
-    CL::chem::xyz<double> geom(args.retrieve<std::string>("geometry"), true);
+    CL::chem::xyz<double> geom(args.retrieve<std::string>("structure"), true);
     std::vector<double> coords = geom.coords();
     at::Tensor r = at::from_blob(coords.data(), coords.size(), at::TensorOptions().dtype(torch::kFloat64));
 
