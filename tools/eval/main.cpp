@@ -12,18 +12,19 @@ argparse::ArgumentParser parse_args(const size_t & argc, const char ** & argv) {
 
     // required arguments
     parser.add_argument("-d","--diabatz", '+', false, "diabatz definition files");
-    parser.add_argument("-g","--geometry",  1, false, "the geometry to calculate diabatz");
+    parser.add_argument("-s","--structure", 1, false, "the molecular structre to calculate diabatz");
 
     // optional argument
     parser.add_argument("-a","--adiabatz");
+    parser.add_argument("-g","--gradient");
 
     parser.parse_args(argc, argv);
     return parser;
 }
 
-void print_cartvec(const at::Tensor & cartvec, std::ostream & ostream) {
-    at::Tensor r = cartvec.view({cartvec.size(0) / 3, 3});
-    for (size_t i = 0; i < cartvec.size(0) / 3; i++)
+void print_vector(const at::Tensor & vector, std::ostream & ostream) {
+    at::Tensor r = vector.view({vector.size(0) / 3, 3});
+    for (size_t i = 0; i < vector.size(0) / 3; i++)
     ostream << std::setw(16) << std::scientific << std::setprecision(6) << r[i][0].item<double>()
             << std::setw(16) << std::scientific << std::setprecision(6) << r[i][1].item<double>()
             << std::setw(16) << std::scientific << std::setprecision(6) << r[i][2].item<double>()
@@ -60,46 +61,73 @@ int main(size_t argc, const char ** argv) {
     CL::chem::xyz<double> geom(args.retrieve<std::string>("geometry"), true);
     std::vector<double> coords = geom.coords();
     at::Tensor r = at::from_blob(coords.data(), coords.size(), at::TensorOptions().dtype(torch::kFloat64));
-    at::Tensor Hd, dHd;
-    std::tie(Hd, dHd) = Hdkernel.compute_Hd_dHd(r);
 
     if (args.gotArgument("adiabatz")) {
-        at::Tensor energy, states;
-        std::tie(energy, states) = Hd.symeig(true);
-        // energy
-        std::cout << "energy =\n";
-        for (size_t i = 0; i < energy.size(0); i++)
-        std::cout << std::setw(16) << std::scientific << std::setprecision(6) << energy[i].item<double>();
-        std::cout << "\n\n";
-        // states
-        std::cout << "states are:\n";
-        print_matrix(states, std::cout);
-        std::cout << '\n';
-        // energy gradient
-        at::Tensor dHa = tchem::linalg::UT_sy_U(dHd, states);
-        for (size_t i = 0; i < Hd.size(0); i++) {
-            std::cout << "energy gradient of state " << i + 1 << " =\n";
-            print_cartvec(dHa[i][i], std::cout);
+        if (args.gotArgument("gradient")) {
+            at::Tensor Hd, dHd;
+            std::tie(Hd, dHd) = Hdkernel.compute_Hd_dHd(r);
+            at::Tensor energy, states;
+            std::tie(energy, states) = Hd.symeig(true);
+            // energy
+            std::cout << "energy =\n";
+            for (size_t i = 0; i < energy.size(0); i++)
+            std::cout << std::setw(16) << std::scientific << std::setprecision(6) << energy[i].item<double>();
+            std::cout << "\n\n";
+            // states
+            std::cout << "states are:\n";
+            print_matrix(states, std::cout);
             std::cout << '\n';
+            // energy gradient
+            at::Tensor dHa = tchem::linalg::UT_sy_U(dHd, states);
+            for (size_t i = 0; i < Hd.size(0); i++) {
+                std::cout << "energy gradient of state " << i + 1 << " =\n";
+                print_vector(dHa[i][i], std::cout);
+                std::cout << '\n';
+            }
+            // nonadiabatic coupling
+            for (size_t i = 0    ; i < Hd.size(0); i++)
+            for (size_t j = i + 1; j < Hd.size(0); j++) {
+                std::cout << "nonadiabatic coupling between state " << i + 1 << " and " << j + 1 << " =\n";
+                print_vector(dHa[i][j] / (energy[j] - energy[i]), std::cout);
+                std::cout << '\n';
+            }
         }
-        // nonadiabatic coupling
-        for (size_t i = 0    ; i < Hd.size(0); i++)
-        for (size_t j = i + 1; j < Hd.size(0); j++) {
-            std::cout << "nonadiabatic coupling between state " << i + 1 << " and " << j + 1 << " =\n";
-            print_cartvec(dHa[i][j] / (energy[j] - energy[i]), std::cout);
+        else {
+            at::Tensor Hd = Hdkernel(r);
+            at::Tensor energy, states;
+            std::tie(energy, states) = Hd.symeig(true);
+            // energy
+            std::cout << "energy =\n";
+            for (size_t i = 0; i < energy.size(0); i++)
+            std::cout << std::setw(16) << std::scientific << std::setprecision(6) << energy[i].item<double>();
+            std::cout << "\n\n";
+            // states
+            std::cout << "states are:\n";
+            print_matrix(states, std::cout);
             std::cout << '\n';
         }
     }
     else {
-        // Hd
-        std::cout << "Hd =\n";
-        print_symat(Hd, std::cout);
-        std::cout << '\n';
-        // ▽Hd
-        for (size_t i = 0; i < Hd.size(0); i++)
-        for (size_t j = i; j < Hd.size(0); j++) {
-            std::cout << "▽Hd " << i + 1 << "-" << j + 1 << " =\n";
-            print_cartvec(dHd[i][j], std::cout);
+        if (args.gotArgument("gradient")) {
+            at::Tensor Hd, dHd;
+            std::tie(Hd, dHd) = Hdkernel.compute_Hd_dHd(r);
+            // Hd
+            std::cout << "Hd =\n";
+            print_symat(Hd, std::cout);
+            std::cout << '\n';
+            // ▽Hd
+            for (size_t i = 0; i < Hd.size(0); i++)
+            for (size_t j = i; j < Hd.size(0); j++) {
+                std::cout << "▽Hd " << i + 1 << "-" << j + 1 << " =\n";
+                print_vector(dHd[i][j], std::cout);
+                std::cout << '\n';
+            }
+        }
+        else {
+            at::Tensor Hd = Hdkernel(r);
+            // Hd
+            std::cout << "Hd =\n";
+            print_symat(Hd, std::cout);
             std::cout << '\n';
         }
     }
