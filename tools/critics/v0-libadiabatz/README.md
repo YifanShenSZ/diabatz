@@ -1,1 +1,0 @@
--DHd_DIR=~/Software/Mine/diabatz/tools/v0/libHd/share/cmake/Hd

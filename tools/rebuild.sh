@@ -11,7 +11,7 @@ for directory in CNPI2point autoencoder; do
     cd ../..
 done
 
-for directory in eval RMSD vibration; do
+for directory in eval RMSD critics vibration; do
     echo
     echo "Entre "$directory
     cd $directory/v0

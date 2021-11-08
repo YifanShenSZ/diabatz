@@ -1,20 +1,23 @@
 #include <tchem/linalg.hpp>
 
-#include <Hd/kernel.hpp>
+#include "../include/global.hpp"
 
-namespace {
-
-std::shared_ptr<Hd::kernel> Hdkernel;
-
-}
-
-namespace adiabatz {
-
-size_t NStates;
-
-void initialize_adiabatz(const std::vector<std::string> & args) {
-    Hdkernel = std::make_shared<Hd::kernel>(args);
-    NStates = Hdkernel->NStates();
+at::Tensor compute_ddHd(const at::Tensor & r) {
+    const double dr = 1e-3;
+    std::vector<at::Tensor> plus(r.size(0)), minus(r.size(0));
+    #pragma omp parallel for
+    for (size_t i = 0; i < r.size(0); i++) {
+        at::Tensor energy;
+        plus[i] = r.clone();
+        plus[i][i] += dr;
+        std::tie(energy, plus[i]) = Hdkernel->compute_Hd_dHd(plus[i]);
+        minus[i] = r.clone();
+        minus[i][i] -= dr;
+        std::tie(energy, minus[i]) = Hdkernel->compute_Hd_dHd(minus[i]);
+    }
+    at::Tensor ddHd = r.new_empty({plus[0].size(0), plus[0].size(1), r.size(0), r.size(0)});
+    for (size_t i = 0; i < r.size(0); i++) ddHd.select(2, i).copy_((plus[i] - minus[i]) / 2.0 / dr);
+    return ddHd;
 }
 
 at::Tensor compute_energy(const at::Tensor & r) {
@@ -51,5 +54,3 @@ at::Tensor compute_ddHa(const at::Tensor & r) {
     for (size_t i = 0; i < r.size(0); i++) ddHa.select(2, i).copy_((plus[i] - minus[i]) / 2.0 / dr);
     return ddHa;
 }
-
-} // namespace adiabatz
