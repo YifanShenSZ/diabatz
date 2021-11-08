@@ -22,6 +22,9 @@ struct scalar : torch::nn::Module {
 
     at::Tensor forward(const at::Tensor & x);
     at::Tensor operator()(const at::Tensor & x);
+
+    // output hidden layer values before activation to `os`
+    void diagnostic(const at::Tensor & x, std::ostream & os);
 };
 
 } // namespace obnet

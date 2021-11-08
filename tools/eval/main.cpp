@@ -17,6 +17,7 @@ argparse::ArgumentParser parse_args(const size_t & argc, const char ** & argv) {
     // optional argument
     parser.add_argument("-a","--adiabatz");
     parser.add_argument("-g","--gradient");
+    parser.add_argument("--diagnostic");
 
     parser.parse_args(argc, argv);
     return parser;
@@ -131,6 +132,8 @@ int main(size_t argc, const char ** argv) {
             std::cout << '\n';
         }
     }
+
+    if (args.gotArgument("diagnostic")) Hdkernel.diagnostic(r, std::cout);
 
     CL::utility::show_time(std::cout);
     std::cout << "Mission success\n";

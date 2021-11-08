@@ -106,4 +106,17 @@ std::tuple<at::Tensor, at::Tensor> kernel::compute_Hd_dHd(const std::vector<at::
     return std::make_tuple(Hd, DqHd);
 }
 
+// output hidden layer values before activation to `os`
+void kernel::diagnostic(const at::Tensor & r, std::ostream & os) {
+    if (r.sizes().size() != 1) throw std::invalid_argument(
+    "Hd::kernel::operator(): r must be a vector");
+    // Cartesian coordinate -> CNPI group symmetry adaptated and scaled internal coordinate
+    at::Tensor q = sasicset_->tchem::IC::IntCoordSet::operator()(r);
+    std::vector<at::Tensor> qs = (*sasicset_)(q);
+    // SASIC -> input layer
+    CL::utility::matrix<at::Tensor> xs = (*input_generator_)(qs);
+    // input layer -> Hd
+    Hdnet_->diagnostic(xs, os);
+}
+
 } // namespace Hd

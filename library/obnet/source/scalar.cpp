@@ -54,4 +54,16 @@ at::Tensor scalar::forward(const at::Tensor & x) {
 }
 at::Tensor scalar::operator()(const at::Tensor & x) {return this->forward(x);}
 
+// output hidden layer values before activation to `os`
+void scalar::diagnostic(const at::Tensor & x, std::ostream & os) {
+    if (x.sizes().size() != 1) throw std::invalid_argument(
+    "obnet::scalar::forward: x must be a vector");
+    at::Tensor y = x;
+    for (size_t i = 0; i < fcs->size() - 1; i++) {
+        y = fcs[i]->as<torch::nn::Linear>()->forward(y);
+        os << "hidden layer " << i + 1 << ":\n" << y << '\n';
+        y = torch::tanh(y);
+    }
+}
+
 } // namespace obnet

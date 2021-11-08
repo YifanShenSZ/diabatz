@@ -42,6 +42,9 @@ struct symat : torch::nn::Module {
 
         at::Tensor forward(const CL::utility::matrix<at::Tensor> & xs);
         at::Tensor operator()(const CL::utility::matrix<at::Tensor> & xs);
+
+        // output hidden layer values before activation to `os`
+        void diagnostic(const CL::utility::matrix<at::Tensor> & xs, std::ostream & os);
 };
 
 } // namespace obnet

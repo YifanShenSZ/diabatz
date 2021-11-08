@@ -99,4 +99,21 @@ at::Tensor symat::forward(const CL::utility::matrix<at::Tensor> & xs) {
 }
 at::Tensor symat::operator()(const CL::utility::matrix<at::Tensor> & xs) {return forward(xs);}
 
+// output hidden layer values before activation to `os`
+void symat::diagnostic(const CL::utility::matrix<at::Tensor> & xs, std::ostream & os) {
+    if (xs.size(0) != NStates_) throw std::invalid_argument(
+    "obnet::symat::forward: xs must be an NStates_ x NStates_ matrix");
+    if (xs.size(1) != NStates_) throw std::invalid_argument(
+    "obnet::symat::forward: xs must be an NStates_ x NStates_ matrix");
+    at::Tensor y = xs[0][0].new_empty({NStates_, NStates_});
+    size_t count = 0;
+    for (int64_t i = 0; i < NStates_; i++)
+    for (int64_t j = i; j < NStates_; j++) {
+        os << "Matrix row " << i << " column " << j << ":\n";
+        elements[count]->as<scalar>()->diagnostic(xs[i][j], os);
+        os << '\n';
+        count++;
+    }
+}
+
 } // namespace obnet

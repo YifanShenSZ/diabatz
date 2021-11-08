@@ -27,6 +27,8 @@ int main() {
     at::Tensor Hd = (*Hdnet)(xs);
     std::cout << "Hd =\n" << Hd << '\n';
 
+    Hdnet->diagnostic(xs, std::cout);
+
     std::cout << "Number of parameters = "
               << tchem::utility::NParameters(Hdnet->elements->parameters())
               << '\n';
