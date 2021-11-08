@@ -49,7 +49,7 @@ int main(size_t argc, const char ** argv) {
     std::cout << "The target electronic state is " << target_state << '\n';
     target_state -= 1;
 
-    std::vector<std::string> diabatz_inputs = args.retrieve<std::vector<std::string>>("adiabatz");
+    std::vector<std::string> diabatz_inputs = args.retrieve<std::vector<std::string>>("diabatz");
     Hdkernel = std::make_shared<Hd::kernel>(diabatz_inputs);
 
     if (target_state >= Hdkernel->NStates()) {
