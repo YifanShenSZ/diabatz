@@ -109,7 +109,7 @@ void symat::diagnostic(const CL::utility::matrix<at::Tensor> & xs, std::ostream 
     size_t count = 0;
     for (int64_t i = 0; i < NStates_; i++)
     for (int64_t j = i; j < NStates_; j++) {
-        os << "Matrix row " << i << " column " << j << ":\n";
+        os << "Matrix row " << i + 1 << " column " << j + 1 << ":\n";
         elements[count]->as<scalar>()->diagnostic(xs[i][j], os);
         os << '\n';
         count++;
