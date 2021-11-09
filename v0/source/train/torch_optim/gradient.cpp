@@ -14,7 +14,7 @@ namespace train { namespace torch_optim {
 
 at::Tensor reg_gradient(const std::vector<std::shared_ptr<RegHam>> & batch) {
     size_t batch_size = batch.size();
-    // no need to consider empty batch, since this is called in "for (const auto & batch : * reg_loader)" loop
+    // parallelly compute residue and Jacobian of each data point
     std::vector<at::Tensor> residues(batch_size), Jacobians(batch_size);
     #pragma omp parallel for
     for (size_t idata = 0; idata < batch_size; idata++) {
@@ -69,15 +69,16 @@ at::Tensor reg_gradient(const std::vector<std::shared_ptr<RegHam>> & batch) {
         residues[idata] = at::cat(r);
         Jacobians[idata] = at::cat(J);
     }
+    // concatenate gradients
     at::Tensor gradient = at::matmul(residues[0], Jacobians[0]);
-    for (size_t idata = 1; idata < batch_size; idata++)
-    gradient += at::matmul(residues[idata], Jacobians[idata]);
+    for (size_t idata = 1; idata < batch_size; idata++) gradient += at::matmul(residues[idata], Jacobians[idata]);
+    gradient /= (double)batch_size;
     return gradient;
 }
 
 at::Tensor deg_gradient(const std::vector<std::shared_ptr<DegHam>> & batch) {
     size_t batch_size = batch.size();
-    // no need to consider empty batch, since this is called in "for (const auto & batch : * deg_loader)" loop
+    // parallelly compute residue and Jacobian of each data point
     std::vector<at::Tensor> residues(batch_size), Jacobians(batch_size);
     #pragma omp parallel for
     for (size_t idata = 0; idata < batch_size; idata++) {
@@ -136,9 +137,10 @@ at::Tensor deg_gradient(const std::vector<std::shared_ptr<DegHam>> & batch) {
         residues[idata] = at::cat(r);
         Jacobians[idata] = at::cat(J);
     }
+    // concatenate gradients
     at::Tensor gradient = at::matmul(residues[0], Jacobians[0]);
-    for (size_t idata = 1; idata < batch_size; idata++)
-    gradient += at::matmul(residues[idata], Jacobians[idata]);
+    for (size_t idata = 1; idata < batch_size; idata++) gradient += at::matmul(residues[idata], Jacobians[idata]);
+    gradient /= (double)batch_size;
     return gradient;
 }
 
