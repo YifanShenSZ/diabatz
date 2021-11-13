@@ -1,6 +1,6 @@
 Internal coordinate origin file:
     origin.int
-Internal coordinates who are scaled by others: (self, scalor, alpha)
+Internal coordinates who are scaled by others: (self, alpha, scalor)
      5    1.000000     3
      6    1.000000     4
     35    1.000000     3
