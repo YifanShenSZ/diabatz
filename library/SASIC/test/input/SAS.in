@@ -12,7 +12,7 @@ Internal coordinates who are scaled by others: (self, alpha, scaler(s))
     41    1.000000     3
     42    1.000000     4
     43    1.000000     4
-Internal coordinates who are scaled by themselves:
+Internal coordinates who are scaled by themselves: (self, alpha)
      3    1.500000
      4    1.500000
 Coordinates of irreducible 1: (number, coefficient, index of internal coordinate)

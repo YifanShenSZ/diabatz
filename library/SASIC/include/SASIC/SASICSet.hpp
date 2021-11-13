@@ -19,6 +19,7 @@ class SASICSet : public tchem::IC::IntCoordSet {
         // The self scaled internal coordinate vector is
         //     q = 1 - exp(-self_alpha_ * self_scaling_.mv(q))
         //       + self_complete_.mv(q)
+        // This implementation trick only works for f(0) = 0, where f(x) is defined in README.md
         at::Tensor self_alpha_, self_scaling_, self_complete_;
         // sasicss_[i][j] contains the definition of
         // j-th symmetry adapted internal coordinate in i-th irreducible
