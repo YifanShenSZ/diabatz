@@ -142,7 +142,7 @@ int main(size_t argc, const char ** argv) {
     std::string format = args.retrieve<std::string>("format"),
                 IC     = args.retrieve<std::string>("IC"),
                 SAS    = args.retrieve<std::string>("SAS");
-    sasicset = std::make_shared<tchem::IC::SASICSet>(format, IC, SAS);
+    sasicset = std::make_shared<SASIC::SASICSet>(format, IC, SAS);
 
     Hdnet = std::make_shared<obnet::symat>(args.retrieve<std::string>("net"));
     Hdnet->train();

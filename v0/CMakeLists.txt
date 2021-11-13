@@ -28,6 +28,11 @@ set(CMAKE_PREFIX_PATH ~/Software/Mine/diabatz/library/abinitio)
 find_package(abinitio REQUIRED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${abinitio_CXX_FLAGS}")
 
+# SASIC
+set(CMAKE_PREFIX_PATH ~/Software/Mine/diabatz/library/SASIC)
+find_package(SASIC REQUIRED)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SASIC_CXX_FLAGS}")
+
 # obnet
 set(CMAKE_PREFIX_PATH ~/Software/Mine/diabatz/library/obnet)
 find_package(obnet REQUIRED)
@@ -61,7 +66,8 @@ add_executable(v0.exe
 )
 
 target_link_libraries(v0.exe
-    ${Hderiva_LIBRARIES} ${obnet_LIBRARIES} ${abinitio_LIBRARIES}
+    ${Hderiva_LIBRARIES} ${obnet_LIBRARIES}
+    ${SASIC_LIBRARIES} ${abinitio_LIBRARIES}
     ${tchem_LIBRARIES} ${CL_LIBRARIES} ${Foptim_LIBRARIES}
     stdc++fs
 )
