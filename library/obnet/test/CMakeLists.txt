@@ -11,6 +11,11 @@ set(CMAKE_PREFIX_PATH ~/Library/Torch-Chemistry)
 find_package(tchem REQUIRED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${tchem_CXX_FLAGS}")
 
+# SASIC
+set(CMAKE_PREFIX_PATH ~/Software/Mine/diabatz/library/SASIC)
+find_package(SASIC REQUIRED)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SASIC_CXX_FLAGS}")
+
 # obnet
 set(CMAKE_PREFIX_PATH ~/Software/Mine/diabatz/library/obnet)
 find_package(obnet REQUIRED)
@@ -22,4 +27,8 @@ add_executable(test.exe
     main.cpp
 )
 
-target_link_libraries(test.exe ${obnet_LIBRARIES} ${tchem_LIBRARIES})
+target_link_libraries(test.exe
+    ${obnet_LIBRARIES}
+    ${SASIC_LIBRARIES}
+    ${tchem_LIBRARIES}
+)

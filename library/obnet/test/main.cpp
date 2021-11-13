@@ -9,7 +9,7 @@
 int main() {
     c10::TensorOptions top = at::TensorOptions().dtype(torch::kFloat64);
 
-    sasicset = std::make_shared<tchem::IC::SASICSet>("default", "IntCoordDef", "SAS.in");
+    sasicset = std::make_shared<SASIC::SASICSet>("default", "IntCoordDef", "SAS.in");
 
     Hdnet = std::make_shared<obnet::symat>("Hd.in");
     Hdnet->to(torch::kFloat64);
