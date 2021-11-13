@@ -9,7 +9,7 @@ kernel::kernel(
 const std::string & format, const std::string & IC, const std::string & SAS,
 const std::string & net, const std::string & checkpoint,
 const std::vector<std::string> & input_layers) {
-    sasicset_ = std::make_shared<tchem::IC::SASICSet>(format, IC, SAS);
+    sasicset_ = std::make_shared<SASIC::SASICSet>(format, IC, SAS);
     Hdnet_ = std::make_shared<obnet::symat>(net);
     torch::load(Hdnet_->elements, checkpoint);
     Hdnet_->freeze();

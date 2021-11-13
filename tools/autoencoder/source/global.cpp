@@ -2,7 +2,7 @@
 
 #include "../include/global.hpp"
 
-std::shared_ptr<tchem::IC::SASICSet> sasicset;
+std::shared_ptr<SASIC::SASICSet> sasicset;
 
 // Given Cartesian coordinate r,
 // return CNPI group symmetry adapted internal coordinates and corresponding Jacobians

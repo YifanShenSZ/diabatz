@@ -25,7 +25,7 @@ set(SASIC_INCLUDE_DIRS ${SASICROOT}/include)
 add_library(SASIC STATIC IMPORTED)
 set(SASIC_LIBRARIES SASIC)
 
-# dependency 1: Torch-Chemistry
+# dependency 3: Torch-Chemistry
 if(NOT tchem_FOUND)
     find_package(tchem REQUIRED PATHS ~/Library/Torch-Chemistry)
     list(APPEND SASIC_INCLUDE_DIRS ${tchem_INCLUDE_DIRS})
@@ -40,7 +40,7 @@ if(NOT CL_FOUND)
     list(APPEND SASIC_LIBRARIES ${CL_LIBRARIES})
 endif()
 
-# dependency 3: libtorch
+# dependency 1: libtorch
 if(NOT TORCH_FOUND)
     find_package(Torch REQUIRED PATHS ~/Software/Programming/libtorch) 
     list(APPEND SASIC_INCLUDE_DIRS ${TORCH_INCLUDE_DIRS})

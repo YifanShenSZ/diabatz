@@ -2,7 +2,6 @@
 #include <CppLibrary/chemistry.hpp>
 
 #include <tchem/utility.hpp>
-#include <tchem/intcoord.hpp>
 #include <tchem/linalg.hpp>
 #include <tchem/chemistry.hpp>
 
@@ -54,7 +53,7 @@ int main(size_t argc, const char ** argv) {
     std::string format = args.retrieve<std::string>("format"),
                 IC     = args.retrieve<std::string>("IC"),
                 SAS    = args.retrieve<std::string>("SAS");
-    sasicset = std::make_shared<tchem::IC::SASICSet>(format, IC, SAS);
+    sasicset = std::make_shared<SASIC::SASICSet>(format, IC, SAS);
 
     std::string net = args.retrieve<std::string>("net"),
                 chk = args.retrieve<std::string>("checkpoint");

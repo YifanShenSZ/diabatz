@@ -28,6 +28,11 @@ set(CMAKE_PREFIX_PATH ~/Software/Mine/diabatz/library/abinitio)
 find_package(abinitio REQUIRED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${abinitio_CXX_FLAGS}")
 
+# SASIC
+set(CMAKE_PREFIX_PATH ~/Software/Mine/diabatz/library/SASIC)
+find_package(SASIC REQUIRED)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SASIC_CXX_FLAGS}")
+
 # libHd
 set(CMAKE_PREFIX_PATH ~/Software/Mine/diabatz/tools/v0/libHd)
 find_package(Hd REQUIRED)
@@ -45,6 +50,6 @@ add_executable(vibronics.exe
 
 target_link_libraries(vibronics.exe
     ${Hd_LIBRARIES}
-    ${abinitio_LIBRARIES}
+    ${abinitio_LIBRARIES} ${SASIC_LIBRARIES}
     ${tchem_LIBRARIES} ${CL_LIBRARIES} ${Foptim_LIBRARIES}
 )

@@ -23,6 +23,11 @@ set(CMAKE_PREFIX_PATH ~/Software/Mine/diabatz/library/abinitio)
 find_package(abinitio REQUIRED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${abinitio_CXX_FLAGS}")
 
+# SASIC
+set(CMAKE_PREFIX_PATH ~/Software/Mine/diabatz/library/SASIC)
+find_package(SASIC REQUIRED)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SASIC_CXX_FLAGS}")
+
 # DimRed
 set(CMAKE_PREFIX_PATH ~/Software/Mine/diabatz/library/DimRed)
 find_package(DimRed REQUIRED)
@@ -37,6 +42,6 @@ add_executable(autoencoder.exe
 )
 
 target_link_libraries(autoencoder.exe
-    ${DimRed_LIBRARIES} ${abinitio_LIBRARIES}
+    ${DimRed_LIBRARIES} ${SASIC_LIBRARIES} ${abinitio_LIBRARIES}
     ${CL_LIBRARIES} ${Foptim_LIBRARIES}
 )

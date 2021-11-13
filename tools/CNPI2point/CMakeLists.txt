@@ -11,10 +11,15 @@ set(CMAKE_PREFIX_PATH ~/Software/Mine/diabatz/library/abinitio)
 find_package(abinitio REQUIRED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${abinitio_CXX_FLAGS}")
 
+# SASIC
+set(CMAKE_PREFIX_PATH ~/Software/Mine/diabatz/library/SASIC)
+find_package(SASIC REQUIRED)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SASIC_CXX_FLAGS}")
+
 add_executable(CNPI2point.exe
     global.cpp
     map.cpp
     main.cpp
 )
 
-target_link_libraries(CNPI2point.exe "${abinitio_LIBRARIES}")
+target_link_libraries(CNPI2point.exe ${SASIC_LIBRARIES} ${abinitio_LIBRARIES})

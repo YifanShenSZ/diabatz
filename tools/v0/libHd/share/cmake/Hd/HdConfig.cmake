@@ -26,18 +26,28 @@ set(Hd_INCLUDE_DIRS ${HdROOT}/include)
 add_library(Hd STATIC IMPORTED)
 set(Hd_LIBRARIES Hd)
 
-# dependency 4: Hderiva
+# dependency 5: Hderiva
 if(NOT Hderiva_FOUND)
     find_package(Hderiva REQUIRED PATHS ~/Software/Mine/diabatz/library/Hderiva)
     list(APPEND Hd_INCLUDE_DIRS ${Hderiva_INCLUDE_DIRS})
     list(APPEND Hd_LIBRARIES ${Hderiva_LIBRARIES})
+    set(Hd_CXX_FLAGS "${Hderiva_CXX_FLAGS}")
 endif()
 
-# dependency 3: obnet
+# dependency 4: obnet
 if(NOT obnet_FOUND)
     find_package(obnet REQUIRED PATHS ~/Software/Mine/diabatz/library/obnet)
     list(APPEND Hd_INCLUDE_DIRS ${obnet_INCLUDE_DIRS})
     list(APPEND Hd_LIBRARIES ${obnet_LIBRARIES})
+    set(Hd_CXX_FLAGS "${obnet_CXX_FLAGS}")
+endif()
+
+# dependency 3: SASIC
+if(NOT SASIC_FOUND)
+    find_package(SASIC REQUIRED PATHS ~/Software/Mine/diabatz/library/SASIC)
+    list(APPEND Hd_INCLUDE_DIRS ${SASIC_INCLUDE_DIRS})
+    list(APPEND Hd_LIBRARIES ${SASIC_LIBRARIES})
+    set(Hd_CXX_FLAGS "${SASIC_CXX_FLAGS}")
 endif()
 
 # dependency 2: Torch-Chemistry

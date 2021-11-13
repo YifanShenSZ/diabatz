@@ -2,7 +2,7 @@
 
 double threshold = 1e-6;
 
-std::shared_ptr<tchem::IC::SASICSet> sasicset;
+std::shared_ptr<SASIC::SASICSet> sasicset;
 
 // Given Cartesian coordinate r,
 // return symmetry adapted internal coordinates
