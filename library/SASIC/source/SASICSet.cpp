@@ -49,13 +49,7 @@ SASICSet::SASICSet(const std::string & format, const std::string & IC_file, cons
             std::getline(ifs, line);
             std::vector<std::string> strs = CL::utility::split(line);
             if (! std::regex_match(strs[0], std::regex("\\d+"))) break;
-            // self is specified, alpha is not so default it to 1.0
-            if (strs.size() == 1) {
-                size_t self = std::stoul(strs[0]) - 1;
-                self_vector.push_back({self, 1.0});
-            }
-            // self & alpha are specified
-            else if (strs.size() == 2) {
+            if (strs.size() == 2) {
                 size_t self  = std::stoul(strs[0]) - 1;
                 double alpha = std::stod (strs[1]);
                 self_vector.push_back({self, alpha});
@@ -125,7 +119,11 @@ std::vector<at::Tensor> SASICSet::operator()(const at::Tensor & q) {
     DIC[i] = DIC[i] / origin_[i];
     // Scale
     at::Tensor SDIC = DIC.clone();
-    for (const OthScalRul & osr : other_scaling_) SDIC[osr.self] = DIC[osr.self] * at::exp(-osr.alpha * osr.scaler.dot(DIC));
+    for (const OthScalRul & osr : other_scaling_) {
+        at::Tensor scaler = osr.scaler.dot(DIC);
+        at::Tensor g_scaler = (1.0 + scaler) * (1.0 + scaler) * at::exp(-osr.alpha * scaler);
+        SDIC[osr.self] = DIC[osr.self] * g_scaler;
+    }
     SDIC = 1.0 - at::exp(-self_alpha_ * self_scaling_.mv(SDIC))
          + self_complete_.mv(SDIC);
     // Symmetrize
