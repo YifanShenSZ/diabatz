@@ -5,7 +5,7 @@
 
 namespace abinitio {
 
-// Store geometry
+// store geometry
 struct GeomLoader {
     double weight = 1.0;
     at::Tensor geom;
@@ -17,9 +17,20 @@ struct GeomLoader {
     void reset(const int64_t & dimension);
 };
 
-// Store geometry, adiabatic Hamiltonian and gradient
-struct HamLoader : GeomLoader {
-    at::Tensor energy, dH;
+// store geometry, energy
+struct EnergyLoader : GeomLoader {
+    at::Tensor energy;
+
+    EnergyLoader();
+    EnergyLoader(const int64_t & dimension, const int64_t & NStates);
+    ~EnergyLoader();
+
+    void reset(const int64_t & dimension, const int64_t & NStates);
+};
+
+// store geometry, adiabatic energy and gradient
+struct HamLoader : EnergyLoader {
+    at::Tensor dH;
 
     HamLoader();
     HamLoader(const int64_t & dimension, const int64_t & NStates);

@@ -25,13 +25,13 @@ class Reader {
         const std::vector<std::string> & data_directories() const;
 
         void pretty_print(std::ostream & stream) const;
-        // Number of data points per directory
+        // number of data points per directory
         std::vector<size_t> NData() const;
-        // Number of data points in this directory
+        // number of data points in this directory
         size_t NData(const std::string & data_directory) const;
-        // Number of atoms constituting the molecule
+        // number of atoms constituting the molecule
         size_t NAtoms() const;
-        // Number of electronic states in this directory
+        // number of electronic states in this directory
         size_t NStates(const std::string & data_directory) const;
 
         template <typename T> void load_weight(std::vector<T> & loaders, const std::string & data_directory) const {
@@ -91,9 +91,11 @@ class Reader {
             }
         }
 
-        // Read geometries
+        // read geometries
         std::shared_ptr<DataSet<Geometry>> read_GeomSet() const;
-        // Read Hamiltonians
+        // read energies
+        std::shared_ptr<DataSet<Energy>> read_EnergySet() const;
+        // read Hamiltonians
         std::tuple<std::shared_ptr<DataSet<RegHam>>, std::shared_ptr<DataSet<DegHam>>> read_HamSet() const;
 };
 

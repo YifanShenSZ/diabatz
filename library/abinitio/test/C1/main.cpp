@@ -18,6 +18,19 @@ int main() {
     std::cout << "Number of geometries = " << count << ' '
               << GeomSet->size_int() << '\n';
 
+    std::shared_ptr<abinitio::DataSet<abinitio::Energy>> EnergySet = reader.read_EnergySet();
+    auto energy_loader = torch::data::make_data_loader(* EnergySet);
+    count = 0;
+    for (auto & batch : * energy_loader)
+    for (auto & data : batch) {
+        std::cout << data->energy()[0].item<double>() << "    "
+                  << data->energy()[1].item<double>() << "    "
+                  << data->energy()[2].item<double>() << '\n';
+        count++;
+    }
+    std::cout << "Number of energies = " << count << ' '
+              << EnergySet->size_int() << '\n';
+
     std::shared_ptr<abinitio::DataSet<abinitio::RegHam>> RegSet;
     std::shared_ptr<abinitio::DataSet<abinitio::DegHam>> DegSet;
     std::tie(RegSet, DegSet) = reader.read_HamSet();

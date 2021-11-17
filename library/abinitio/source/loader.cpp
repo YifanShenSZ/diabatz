@@ -18,20 +18,32 @@ void GeomLoader::reset(const int64_t & dimension) {
 
 
 
+EnergyLoader::EnergyLoader() {}
+EnergyLoader::EnergyLoader(const int64_t & dimension, const int64_t & NStates)
+: GeomLoader(dimension) {
+    energy = at::empty(NStates, at::TensorOptions().dtype(torch::kFloat64));
+}
+EnergyLoader::~EnergyLoader() {}
+
+void EnergyLoader::reset(const int64_t & dimension, const int64_t & NStates)  {
+    GeomLoader::reset(dimension);
+    energy = at::empty(NStates, at::TensorOptions().dtype(torch::kFloat64));
+}
+
+
+
+
+
 HamLoader::HamLoader() {}
 HamLoader::HamLoader(const int64_t & dimension, const int64_t & NStates)
-: GeomLoader(dimension) {
-    c10::TensorOptions top = at::TensorOptions().dtype(torch::kFloat64);
-    energy = at::empty(NStates, top);
-    dH     = at::empty({NStates, NStates, dimension}, top);
+: EnergyLoader(dimension, NStates) {
+    dH = at::empty({NStates, NStates, dimension}, at::TensorOptions().dtype(torch::kFloat64));
 }
 HamLoader::~HamLoader() {}
 
 void HamLoader::reset(const int64_t & dimension, const int64_t & NStates)  {
-    GeomLoader::reset(dimension);
-    c10::TensorOptions top = at::TensorOptions().dtype(torch::kFloat64);
-    energy = at::empty(NStates, top);
-    dH     = at::empty({NStates, NStates, dimension}, top);
+    EnergyLoader::reset(dimension, NStates);
+    dH = at::empty({NStates, NStates, dimension}, at::TensorOptions().dtype(torch::kFloat64));
 }
 
 } // namespace abinitio
