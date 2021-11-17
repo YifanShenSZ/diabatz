@@ -15,10 +15,12 @@ include_directories(include)
 add_library(abinitio STATIC
     source/loader.cpp
     source/geometry.cpp
+    source/energy.cpp
     source/Hamiltonian.cpp
     source/reader.cpp
     source/SAloader.cpp
     source/SAgeometry.cpp
+    source/SAenergy.cpp
     source/SAHamiltonian.cpp
     source/SAreader.cpp
 )

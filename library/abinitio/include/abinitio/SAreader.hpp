@@ -5,6 +5,7 @@
 
 #include <abinitio/reader.hpp>
 #include <abinitio/SAgeometry.hpp>
+#include <abinitio/SAenergy.hpp>
 #include <abinitio/SAHamiltonian.hpp>
 #include <abinitio/DataSet.hpp>
 
@@ -15,7 +16,7 @@ class SAReader : public Reader {
         std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2CNPI_)(const at::Tensor &);
     public:
         SAReader();
-        // See the base class constructor for details of `user_list`
+        // see the base class constructor for details of `user_list`
         // `cart2CNPI` takes in Cartesian coordinate r, returns CNPI group symmetry adapted internal coordinates and their Jacobians over r
         SAReader(const std::vector<std::string> & user_list,
                  std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*_cart2CNPI)(const at::Tensor &));
@@ -54,9 +55,11 @@ class SAReader : public Reader {
             ifs.close();
         }
 
-        // Read geometries in symmetry adapted internal coordinates
+        // read geometries in symmetry adapted internal coordinates
         std::shared_ptr<DataSet<SAGeometry>> read_SAGeomSet() const;
-        // Read Hamiltonians in symmetry adapted internal coordinates
+        // read energies in symmetry adapted internal coordinates
+        std::shared_ptr<DataSet<SAEnergy>> read_SAEnergySet() const;
+        // read Hamiltonians in symmetry adapted internal coordinates
         std::tuple<std::shared_ptr<DataSet<RegSAHam>>, std::shared_ptr<DataSet<DegSAHam>>> read_SAHamSet() const;
 };
 

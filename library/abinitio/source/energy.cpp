@@ -6,7 +6,6 @@ Energy::Energy() {}
 Energy::Energy(const EnergyLoader & loader) : Geometry(loader),
 energy_(loader.energy.clone()) {
     size_t NStates = energy_.size(0);
-    // energy weight
     weight_E_.resize(NStates);
     std::fill(weight_E_.begin(), weight_E_.end(), 1.0);
     sqrtweight_E_.resize(NStates);
@@ -32,7 +31,6 @@ void Energy::subtract_ZeroPoint(const double & zero_point) {
 // lower the energy weight for each state who has (energy - E_ref) > E_thresh
 void Energy::adjust_weight(const std::vector<std::pair<double, double>> & E_ref_thresh) {
     int64_t NStates = energy_.size(0);
-    // energy weight
     if (E_ref_thresh.size() < NStates) throw std::invalid_argument(
     "abinitio::Energy::adjust_weight: each state must have a reference and a threshold");
     for (int64_t i = 0; i < NStates; i++) {

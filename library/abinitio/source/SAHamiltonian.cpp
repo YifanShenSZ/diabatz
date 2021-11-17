@@ -41,17 +41,14 @@ void RegSAHam::reconstruct_dH_() {
 
 RegSAHam::RegSAHam() {}
 
-RegSAHam::RegSAHam(const RegSAHam & source) : SAGeometry(source),
-energy_(source.energy_), dH_(source.dH_),
+RegSAHam::RegSAHam(const RegSAHam & source) : SAEnergy(source), dH_(source.dH_),
 irreds_(source.irreds_), SAdH_(source.SAdH_),
-weight_E_(source.weight_E_), sqrtweight_E_(source.sqrtweight_E_),
 weight_dH_(source.weight_dH_), sqrtweight_dH_(source.sqrtweight_dH_) {}
 
-// See the base class constructor for details of `cart2int`
+// See the base class constructor for details of `cart2CNPI`
 RegSAHam::RegSAHam(const SAHamLoader & loader,
 std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2CNPI)(const at::Tensor &))
-: SAGeometry(loader, cart2CNPI),
-energy_(loader.energy.clone()), dH_(loader.dH.clone()) {
+: SAEnergy(loader, cart2CNPI), dH_(loader.dH.clone()) {
     size_t NStates = energy_.size(0);
     // convert nonadiabatic coupling to ▽H
     for (size_t i = 0    ; i < NStates; i++)
@@ -60,11 +57,7 @@ energy_(loader.energy.clone()), dH_(loader.dH.clone()) {
     // adapt symmetry
     this->construct_symmetry_();
     this->reconstruct_dH_();
-    // weights
-    weight_E_.resize(NStates);
-    std::fill(weight_E_.begin(), weight_E_.end(), 1.0);
-    sqrtweight_E_.resize(NStates);
-    std::fill(sqrtweight_E_.begin(), sqrtweight_E_.end(), 1.0);
+    // ▽H weight
     weight_dH_.resize(NStates);
     weight_dH_ = 1.0;
     sqrtweight_dH_.resize(NStates);
@@ -73,44 +66,25 @@ energy_(loader.energy.clone()), dH_(loader.dH.clone()) {
 
 RegSAHam::~RegSAHam() {}
 
-const at::Tensor & RegSAHam::energy() const {return energy_;}
 const at::Tensor & RegSAHam::dH() const {return dH_;}
 const size_t & RegSAHam::irreds(const size_t & row, const size_t & column) const {return irreds_[row][column];}
 const at::Tensor & RegSAHam::SAdH(const size_t & row, const size_t & column) const {return SAdH_[row][column];}
 
-size_t RegSAHam::NStates() const {return energy_.size(0);}
-const double & RegSAHam::weight_E(const size_t & state) const {return weight_E_[state];}
-const double & RegSAHam::sqrtweight_E(const size_t & state) const {return sqrtweight_E_[state];}
 const double & RegSAHam::weight_dH(const size_t & row, const size_t & column) const {return weight_dH_[row][column];}
 const double & RegSAHam::sqrtweight_dH(const size_t & row, const size_t & column) const {return sqrtweight_dH_[row][column];}
 
 void RegSAHam::to(const c10::DeviceType & device) {
-    SAGeometry::to(device);
-    energy_.to(device);
+    SAEnergy::to(device);
     dH_.to(device);
     for (auto & row : SAdH_) for (auto & col : row) col.to(device);
 }
 
-// subtract zero point from energy
-void RegSAHam::subtract_ZeroPoint(const double & zero_point) {
-    energy_ -= zero_point;
-}
 // lower the energy weight for each state who has (energy - E_ref) > E_thresh
 // lower the gradient weight for each gradient who has norm > dH_thresh
 void RegSAHam::adjust_weight(const std::vector<std::pair<double, double>> & E_ref_thresh, const double & dH_thresh) {
-    int64_t NStates = energy_.size(0);
-    // energy weight
-    if (E_ref_thresh.size() < NStates) throw std::invalid_argument(
-    "abinitio::RegSAHam::adjust_weight: each state must have a reference and a threshold");
-    for (int64_t i = 0; i < NStates; i++) {
-        const double & ref    = E_ref_thresh[i].first ,
-                     & thresh = E_ref_thresh[i].second;
-        double e = energy_[i].item<double>() - ref;
-        if (e > thresh) sqrtweight_E_[i] = sqrtweight_ * thresh / e;
-        else            sqrtweight_E_[i] = sqrtweight_;
-        weight_E_[i] = sqrtweight_E_[i] * sqrtweight_E_[i];
-    }
+    SAEnergy::adjust_weight(E_ref_thresh);
     // ▽H weight
+    int64_t NStates = energy_.size(0);
     for (int64_t i = 0; i < NStates; i++)
     for (int64_t j = i; j < NStates; j++) {
         double g = dH_[i][j].abs().max().item<double>();
@@ -172,8 +146,8 @@ void DegSAHam::subtract_ZeroPoint(const double & zero_point) {
 // lower the Hamiltonian diagonal weight as energy, does not decrease off-diagonal weight
 void DegSAHam::adjust_weight(const std::vector<std::pair<double, double>> & E_ref_thresh, const double & dH_thresh) {
     RegSAHam::adjust_weight(E_ref_thresh, dH_thresh);
-    int64_t NStates = H_.size(0);
     // H weight
+    int64_t NStates = H_.size(0);
     if (E_ref_thresh.size() < NStates) throw std::invalid_argument(
     "abinitio::DegSAHam::adjust_weight: each state must have a reference and a threshold");
     for (int64_t i = 0; i < NStates; i++) {

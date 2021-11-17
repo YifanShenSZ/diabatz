@@ -2,6 +2,7 @@
 #define abinitio_reader_hpp
 
 #include <abinitio/geometry.hpp>
+#include <abinitio/energy.hpp>
 #include <abinitio/Hamiltonian.hpp>
 #include <abinitio/DataSet.hpp>
 

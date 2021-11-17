@@ -7,7 +7,7 @@
 
 namespace abinitio {
 
-// Store geometry and symmetry information
+// store geometry and symmetry information
 struct SAGeomLoader : GeomLoader {
     // mapping from CNPI group to point group
     // CNPI irreducible i becomes point irreducible CNPI2point[i]
@@ -22,9 +22,20 @@ struct SAGeomLoader : GeomLoader {
     void reset(const int64_t & dimension);
 };
 
-// Store geometry and symmetry information, adiabatic Hamiltonian and gradient
-struct SAHamLoader : SAGeomLoader {
-    at::Tensor energy, dH;
+// store geometry and symmetry information, energy
+struct SAEnergyLoader : SAGeomLoader {
+    at::Tensor energy;
+
+    SAEnergyLoader();
+    SAEnergyLoader(const int64_t & dimension, const int64_t & NStates);
+    ~SAEnergyLoader();
+
+    void reset(const int64_t & dimension, const int64_t & NStates);
+};
+
+// store geometry and symmetry information, adiabatic energy and gradient
+struct SAHamLoader : SAEnergyLoader {
+    at::Tensor dH;
 
     SAHamLoader();
     SAHamLoader(const int64_t & dimension, const int64_t & NStates);

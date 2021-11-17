@@ -16,20 +16,32 @@ void SAGeomLoader::reset(const int64_t & dimension) {
 
 
 
+SAEnergyLoader::SAEnergyLoader() {}
+SAEnergyLoader::SAEnergyLoader(const int64_t & dimension, const int64_t & NStates)
+: SAGeomLoader(dimension) {
+    energy = at::empty(NStates, at::TensorOptions().dtype(torch::kFloat64));
+}
+SAEnergyLoader::~SAEnergyLoader() {}
+
+void SAEnergyLoader::reset(const int64_t & dimension, const int64_t & NStates)  {
+    SAGeomLoader::reset(dimension);
+    energy = at::empty(NStates, at::TensorOptions().dtype(torch::kFloat64));
+}
+
+
+
+
+
 SAHamLoader::SAHamLoader() {}
 SAHamLoader::SAHamLoader(const int64_t & dimension, const int64_t & NStates)
-: SAGeomLoader(dimension) {
-    c10::TensorOptions top = at::TensorOptions().dtype(torch::kFloat64);
-    energy = at::empty(NStates, top);
-    dH     = at::empty({NStates, NStates, dimension}, top);
+: SAEnergyLoader(dimension, NStates) {
+    dH = at::empty({NStates, NStates, dimension}, at::TensorOptions().dtype(torch::kFloat64));
 }
 SAHamLoader::~SAHamLoader() {}
 
 void SAHamLoader::reset(const int64_t & dimension, const int64_t & NStates)  {
-    SAGeomLoader::reset(dimension);
-    c10::TensorOptions top = at::TensorOptions().dtype(torch::kFloat64);
-    energy = at::empty(NStates, top);
-    dH     = at::empty({NStates, NStates, dimension}, top);
+    SAEnergyLoader::reset(dimension, NStates);
+    dH = at::empty({NStates, NStates, dimension}, at::TensorOptions().dtype(torch::kFloat64));
 }
 
 } // namespace abinitio
