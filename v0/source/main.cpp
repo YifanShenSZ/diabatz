@@ -170,12 +170,13 @@ int main(size_t argc, const char ** argv) {
     std::shared_ptr<abinitio::DataSet<DegHam>> degset;
     std::tie(regset, degset) = read_data(data);
     std::cout << "There are " << regset->size_int() << " data points in adiabatic representation\n"
-              << "          " << degset->size_int() << " data points in composite representation\n";
+              << "          " << degset->size_int() << " data points in composite representation\n\n";
 
-    std::shared_ptr<abinitio::DataSet<Energy>> energy_set;
+    std::vector<std::shared_ptr<Energy>> energy_examples;
+    auto energy_set = std::make_shared<abinitio::DataSet<Energy>>(energy_examples);
     if (args.gotArgument("energy_data")) {
         energy_set = read_energy(args.retrieve<std::vector<std::string>>("energy_data"));
-        std::cout << "          " << energy_set->size_int() << " data points without gradient\n";
+        std::cout << "There are " << energy_set->size_int() << " data points without gradient\n";
     }
     std::cout << '\n';
 
