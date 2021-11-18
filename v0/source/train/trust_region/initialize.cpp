@@ -1,18 +1,24 @@
+#include <abinitio/DataSet.hpp>
+
 #include "common.hpp"
 
 namespace train { namespace trust_region {
 
 void initialize(
 const std::shared_ptr<abinitio::DataSet<RegHam>> & _regset,
-const std::shared_ptr<abinitio::DataSet<DegHam>> & _degset) {
+const std::shared_ptr<abinitio::DataSet<DegHam>> & _degset,
+const std::shared_ptr<abinitio::DataSet<Energy>> & _energy_set) {
     regset = _regset->examples();
     degset = _degset->examples();
+    energy_set = _energy_set->examples();
 
     regchunk.resize(OMP_NUM_THREADS);
     degchunk.resize(OMP_NUM_THREADS);
+    energy_chunk.resize(OMP_NUM_THREADS);
     size_t regchunksize = regset.size() / OMP_NUM_THREADS,
-           degchunksize = degset.size() / OMP_NUM_THREADS;
-    size_t regcount = 0, degcount = 0;
+           degchunksize = degset.size() / OMP_NUM_THREADS,
+           energy_chunksize = energy_set.size() / OMP_NUM_THREADS;
+    size_t regcount = 0, degcount = 0, energy_count = 0;
     // the leading threads may have 1 more data point
     size_t leading_regthreads   = regset.size() % OMP_NUM_THREADS,
            leading_regchunksize = regchunksize + 1;
@@ -32,6 +38,15 @@ const std::shared_ptr<abinitio::DataSet<DegHam>> & _degset) {
             degcount++;
         }
     }
+    size_t leading_energy_threads   = energy_set.size() % OMP_NUM_THREADS,
+           leading_energy_chunksize = energy_chunksize + 1;
+    for (size_t thread = 0; thread < leading_energy_threads; thread++) {
+        energy_chunk[thread].resize(leading_energy_chunksize);
+        for (size_t i = 0; i < leading_energy_chunksize; i++) {
+            energy_chunk[thread][i] = energy_set[energy_count];
+            energy_count++;
+        }
+    }
     // the remaining threads each has `chunk size` data points
     for (size_t thread = leading_regthreads; thread < OMP_NUM_THREADS; thread++) {
         regchunk[thread].resize(regchunksize);
@@ -45,6 +60,13 @@ const std::shared_ptr<abinitio::DataSet<DegHam>> & _degset) {
         for (size_t i = 0; i < degchunksize; i++) {
             degchunk[thread][i] = degset[degcount];
             degcount++;
+        }
+    }
+    for (size_t thread = leading_energy_threads; thread < OMP_NUM_THREADS; thread++) {
+        energy_chunk[thread].resize(energy_chunksize);
+        for (size_t i = 0; i < energy_chunksize; i++) {
+            energy_chunk[thread][i] = energy_set[energy_count];
+            energy_count++;
         }
     }
 
@@ -71,12 +93,17 @@ const std::shared_ptr<abinitio::DataSet<DegHam>> & _degset) {
             for (size_t j = i; j < NStates; j++)
             segstart[thread] += data->SAdH(i, j).size(0);
         }
+        for (const auto & data : energy_chunk[thread - 1]) {
+            // energy least square equations
+            segstart[thread] += data->NStates();
+        }
     }
 
     for (size_t thread = 0; thread < OMP_NUM_THREADS; thread++) {
         std::cout << "Thread " << thread + 1 << ":\n"
                   << "* owns " << regchunk[thread].size() << " adiabatic data points\n"
                   << "* owns " << degchunk[thread].size() << " composite data points\n"
+                  << "* owns " << energy_chunk[thread].size() << " energy-only data points\n"
                   << "* starts with Jacobian row " << segstart[thread] << '\n';
     }
     std::cout << '\n';

@@ -10,11 +10,14 @@ namespace train { namespace torch_optim {
 void SGD(
 const std::shared_ptr<abinitio::DataSet<RegHam>> & regset,
 const std::shared_ptr<abinitio::DataSet<DegHam>> & degset,
+const std::shared_ptr<abinitio::DataSet<Energy>> & energy_set,
 const size_t & max_iteration, const size_t & batch_size, const double & learning_rate,
 const std::string & opt_chk) {
     auto reg_loader = torch::data::make_data_loader(* regset,
         torch::data::DataLoaderOptions(batch_size));
     auto deg_loader = torch::data::make_data_loader(* degset,
+        torch::data::DataLoaderOptions(batch_size));
+    auto energy_loader = torch::data::make_data_loader(* energy_set,
         torch::data::DataLoaderOptions(batch_size));
 
     int64_t NPars = 0;
@@ -24,7 +27,10 @@ const std::string & opt_chk) {
     p2c(0, c.data_ptr<double>());
     // Display initial residue
     std::cout << "The initial residue = "
-              << at::cat({reg_residue(regset->examples()), deg_residue(degset->examples())})
+              << at::cat({reg_residue(regset->examples()),
+                          deg_residue(degset->examples()),
+                          energy_residue(energy_set->examples())
+                 })
                  .norm().item<double>() << std::endl;
 
     torch::optim::SGD optimizer({c}, torch::optim::SGDOptions(learning_rate).momentum(0.9).nesterov(true));
@@ -49,10 +55,19 @@ const std::string & opt_chk) {
             #pragma omp parallel for
             for (size_t thread = 0; thread < OMP_NUM_THREADS; thread++) c2p(c.data_ptr<double>(), thread);
         }
+        for (const auto & batch : * energy_loader) {
+            c.grad().copy_(energy_gradient(batch));
+            optimizer.step();
+            #pragma omp parallel for
+            for (size_t thread = 0; thread < OMP_NUM_THREADS; thread++) c2p(c.data_ptr<double>(), thread);
+        }
         std::cout << '\n';
         CL::utility::show_time(std::cout);
         std::cout << "epoch " << iepoch << " | residue = "
-                  << at::cat({reg_residue(regset->examples()), deg_residue(degset->examples())})
+                  << at::cat({reg_residue(regset->examples()),
+                              deg_residue(degset->examples()),
+                              energy_residue(energy_set->examples())
+                     })
                      .norm().item<double>() << std::endl;
         torch::save(Hdnet->elements, std::to_string(iepoch) + "-Hd.net");
         torch::save(optimizer, std::to_string(iepoch) + "-opt.chk");

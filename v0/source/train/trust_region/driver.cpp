@@ -30,6 +30,10 @@ std::tuple<int32_t, int32_t> count_eq_par() {
         for (size_t j = i; j < NStates; j++)
         NEqs += data->SAdH(i, j).size(0);
     }
+    for (const auto & data : energy_set) {
+        // energy least square equations
+        NEqs += data->NStates();
+    }
     std::cout << "The data set corresponds to " << NEqs << " least square equations\n";
 
     int32_t NPars = 0;

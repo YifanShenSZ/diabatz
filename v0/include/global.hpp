@@ -9,9 +9,9 @@
 
 extern std::shared_ptr<SASIC::SASICSet> sasicset;
 
-// Given Cartesian coordinate r,
+// given Cartesian coordinate r,
 // return CNPI group symmetry adapted internal coordinates and corresponding Jacobians
-std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> cart2int(const at::Tensor & r);
+std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> cart2CNPI(const at::Tensor & r);
 
 extern std::shared_ptr<obnet::symat> Hdnet;
 

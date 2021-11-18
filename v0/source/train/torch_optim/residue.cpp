@@ -108,5 +108,33 @@ at::Tensor deg_residue(const std::vector<std::shared_ptr<DegHam>> & batch) {
     }
 }
 
+at::Tensor energy_residue(const std::vector<std::shared_ptr<Energy>> & batch) {
+    size_t batch_size = batch.size();
+    // Return a 0 if empty batch
+    if (batch_size == 0) return at::zeros(1, c10::TensorOptions().dtype(torch::kFloat64));
+    else {
+        std::vector<at::Tensor> residues(batch_size);
+        #pragma omp parallel for
+        for (size_t idata = 0; idata < batch_size; idata++) {
+            int thread = omp_get_thread_num();
+            const auto & data = batch[idata];
+            // get energy
+            CL::utility::matrix<at::Tensor> xs = data->xs();
+            at::Tensor Hd = Hdnets[thread]->forward(xs);
+            Hd.detach_();
+            at::Tensor energy, states;
+            std::tie(energy, states) = Hd.symeig();
+            // energy residue
+            int64_t NStates_data = data->NStates();
+            energy = energy.slice(0, 0, NStates_data);
+            at::Tensor r = unit * (energy - data->energy());
+            for (size_t i = 0; i < data->NStates(); i++) r[i] *= data->sqrtweight_E(i);
+            // total residue
+            residues[idata] = r;
+        }
+        return at::cat(residues);
+    }
+}
+
 } // namespace torch_optim
 } // namespace train

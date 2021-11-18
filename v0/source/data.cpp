@@ -1,64 +1,50 @@
 #include <abinitio/SAreader.hpp>
 
 #include "../include/global.hpp"
-
 #include "../include/data.hpp"
-
-RegHam::RegHam() {}
-RegHam::RegHam(const std::shared_ptr<abinitio::RegSAHam> & ham,
-std::tuple<CL::utility::matrix<at::Tensor>, CL::utility::matrix<at::Tensor>> (*q2x)(const std::vector<at::Tensor> &))
-: abinitio::RegSAHam(*ham) {
-    std::tie(xs_, JxqTs_) = q2x(qs_);
-}
-RegHam::~RegHam() {}
-
-const CL::utility::matrix<at::Tensor> & RegHam::xs() const {return xs_;};
-const CL::utility::matrix<at::Tensor> & RegHam::JxqTs() const {return JxqTs_;};
-
-
-
-
-
-DegHam::DegHam() {}
-DegHam::DegHam(const std::shared_ptr<abinitio::DegSAHam> & ham,
-std::tuple<CL::utility::matrix<at::Tensor>, CL::utility::matrix<at::Tensor>> (*q2x)(const std::vector<at::Tensor> &))
-: abinitio::DegSAHam(*ham) {
-    std::tie(xs_, JxqTs_) = q2x(qs_);
-}
-DegHam::~DegHam() {}
-
-const CL::utility::matrix<at::Tensor> & DegHam::xs() const {return xs_;};
-const CL::utility::matrix<at::Tensor> & DegHam::JxqTs() const {return JxqTs_;};
-
-
-
-
 
 std::tuple<std::shared_ptr<abinitio::DataSet<RegHam>>, std::shared_ptr<abinitio::DataSet<DegHam>>>
 read_data(const std::vector<std::string> & user_list) {
-    abinitio::SAReader reader(user_list, cart2int);
+    abinitio::SAReader reader(user_list, cart2CNPI);
     reader.pretty_print(std::cout);
-    // Read the data set in symmetry adapted internal coordinate in standard form
+    // read the data set in symmetry adapted internal coordinate in standard form
     std::shared_ptr<abinitio::DataSet<abinitio::RegSAHam>> stdregset;
     std::shared_ptr<abinitio::DataSet<abinitio::DegSAHam>> stddegset;
     std::tie(stdregset, stddegset) = reader.read_SAHamSet();
-    // Process data
+    // process data
     std::vector<std::shared_ptr<RegHam>> pregs(stdregset->size_int());
     #pragma omp parallel for
     for (size_t i = 0; i < pregs.size(); i++) {
         auto reg = stdregset->get(i);
-        // Precompute the input layers
+        // precompute the input layers
         pregs[i] = std::make_shared<RegHam>(reg, int2input);
     }
     std::vector<std::shared_ptr<DegHam>> pdegs(stddegset->size_int());
     #pragma omp parallel for
     for (size_t i = 0; i < pdegs.size(); i++) {
         auto deg = stddegset->get(i);
-        // Precompute the input layers
+        // precompute the input layers
         pdegs[i] = std::make_shared<DegHam>(deg, int2input);
     }
-    // Return
+    // return
     std::shared_ptr<abinitio::DataSet<RegHam>> regset = std::make_shared<abinitio::DataSet<RegHam>>(pregs);
     std::shared_ptr<abinitio::DataSet<DegHam>> degset = std::make_shared<abinitio::DataSet<DegHam>>(pdegs);
     return std::make_tuple(regset, degset);
+}
+
+std::shared_ptr<abinitio::DataSet<Energy>> read_energy(const std::vector<std::string> & user_list) {
+    abinitio::SAReader reader(user_list, cart2CNPI);
+    reader.pretty_print(std::cout);
+    // read the data set in symmetry adapted internal coordinate in standard form
+    auto stdset = reader.read_SAEnergySet();
+    // process data
+    std::vector<std::shared_ptr<Energy>> penergies(stdset->size_int());
+    #pragma omp parallel for
+    for (size_t i = 0; i < penergies.size(); i++) {
+        auto energy = stdset->get(i);
+        // precompute the input layers
+        penergies[i] = std::make_shared<Energy>(energy, int2input);
+    }
+    // return
+    return std::make_shared<abinitio::DataSet<Energy>>(penergies);
 }

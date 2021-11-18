@@ -16,9 +16,10 @@ argparse::ArgumentParser parse_args(const size_t & argc, const char ** & argv) {
     parser.add_argument("-s","--SAS",            1, false, "symmetry adaptation and scale definition file");
     parser.add_argument("-n","--net",            1, false, "diabatic Hamiltonian network definition file");
     parser.add_argument("-l","--input_layers", '+', false, "network input layer definition files");
-    parser.add_argument("-d","--data",         '+', false, "data set list file or directory");
+    parser.add_argument("-d","--data",         '+', false, "data set list files or directories");
 
     // optional arguments
+    parser.add_argument("--energy_data",      '+', true, "data set list files or directories without gradient");
     parser.add_argument("-z","--zero_point",    1, true, "zero of potential energy, default = 0");
     parser.add_argument("--energy_weight"  ,  '+', true, "energy (reference, threshold) for each state in weight adjustment, default = (0, 1)");
     parser.add_argument("--gradient_weight",    1, true, "gradient threshold in weight adjustment, default = infer from energy threshold");
@@ -169,12 +170,20 @@ int main(size_t argc, const char ** argv) {
     std::shared_ptr<abinitio::DataSet<DegHam>> degset;
     std::tie(regset, degset) = read_data(data);
     std::cout << "There are " << regset->size_int() << " data points in adiabatic representation\n"
-              << "          " << degset->size_int() << " data points in composite representation\n\n";
+              << "          " << degset->size_int() << " data points in composite representation\n";
+
+    std::shared_ptr<abinitio::DataSet<Energy>> energy_set;
+    if (args.gotArgument("energy_data")) {
+        energy_set = read_energy(args.retrieve<std::vector<std::string>>("energy_data"));
+        std::cout << "          " << energy_set->size_int() << " data points without gradient\n";
+    }
+    std::cout << '\n';
 
     double zero_point = 0.0;
     if (args.gotArgument("zero_point")) zero_point = args.retrieve<double>("zero_point");
     for (const auto & example : regset->examples()) example->subtract_ZeroPoint(zero_point);
     for (const auto & example : degset->examples()) example->subtract_ZeroPoint(zero_point);
+    for (const auto & example : energy_set->examples()) example->subtract_ZeroPoint(zero_point);
 
     double maxe = 0.0, maxg = 0.0;
     for (const auto & example : regset->examples()) {
@@ -213,7 +222,8 @@ int main(size_t argc, const char ** argv) {
                      "set gradient / energy scaling to " << unit << "\n\n";
     }
     for (const auto & example : regset->examples()) example->adjust_weight(energy_weight, dH_weight);
-    // Always set full weight for degenerate examples
+    // never alter the weight of degenerate examples
+    // never alter the weight of no-gradient examples
 
     bool regularized = args.gotArgument("regularization");
     if (regularized) {
@@ -241,7 +251,7 @@ int main(size_t argc, const char ** argv) {
     if (args.gotArgument("optimizer")) optimizer = args.retrieve<std::string>("optimizer");
     if (optimizer == "trust_region") {
         std::cout << "Optimizer is trust region\n\n";
-        train::trust_region::initialize(regset, degset);
+        train::trust_region::initialize(regset, degset, energy_set);
         train::trust_region::optimize(regularized, max_iteration);
     }
     else {
@@ -258,11 +268,11 @@ int main(size_t argc, const char ** argv) {
         }
         if (optimizer == "Adam") {
             std::cout << "Optimizer is adaptive moment estimation (Adam)\n\n";
-            train::torch_optim::Adam(regset, degset, max_iteration, batch_size, learning_rate, opt_chk);
+            train::torch_optim::Adam(regset, degset, energy_set, max_iteration, batch_size, learning_rate, opt_chk);
         }
         else if (optimizer == "SGD") {
             std::cout << "Optimizer is stochastic gradient descent (SGD)\n\n";
-            train::torch_optim::SGD(regset, degset, max_iteration, batch_size, learning_rate, opt_chk);
+            train::torch_optim::SGD(regset, degset, energy_set, max_iteration, batch_size, learning_rate, opt_chk);
         }
         else throw std::invalid_argument("Unsupported optimizer " + optimizer);
     }

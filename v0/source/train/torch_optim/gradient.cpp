@@ -144,5 +144,42 @@ at::Tensor deg_gradient(const std::vector<std::shared_ptr<DegHam>> & batch) {
     return gradient;
 }
 
+at::Tensor energy_gradient(const std::vector<std::shared_ptr<Energy>> & batch) {
+    size_t batch_size = batch.size();
+    // parallelly compute residue and Jacobian of each data point
+    std::vector<at::Tensor> residues(batch_size), Jacobians(batch_size);
+    #pragma omp parallel for
+    for (size_t idata = 0; idata < batch_size; idata++) {
+        int thread = omp_get_thread_num();
+        const auto & data = batch[idata];
+        // get energy and its gradient over fitting parameters
+        CL::utility::matrix<at::Tensor> xs = data->xs();
+        at::Tensor   Hd = Hdnets[thread]->forward(xs);
+        at::Tensor DcHd = Hderiva::DcHd(Hd, Hdnets[thread]->elements->parameters());
+        Hd.detach_();
+        at::Tensor energy, states;
+        std::tie(energy, states) = Hd.symeig(true);
+        at::Tensor DcHa = tchem::linalg::UT_sy_U(DcHd, states);
+        // energy residue and Jacobian
+        int64_t NStates_data = data->NStates();
+        energy = energy.slice(0, 0, NStates_data);
+        at::Tensor r = unit * (energy - data->energy());
+        std::vector<at::Tensor> J;
+        for (size_t i = 0; i < NStates_data; i++) {
+            r[i] *= data->sqrtweight_E(i);
+            J.push_back(data->sqrtweight_E(i) * unit * DcHa[i][i]);
+            J.back().resize_({1, J.back().numel()});
+        }
+        // total residue and Jacobian
+        residues[idata] = r;
+        Jacobians[idata] = at::cat(J);
+    }
+    // concatenate gradients
+    at::Tensor gradient = at::matmul(residues[0], Jacobians[0]);
+    for (size_t idata = 1; idata < batch_size; idata++) gradient += at::matmul(residues[idata], Jacobians[idata]);
+    gradient /= (double)batch_size;
+    return gradient;
+}
+
 } // namespace torch_optim
 } // namespace train

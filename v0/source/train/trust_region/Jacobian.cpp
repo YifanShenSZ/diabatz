@@ -10,7 +10,7 @@ namespace train { namespace trust_region {
 
 inline void reg_Jacobian(const size_t & thread, const std::shared_ptr<RegHam> & data,
 at::Tensor & J, size_t & start) {
-    // Get necessary diabatic quantities
+    // get necessary diabatic quantities
     CL::utility::matrix<at::Tensor> xs = data->xs();
     for (size_t i = 0; i < NStates; i++)
     for (size_t j = i; j < NStates; j++)
@@ -19,14 +19,14 @@ at::Tensor & J, size_t & start) {
     at::Tensor   DqHd = Hderiva::DxHd(Hd, xs, data->JxqTs(), true);
     at::Tensor   DcHd = Hderiva::DcHd(Hd, Hdnets[thread]->elements->parameters());
     at::Tensor DcDqHd = Hderiva::DcDxHd(DqHd, Hdnets[thread]->elements->parameters());
-    // Stop autograd tracking
+    // stop autograd tracking
       Hd.detach_();
     DqHd.detach_();
-    // Get adiabatic representation
+    // get adiabatic representation
     at::Tensor energy, states;
     std::tie(energy, states) = define_adiabatz(Hd, DqHd,
         data->JqrT(), data->cartdim(), data->NStates(), data->dH());
-    // Compute fitting parameter gradient in adiabatic prediction
+    // compute fitting parameter gradient in adiabatic prediction
     int64_t NStates_data = data->NStates();
     at::Tensor DcHa = tchem::linalg::UT_sy_U(DcHd, states);
     at::Tensor DqHa = tchem::linalg::UT_sy_U(DqHd, states);
@@ -53,7 +53,7 @@ at::Tensor & J, size_t & start) {
 
 inline void deg_Jacobian(const size_t & thread, const std::shared_ptr<DegHam> & data,
 at::Tensor & J, size_t & start) {
-    // Get necessary diabatic quantities
+    // get necessary diabatic quantities
     CL::utility::matrix<at::Tensor> xs = data->xs();
     for (size_t i = 0; i < NStates; i++)
     for (size_t j = i; j < NStates; j++)
@@ -62,14 +62,14 @@ at::Tensor & J, size_t & start) {
     at::Tensor   DqHd = Hderiva::DxHd(Hd, xs, data->JxqTs(), true);
     at::Tensor   DcHd = Hderiva::DcHd(Hd, Hdnets[thread]->elements->parameters());
     at::Tensor DcDqHd = Hderiva::DcDxHd(DqHd, Hdnets[thread]->elements->parameters());
-    // Stop autograd tracking
+    // stop autograd tracking
       Hd.detach_();
     DqHd.detach_();
-    // Get composite representation
+    // get composite representation
     at::Tensor eigval, eigvec;
     std::tie(eigval, eigvec) = define_composite(Hd, DqHd,
         data->JqrT(), data->cartdim(), data->H(), data->dH());
-    // Compute fitting parameter gradient in composite prediction
+    // compute fitting parameter gradient in composite prediction
     at::Tensor   Hc = tchem::linalg::UT_sy_U(  Hd, eigvec);
     at::Tensor DqHc = tchem::linalg::UT_sy_U(DqHd, eigvec);
     at::Tensor DcHc, DcDqHc;
@@ -97,6 +97,24 @@ at::Tensor & J, size_t & start) {
     }
 }
 
+inline void energy_Jacobian(const size_t & thread, const std::shared_ptr<Energy> & data,
+at::Tensor & J, size_t & start) {
+    // get energy and its gradient over fitting parameters
+    CL::utility::matrix<at::Tensor> xs = data->xs();
+    at::Tensor   Hd = Hdnets[thread]->forward(xs);
+    at::Tensor DcHd = Hderiva::DcHd(Hd, Hdnets[thread]->elements->parameters());
+    Hd.detach_();
+    at::Tensor energy, states;
+    std::tie(energy, states) = Hd.symeig(true);
+    at::Tensor DcHa = tchem::linalg::UT_sy_U(DcHd, states);
+    // energy Jacobian
+    at::Tensor J_E = unit * DcHa;
+    for (size_t i = 0; i < data->NStates(); i++) {
+        J[start].copy_(data->sqrtweight_E(i) * J_E[i][i]);
+        start++;
+    }
+}
+
 void Jacobian(double * JT, const double * c, const int32_t & M, const int32_t & N) {
     at::Tensor J = at::from_blob(JT, {N, M}, at::TensorOptions().dtype(torch::kFloat64));
     J.transpose_(0, 1);
@@ -106,6 +124,7 @@ void Jacobian(double * JT, const double * c, const int32_t & M, const int32_t & 
         size_t start = segstart[thread];
         for (const auto & data : regchunk[thread]) reg_Jacobian(thread, data, J, start);
         for (const auto & data : degchunk[thread]) deg_Jacobian(thread, data, J, start);
+        for (const auto & data : energy_chunk[thread]) energy_Jacobian(thread, data, J, start);
     }
 }
 
@@ -118,6 +137,7 @@ void regularized_Jacobian(double * JT, const double * c, const int32_t & M, cons
         size_t start = segstart[thread];
         for (const auto & data : regchunk[thread]) reg_Jacobian(thread, data, J, start);
         for (const auto & data : degchunk[thread]) deg_Jacobian(thread, data, J, start);
+        for (const auto & data : energy_chunk[thread]) energy_Jacobian(thread, data, J, start);
     }
     at::Tensor regularization_block = J.slice(0, M - N, M);
     regularization_block.fill_(0.0);

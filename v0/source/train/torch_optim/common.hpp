@@ -9,9 +9,13 @@ at::Tensor reg_residue(const std::vector<std::shared_ptr<RegHam>> & batch);
 
 at::Tensor deg_residue(const std::vector<std::shared_ptr<DegHam>> & batch);
 
+at::Tensor energy_residue(const std::vector<std::shared_ptr<Energy>> & batch);
+
 at::Tensor reg_gradient(const std::vector<std::shared_ptr<RegHam>> & batch);
 
 at::Tensor deg_gradient(const std::vector<std::shared_ptr<DegHam>> & batch);
+
+at::Tensor energy_gradient(const std::vector<std::shared_ptr<Energy>> & batch);
 
 } // namespace torch_optim
 } // namespace train

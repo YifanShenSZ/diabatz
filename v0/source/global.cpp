@@ -2,9 +2,9 @@
 
 std::shared_ptr<SASIC::SASICSet> sasicset;
 
-// Given Cartesian coordinate r,
+// given Cartesian coordinate r,
 // return CNPI group symmetry adapted internal coordinates and corresponding Jacobians
-std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> cart2int(const at::Tensor & r) {
+std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> cart2CNPI(const at::Tensor & r) {
     assert(("Define CNPI group symmetry adaptated and scaled internal coordinate before use", sasicset));
     // Cartesian coordinate -> internal coordinate
     at::Tensor q, J;
@@ -21,7 +21,7 @@ std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> cart2int(const at::
         }
         Js[i] = Js[i].mm(J);
     }
-    // Free autograd graph
+    // free autograd graph
     for (at::Tensor & q : qs) q.detach_();
     return std::make_tuple(qs, Js);
 }
@@ -32,7 +32,6 @@ std::shared_ptr<InputGenerator> input_generator;
 
 std::tuple<CL::utility::matrix<at::Tensor>, CL::utility::matrix<at::Tensor>>
 int2input(const std::vector<at::Tensor> & qs) {
-    assert(("Define input layer generator before use", input_generator));
     size_t NStates = Hdnet->NStates();
     CL::utility::matrix<at::Tensor> xs(NStates), JTs(NStates);
     std::tie(xs, JTs) = input_generator->compute_x_JT(qs);
