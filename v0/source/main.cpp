@@ -176,9 +176,8 @@ int main(size_t argc, const char ** argv) {
     auto energy_set = std::make_shared<abinitio::DataSet<Energy>>(energy_examples);
     if (args.gotArgument("energy_data")) {
         energy_set = read_energy(args.retrieve<std::vector<std::string>>("energy_data"));
-        std::cout << "There are " << energy_set->size_int() << " data points without gradient\n";
+        std::cout << "There are " << energy_set->size_int() << " data points without gradient\n\n";
     }
-    std::cout << '\n';
 
     double zero_point = 0.0;
     if (args.gotArgument("zero_point")) zero_point = args.retrieve<double>("zero_point");
