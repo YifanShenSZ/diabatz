@@ -14,9 +14,9 @@ dH_(loader.dH.clone()) {
     dH_[i][j] *= energy_[j] - energy_[i];
     // ▽H weight
     weight_dH_.resize(NStates);
-    weight_dH_ = 1.0;
+    weight_dH_ = weight_;
     sqrtweight_dH_.resize(NStates);
-    sqrtweight_dH_ = 1.0;
+    sqrtweight_dH_ = sqrtweight_;
 }
 RegHam::~RegHam() {}
 
@@ -56,9 +56,9 @@ DegHam::DegHam(const HamLoader & loader) : RegHam(loader) {
     // H weight
     size_t NStates = H_.size(0);
     weight_H_.resize(NStates);
-    weight_H_ = 1.0;
+    weight_H_ = weight_;
     sqrtweight_H_.resize(NStates);
-    sqrtweight_H_ = 1.0;
+    sqrtweight_H_ = sqrtweight_;
 }
 DegHam::~DegHam() {}
 

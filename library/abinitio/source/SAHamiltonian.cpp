@@ -59,9 +59,9 @@ std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2CNPI)(const 
     this->reconstruct_dH_();
     // ▽H weight
     weight_dH_.resize(NStates);
-    weight_dH_ = 1.0;
+    weight_dH_ = weight_;
     sqrtweight_dH_.resize(NStates);
-    sqrtweight_dH_ = 1.0;
+    sqrtweight_dH_ = sqrtweight_;
 }
 
 RegSAHam::~RegSAHam() {}
@@ -121,9 +121,9 @@ std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2CNPI)(const 
     std::cerr << "Warning: inconsistent irreducible between H and ▽H\n";
     // weights
     weight_H_.resize(NStates);
-    weight_H_ = 1.0;
+    weight_H_ = weight_;
     sqrtweight_H_.resize(NStates);
-    sqrtweight_H_ = 1.0;
+    sqrtweight_H_ = sqrtweight_;
 }
 
 DegSAHam::~DegSAHam() {}

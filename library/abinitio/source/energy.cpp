@@ -7,9 +7,9 @@ Energy::Energy(const EnergyLoader & loader) : Geometry(loader),
 energy_(loader.energy.clone()) {
     size_t NStates = energy_.size(0);
     weight_E_.resize(NStates);
-    std::fill(weight_E_.begin(), weight_E_.end(), 1.0);
+    std::fill(weight_E_.begin(), weight_E_.end(), weight_);
     sqrtweight_E_.resize(NStates);
-    std::fill(sqrtweight_E_.begin(), sqrtweight_E_.end(), 1.0);
+    std::fill(sqrtweight_E_.begin(), sqrtweight_E_.end(), sqrtweight_);
 }
 Energy::~Energy() {}
 
