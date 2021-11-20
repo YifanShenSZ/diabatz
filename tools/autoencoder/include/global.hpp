@@ -1,7 +1,7 @@
 #ifndef global_hpp
 #define global_hpp
 
-#include <SASIC/SASICSet.hpp>
+#include <SASDIC/SASDICSet.hpp>
 
 #include <DimRed/encoder.hpp>
 #include <DimRed/decoder.hpp>
@@ -9,7 +9,7 @@
 #include <abinitio/DataSet.hpp>
 #include <abinitio/SAgeometry.hpp>
 
-extern std::shared_ptr<SASIC::SASICSet> sasicset;
+extern std::shared_ptr<SASDIC::SASDICSet> sasicset;
 
 // Given Cartesian coordinate r,
 // return CNPI group symmetry adapted internal coordinates and corresponding Jacobians

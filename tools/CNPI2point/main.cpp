@@ -36,7 +36,7 @@ int main(size_t argc, const char ** argv) {
     std::string format = args.retrieve<std::string>("format");
     std::string IC     = args.retrieve<std::string>("IC");
     std::string SAS    = args.retrieve<std::string>("SAS");
-    sasicset = std::make_shared<SASIC::SASICSet>(format, IC, SAS);
+    sasicset = std::make_shared<SASDIC::SASDICSet>(format, IC, SAS);
     if (sasicset->NIrreds() == 0) {
         throw "Number of irreducibles is 0? Please check your symmetry adapted internal coordinate input";
     }

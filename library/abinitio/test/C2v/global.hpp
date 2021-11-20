@@ -1,9 +1,9 @@
 #ifndef global_hpp
 #define global_hpp
 
-#include <SASIC/SASICSet.hpp>
+#include <SASDIC/SASDICSet.hpp>
 
-extern std::shared_ptr<SASIC::SASICSet> sasicset;
+extern std::shared_ptr<SASDIC::SASDICSet> sasicset;
 
 // Given Cartesian coordinate r,
 // return CNPI group symmetry adapted internal coordinates and corresponding Jacobians

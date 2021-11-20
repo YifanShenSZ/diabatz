@@ -1,13 +1,13 @@
 #ifndef global_hpp
 #define global_hpp
 
-#include <SASIC/SASICSet.hpp>
+#include <SASDIC/SASDICSet.hpp>
 
 #include <obnet/symat.hpp>
 
 #include "InputGenerator.hpp"
 
-extern std::shared_ptr<SASIC::SASICSet> sasicset;
+extern std::shared_ptr<SASDIC::SASDICSet> sasicset;
 
 // given Cartesian coordinate r,
 // return CNPI group symmetry adapted internal coordinates and corresponding Jacobians

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
 
-project(v0)
+project(diabatz)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
@@ -28,10 +28,10 @@ set(CMAKE_PREFIX_PATH ~/Software/Mine/diabatz/library/abinitio)
 find_package(abinitio REQUIRED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${abinitio_CXX_FLAGS}")
 
-# SASIC
-set(CMAKE_PREFIX_PATH ~/Software/Mine/diabatz/library/SASIC)
-find_package(SASIC REQUIRED)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SASIC_CXX_FLAGS}")
+# SASDIC
+set(CMAKE_PREFIX_PATH ~/Software/Mine/diabatz/library/SASDIC)
+find_package(SASDIC REQUIRED)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SASDIC_CXX_FLAGS}")
 
 # obnet
 set(CMAKE_PREFIX_PATH ~/Software/Mine/diabatz/library/obnet)
@@ -43,7 +43,7 @@ set(CMAKE_PREFIX_PATH ~/Software/Mine/diabatz/library/Hderiva)
 find_package(Hderiva REQUIRED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Hderiva_CXX_FLAGS}")
 
-add_executable(v0.exe
+add_executable(diabatz.exe
     source/InputGenerator.cpp
     source/data_classes.cpp
     source/global.cpp
@@ -66,9 +66,9 @@ add_executable(v0.exe
     source/main.cpp
 )
 
-target_link_libraries(v0.exe
+target_link_libraries(diabatz.exe
     ${Hderiva_LIBRARIES} ${obnet_LIBRARIES}
-    ${SASIC_LIBRARIES} ${abinitio_LIBRARIES}
+    ${SASDIC_LIBRARIES} ${abinitio_LIBRARIES}
     ${tchem_LIBRARIES} ${CL_LIBRARIES} ${Foptim_LIBRARIES}
     stdc++fs
 )

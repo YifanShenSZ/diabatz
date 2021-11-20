@@ -7,7 +7,7 @@
                 "~/Library/Foptim/include",
                 "~/Library/Cpp-Library/include",
                 "~/Library/Torch-Chemistry/include",
-                "library/SASIC/include",
+                "library/SASDIC/include",
                 "library/abinitio/include",
                 "library/DimRed/include",
                 "library/obnet/include",

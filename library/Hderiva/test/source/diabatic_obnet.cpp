@@ -9,7 +9,7 @@ void diabatic_obnet() {
     Hdnet = std::make_shared<obnet::symat>("obnet_Hd.in");
 
     std::vector<std::string> sapoly_files = {"obnet_11.in", "obnet_12.in", "obnet_22.in"};
-    input_generator = std::make_shared<InputGenerator>(Hdnet->NStates(), Hdnet->irreds(), sapoly_files, sasicset->NSASICs());
+    input_generator = std::make_shared<InputGenerator>(Hdnet->NStates(), Hdnet->irreds(), sapoly_files, sasicset->NSASDICs());
 
     std::vector<std::string> data = {"min-C1/"};
     std::shared_ptr<abinitio::DataSet<RegHam>> regset;

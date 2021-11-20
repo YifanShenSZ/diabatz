@@ -1,7 +1,7 @@
 #ifndef Hd_kernel_hpp
 #define Hd_kernel_hpp
 
-#include <SASIC/SASICSet.hpp>
+#include <SASDIC/SASDICSet.hpp>
 
 #include <obnet/symat.hpp>
 
@@ -13,10 +13,10 @@ class kernel {
     private:
         // Generate CNPI group symmetry adapted and scaled internal coordinate
         // from Cartesian coordinate
-        std::shared_ptr<SASIC::SASICSet> sasicset_;
+        std::shared_ptr<SASDIC::SASDICSet> sasicset_;
         // The neural network for Hd
         std::shared_ptr<obnet::symat> Hdnet_;
-        // Generate Hd network input layer from SASIC
+        // Generate Hd network input layer from SASDIC
         std::shared_ptr<InputGenerator> input_generator_;
     public:
         kernel();

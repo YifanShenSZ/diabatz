@@ -143,7 +143,7 @@ int main(size_t argc, const char ** argv) {
     std::string format = args.retrieve<std::string>("format"),
                 IC     = args.retrieve<std::string>("IC"),
                 SAS    = args.retrieve<std::string>("SAS");
-    sasicset = std::make_shared<SASIC::SASICSet>(format, IC, SAS);
+    sasicset = std::make_shared<SASDIC::SASDICSet>(format, IC, SAS);
 
     Hdnet = std::make_shared<obnet::symat>(args.retrieve<std::string>("net"));
     Hdnet->train();
@@ -163,7 +163,7 @@ int main(size_t argc, const char ** argv) {
     std::vector<std::string> input_layers = args.retrieve<std::vector<std::string>>("input_layers");
     if (input_layers.size() != (Hdnet->NStates() + 1) * Hdnet->NStates() / 2) throw std::invalid_argument(
     "The number of input layers must match the number of Hd upper-triangle elements");
-    input_generator = std::make_shared<InputGenerator>(Hdnet->NStates(), Hdnet->irreds(), input_layers, sasicset->NSASICs());
+    input_generator = std::make_shared<InputGenerator>(Hdnet->NStates(), Hdnet->irreds(), input_layers, sasicset->NSASDICs());
 
     std::vector<std::string> data = args.retrieve<std::vector<std::string>>("data");
     std::shared_ptr<abinitio::DataSet<RegHam>> regset;

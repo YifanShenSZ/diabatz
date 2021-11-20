@@ -2,12 +2,12 @@
 
 #include <CppLibrary/chemistry.hpp>
 
-#include <SASIC/SASICSet.hpp>
+#include <SASDIC/SASDICSet.hpp>
 
 c10::TensorOptions top = at::TensorOptions().dtype(torch::kFloat64);
 
-void test_sasic() {
-    SASIC::SASICSet set("default", "IntCoordDef", "SAS.in");
+void test_sasdic() {
+    SASDIC::SASDICSet set("default", "IntCoordDef", "SAS.in");
 
     std::vector<std::string> prefixes({"E", "N", "B", "I", "NB", "NI", "BI", "NBI"});
     std::vector<std::vector<at::Tensor>> SASgeoms(8);
@@ -119,7 +119,7 @@ void test_sasic() {
 }
 
 void test_Jacobian() {
-    SASIC::SASICSet set("default", "IntCoordDef", "SAS.in");
+    SASDIC::SASDICSet set("default", "IntCoordDef", "SAS.in");
 
     CL::chem::xyz<double> geom("E.xyz", true);
     std::vector<double> coords = geom.coords();
@@ -166,6 +166,6 @@ void test_Jacobian() {
 int main() {
     std::cout << "Correct routines should print close to 0\n";
 
-    test_sasic();
+    test_sasdic();
     test_Jacobian();
 }

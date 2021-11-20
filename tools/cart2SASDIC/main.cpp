@@ -2,12 +2,12 @@
 #include <CppLibrary/utility.hpp>
 #include <CppLibrary/chemistry.hpp>
 
-#include <SASIC/SASICSet.hpp>
+#include <SASDIC/SASDICSet.hpp>
 
 argparse::ArgumentParser parse_args(const size_t & argc, const char ** & argv) {
     CL::utility::echo_command(argc, argv, std::cout);
     std::cout << '\n';
-    argparse::ArgumentParser parser("cart2SASIC: Convert geometry from Cartesian coordinate to symmetry adapted and scaled internal coordinate");
+    argparse::ArgumentParser parser("cart2SASDIC: Convert geometry from Cartesian coordinate to symmetry adapted and scaled dimensionless internal coordinate");
 
     // required arguments
     parser.add_argument("-f","--format",   1, false, "internal coordinate definition format (Columbus7, default)");
@@ -23,7 +23,7 @@ argparse::ArgumentParser parse_args(const size_t & argc, const char ** & argv) {
 }
 
 int main(size_t argc, const char ** argv) {
-    std::cout << "Convert geometry from Cartesian coordinate to symmetry adapted and scaled internal coordinate\n";
+    std::cout << "Convert geometry from Cartesian coordinate to symmetry adapted and scaled dimensionless internal coordinate\n";
     argparse::ArgumentParser args = parse_args(argc, argv);
     CL::utility::show_time(std::cout);
     std::cout << '\n';
@@ -31,7 +31,7 @@ int main(size_t argc, const char ** argv) {
     std::string format = args.retrieve<std::string>("format");
     std::string IC     = args.retrieve<std::string>("IC");
     std::string SAS    = args.retrieve<std::string>("SAS");
-    SASIC::SASICSet sasicset(format, IC, SAS);
+    SASDIC::SASDICSet sasicset(format, IC, SAS);
 
     std::string geom_xyz = args.retrieve<std::string>("xyz");
     CL::chem::xyz<double> geom(geom_xyz, true);

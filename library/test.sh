@@ -20,7 +20,7 @@ for directory in C1 Cs C2v; do
     fi
 done
 
-for directory in SASIC DimRed obnet Hderiva; do
+for directory in SASDIC DimRed obnet Hderiva; do
     echo
     echo "Entre "$directory"/test"
     cd $directory/test

@@ -71,8 +71,8 @@ void diabatic_DimRed_obnet() {
     Hdnet = std::make_shared<obnet::symat>("DimRed-obnet_Hd.in");
 
     std::vector<std::string> sapoly_files = {"DimRed-obnet_11.in", "DimRed-obnet_12.in", "DimRed-obnet_22.in"};
-    std::vector<size_t> NSASICs = {3, 2};
-    input_generator = std::make_shared<InputGenerator>(Hdnet->NStates(), Hdnet->irreds(), sapoly_files, NSASICs);
+    std::vector<size_t> NSASDICs = {3, 2};
+    input_generator = std::make_shared<InputGenerator>(Hdnet->NStates(), Hdnet->irreds(), sapoly_files, NSASDICs);
 
     std::vector<std::string> data = {"min-C1/"};
     abinitio::SAReader reader(data, cart2int);

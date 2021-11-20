@@ -14,10 +14,10 @@ set(CMAKE_PREFIX_PATH ~/Library/Torch-Chemistry)
 find_package(tchem REQUIRED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TCHEM_CXX_FLAGS}")
 
-# SASIC
-set(CMAKE_PREFIX_PATH ~/Software/Mine/diabatz/library/SASIC)
-find_package(SASIC REQUIRED)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SASIC_CXX_FLAGS}")
+# SASDIC
+set(CMAKE_PREFIX_PATH ~/Software/Mine/diabatz/library/SASDIC)
+find_package(SASDIC REQUIRED)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SASDIC_CXX_FLAGS}")
 
 # obnet
 set(CMAKE_PREFIX_PATH ~/Software/Mine/diabatz/library/obnet)
@@ -36,6 +36,6 @@ add_library(Hd STATIC
 
 target_link_libraries(Hd
     ${Hderiva_LIBRARIES} ${obnet_LIBRARIES}
-    ${SASIC_LIBRARIES}
+    ${SASDIC_LIBRARIES}
     ${tchem_LIBRARIES} ${CL_LIBRARIES}
 )

@@ -40,7 +40,7 @@ int main(size_t argc, const char ** argv) {
     auto format = args.retrieve<std::string>("format"),
          IC     = args.retrieve<std::string>("IC"),
          SAS    = args.retrieve<std::string>("SAS");
-    sasicset = std::make_shared<SASIC::SASICSet>(format, IC, SAS);
+    sasicset = std::make_shared<SASDIC::SASDICSet>(format, IC, SAS);
 
     irreducible = args.retrieve<size_t>("irreducible") - 1;
     auto encoder_decoder = args.retrieve<std::vector<std::string>>("net");

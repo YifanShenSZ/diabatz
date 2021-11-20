@@ -42,12 +42,12 @@ if(NOT obnet_FOUND)
     set(Hd_CXX_FLAGS "${obnet_CXX_FLAGS}")
 endif()
 
-# dependency 3: SASIC
-if(NOT SASIC_FOUND)
-    find_package(SASIC REQUIRED PATHS ~/Software/Mine/diabatz/library/SASIC)
-    list(APPEND Hd_INCLUDE_DIRS ${SASIC_INCLUDE_DIRS})
-    list(APPEND Hd_LIBRARIES ${SASIC_LIBRARIES})
-    set(Hd_CXX_FLAGS "${SASIC_CXX_FLAGS}")
+# dependency 3: SASDIC
+if(NOT SASDIC_FOUND)
+    find_package(SASDIC REQUIRED PATHS ~/Software/Mine/diabatz/library/SASDIC)
+    list(APPEND Hd_INCLUDE_DIRS ${SASDIC_INCLUDE_DIRS})
+    list(APPEND Hd_LIBRARIES ${SASDIC_LIBRARIES})
+    set(Hd_CXX_FLAGS "${SASDIC_CXX_FLAGS}")
 endif()
 
 # dependency 2: Torch-Chemistry

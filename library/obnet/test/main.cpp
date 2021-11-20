@@ -9,13 +9,13 @@
 int main() {
     c10::TensorOptions top = at::TensorOptions().dtype(torch::kFloat64);
 
-    sasicset = std::make_shared<SASIC::SASICSet>("default", "IntCoordDef", "SAS.in");
+    sasicset = std::make_shared<SASDIC::SASDICSet>("default", "IntCoordDef", "SAS.in");
 
     Hdnet = std::make_shared<obnet::symat>("Hd.in");
     Hdnet->to(torch::kFloat64);
 
     std::vector<std::string> sapoly_files = {"11.in", "12.in", "22.in"};
-    input_generator = std::make_shared<InputGenerator>(Hdnet->NStates(), Hdnet->irreds(), sapoly_files, sasicset->NSASICs());
+    input_generator = std::make_shared<InputGenerator>(Hdnet->NStates(), Hdnet->irreds(), sapoly_files, sasicset->NSASDICs());
 
     CL::chem::xyz<double> geom("min-C1.xyz", true);
     std::vector<double> coords = geom.coords();

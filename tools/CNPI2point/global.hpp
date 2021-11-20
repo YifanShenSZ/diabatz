@@ -1,11 +1,11 @@
 #ifndef global_hpp
 #define global_hpp
 
-#include <SASIC/SASICSet.hpp>
+#include <SASDIC/SASDICSet.hpp>
 
 extern double threshold;
 
-extern std::shared_ptr<SASIC::SASICSet> sasicset;
+extern std::shared_ptr<SASDIC::SASDICSet> sasicset;
 
 // Given Cartesian coordinate r,
 // return symmetry adapted internal coordinates

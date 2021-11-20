@@ -18,7 +18,7 @@ at::Tensor compute_intddHd(const at::Tensor & r, const Hd::kernel & Hdkernel) {
         for (irred = 0; irred < qs.size(); irred++)
         if (index < qs[irred].size(0)) break;
         else index -= qs[irred].size(0);
-        // Compute SASIC ▽Hd
+        // Compute SASDIC ▽Hd
         for (size_t i = 0; i < qs.size(); i++) finite_qs[i] = qs[i].clone();
         finite_qs[irred][index] += dq;
         std::tie(Hd, plus[coord]) = Hdkernel.compute_Hd_dHd(finite_qs);

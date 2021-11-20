@@ -3,7 +3,7 @@
 #include "global.hpp"
 
 int main() {
-    sasicset = std::make_shared<SASIC::SASICSet>("default", "IntCoordDef", "SAS.in");
+    sasicset = std::make_shared<SASDIC::SASDICSet>("default", "IntCoordDef", "SAS.in");
 
     abinitio::SAReader reader({"min-B1/"}, cart2CNPI);
     reader.pretty_print(std::cout);

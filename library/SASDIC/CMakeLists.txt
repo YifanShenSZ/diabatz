@@ -21,10 +21,10 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${tchem_CXX_FLAGS}")
 
 include_directories(include)
 
-add_library(SASIC STATIC
-    source/SASIC.cpp
-    source/OthScalRul.cpp
-    source/SASICSet.cpp
+add_library(SASDIC STATIC
+    source/scaler.cpp
+    source/SASDIC.cpp
+    source/SASDICSet.cpp
 )
 
-target_link_libraries(SASIC ${tchem_LIBRARIES} ${CL_LIBRARIES} ${TORCH_LIBRARIES})
+target_link_libraries(SASDIC ${tchem_LIBRARIES} ${CL_LIBRARIES} ${TORCH_LIBRARIES})
