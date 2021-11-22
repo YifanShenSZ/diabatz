@@ -21,6 +21,11 @@ The procedure to get SASDIC is:
 3. Scale the DIC to get scaled dimensionless internal coordinate (SDIC)
 4. Linearly combine the SDIC in a symmetry-adapted way to get SASDIC
 
+## Implementation
+Let scaling function be f:
+* If self == other: SDICs[self] = f(DICs[other])
+* else:             SDICs[self] = f(DICs[other]) * DICs[self]
+
 Available scaling functions:
 * `1-exp(-a*x)`, which will produce Morse potential
-* `(1+x)^2*exp(-a*x)`, which reaches maximum at `x ~ 2/a - 1` (normalized to 1) and approaches 0 at `-1 <- x` and `x -> infinity`
+* `exp(-a*x)*(1+x)^b`, which reaches maximum at `x = b/a - 1` and approaches 0 at `-1 <- x` and `x -> infinity`

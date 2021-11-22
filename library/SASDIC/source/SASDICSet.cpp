@@ -33,13 +33,7 @@ SASDICSet::SASDICSet(const std::string & format, const std::string & IC_file, co
             std::getline(ifs, line);
             std::vector<std::string> strs = CL::utility::split(line);
             if (! std::regex_match(strs[0], std::regex("\\d+"))) break;
-            if (strs.size() < 3) throw std::invalid_argument(
-            "SASDIC::SASDICSet::SASDICSet: wrong input format in " + SAS_file);
-            size_t self = std::stoul(strs[0]) - 1;
-            std::string scaling_function = strs[1];
-            std::vector<double> parameters(strs.size() - 2);
-            for (size_t i = 0; i < parameters.size(); i++) parameters[i] = std::stod(strs[2 + i]);
-            scalers_.push_back(Scaler(self, scaling_function, parameters));
+            scalers_.push_back(Scaler(line));
         }
         scaling_complete_ = at::eye(intdim, top);
         for (const Scaler & scaler : scalers_) {
@@ -104,7 +98,7 @@ std::vector<at::Tensor> SASDICSet::operator()(const at::Tensor & q) const {
     at::Tensor sdics = scaling_complete_.mv(dics);
     for (const Scaler & scaler : scalers_) {
         const size_t & self = scaler.self();
-        sdics[self] = scaler(dics[self]);
+        sdics[self] = scaler(dics);
     }
     // symmetrize
     std::vector<at::Tensor> sasdicss(NIrreds());
