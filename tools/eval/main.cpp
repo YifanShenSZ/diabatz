@@ -34,8 +34,7 @@ void print_vector(const at::Tensor & vector, std::ostream & ostream) {
 
 void print_matrix(const at::Tensor & matrix, std::ostream & ostream) {
     for (size_t i = 0; i < matrix.size(0); i++) {
-        for (size_t j = 0; j < matrix.size(0); j++)
-        ostream << std::setw(16) << std::scientific << std::setprecision(6) << matrix[i][j].item<double>();
+        for (size_t j = 0; j < matrix.size(0); j++) ostream << std::setw(16) << std::scientific << std::setprecision(6) << matrix[i][j].item<double>();
         ostream << '\n';
     }
 }
@@ -43,8 +42,7 @@ void print_matrix(const at::Tensor & matrix, std::ostream & ostream) {
 void print_symat(const at::Tensor & matrix, std::ostream & ostream) {
     for (size_t i = 0; i < matrix.size(0); i++) {
         for (size_t j = 0; j < i; j++) ostream << "                ";
-        for (size_t j = i; j < matrix.size(0); j++)
-        ostream << std::setw(16) << std::scientific << std::setprecision(6) << matrix[i][j].item<double>();
+        for (size_t j = i; j < matrix.size(0); j++) ostream << std::setw(16) << std::scientific << std::setprecision(6) << matrix[i][j].item<double>();
         ostream << '\n';
     }
 }

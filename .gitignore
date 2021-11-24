@@ -35,12 +35,11 @@ __pycache__/
 *.app
 build/
 lib/
-tools/RMSD/v0/
 tools/eval/v0/
+tools/Hessian/v0/
+tools/RMSD/v0/
 tools/critics/v0/
 tools/vibration/v0/
-tools/gh/v0/
-tools/double-cone/v0
 
 # Back up
 BAK/

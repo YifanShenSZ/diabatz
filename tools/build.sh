@@ -19,7 +19,7 @@ for directory in CNPI2point autoencoder cart2SASDIC; do
     cd ..
 done
 
-for directory in eval RMSD critics vibration; do
+for directory in eval Hessian RMSD critics vibration; do
     echo
     echo "Entre "$directory
     cd $directory
