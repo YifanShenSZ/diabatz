@@ -17,11 +17,6 @@ dH_(loader.dH.clone()) {
     weight_dH_ = weight_;
     sqrtweight_dH_.resize(NStates);
     sqrtweight_dH_ = sqrtweight_;
-    for (size_t i = 0    ; i < NStates; i++)
-    for (size_t j = i + 1; j < NStates; j++) {
-            weight_dH_[i][j] *= 0.01;
-        sqrtweight_dH_[i][j] *= 0.01;
-    }
 }
 RegHam::~RegHam() {}
 
