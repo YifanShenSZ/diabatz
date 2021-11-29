@@ -1,12 +1,12 @@
 Internal coordinate origin file:
     origin.int
 Scale: (self, scaling function, parameter(s))
-    43     3    exp(-a*x)*(1+x)^b    1.000000    2.000000
-    44     4    exp(-a*x)*(1+x)^b    1.000000    2.000000
-    45     3    exp(-a*x)*(1+x)^b    1.000000    2.000000
-    46     3    exp(-a*x)*(1+x)^b    1.000000    2.000000
-    47     4    exp(-a*x)*(1+x)^b    1.000000    2.000000
-    48     4    exp(-a*x)*(1+x)^b    1.000000    2.000000
+    43     3    1-exp(-a*x)          1.500000    2.000000
+    44     4    1-exp(-a*x)          1.500000    2.000000
+    45     3    exp(-a*x)*(1+x)^b    2.000000    2.000000
+    46     3    exp(-a*x)*(1+x)^b    2.000000    2.000000
+    47     4    exp(-a*x)*(1+x)^b    1.333333    2.000000
+    48     4    exp(-a*x)*(1+x)^b    1.333333    2.000000
 Coordinates of irreducible 1: (number, coefficient, index of internal coordinate)
      1    1.000000     1
      2    1.000000     2
