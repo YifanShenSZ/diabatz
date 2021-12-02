@@ -13,7 +13,7 @@ read_data(const std::vector<std::string> & user_list) {
     std::tie(stdregset, stddegset) = reader.read_SAHamSet();
     // process data
     std::vector<std::shared_ptr<RegHam>> pregs;
-    for (size_t i = 0; i < pregs.size(); i++) {
+    for (size_t i = 0; i < stdregset->size_int(); i++) {
         auto stdreg = stdregset->get(i);
         // duplicate data points based on weight
         size_t nduplicates = ceil(stdreg->weight());
@@ -23,7 +23,7 @@ read_data(const std::vector<std::string> & user_list) {
         for (size_t j = 0; j < nduplicates; j++) pregs.push_back(reg);
     }
     std::vector<std::shared_ptr<DegHam>> pdegs;
-    for (size_t i = 0; i < pdegs.size(); i++) {
+    for (size_t i = 0; i < stddegset->size_int(); i++) {
         auto stddeg = stddegset->get(i);
         // duplicate data points based on weight
         size_t nduplicates = ceil(stddeg->weight());
