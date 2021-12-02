@@ -7,17 +7,6 @@ namespace train {
 
 void initialize();
 
-namespace trust_region {
-
-void initialize(
-const std::shared_ptr<abinitio::DataSet<RegHam>> & regset,
-const std::shared_ptr<abinitio::DataSet<DegHam>> & degset,
-const std::shared_ptr<abinitio::DataSet<Energy>> & energy_set);
-
-void optimize(const bool & regularized, const size_t & max_iteration);
-
-} // namespace trust_region
-
 namespace torch_optim {
 
 void Adam(

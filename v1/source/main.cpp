@@ -161,25 +161,22 @@ int main(size_t argc, const char ** argv) {
     "The number of input layers must match the number of Hd upper-triangle elements");
     input_generator = std::make_shared<InputGenerator>(Hdnet->NStates(), Hdnet->irreds(), input_layers, sasicset->NSASDICs());
 
+    double zero_point = 0.0;
+    if (args.gotArgument("zero_point")) zero_point = args.retrieve<double>("zero_point");
+    // read normal data set
     std::vector<std::string> data = args.retrieve<std::vector<std::string>>("data");
     std::shared_ptr<abinitio::DataSet<RegHam>> regset;
     std::shared_ptr<abinitio::DataSet<DegHam>> degset;
-    std::tie(regset, degset) = read_data(data);
+    std::tie(regset, degset) = read_data(data, zero_point);
     std::cout << "There are " << regset->size_int() << " data points in adiabatic representation\n"
               << "          " << degset->size_int() << " data points in composite representation\n\n";
-
+    // read energy-only data set
     std::vector<std::shared_ptr<Energy>> energy_examples;
     auto energy_set = std::make_shared<abinitio::DataSet<Energy>>(energy_examples);
     if (args.gotArgument("energy_data")) {
-        energy_set = read_energy(args.retrieve<std::vector<std::string>>("energy_data"));
+        energy_set = read_energy(args.retrieve<std::vector<std::string>>("energy_data"), zero_point);
         std::cout << "There are " << energy_set->size_int() << " data points without gradient\n\n";
     }
-
-    double zero_point = 0.0;
-    if (args.gotArgument("zero_point")) zero_point = args.retrieve<double>("zero_point");
-    for (const auto & example : regset->examples()) example->subtract_ZeroPoint(zero_point);
-    for (const auto & example : degset->examples()) example->subtract_ZeroPoint(zero_point);
-    for (const auto & example : energy_set->examples()) example->subtract_ZeroPoint(zero_point);
 
     double maxe = 0.0, maxg = 0.0;
     for (const auto & example : regset->examples()) {
@@ -222,10 +219,10 @@ int main(size_t argc, const char ** argv) {
     for (const auto & example : energy_set->examples()) example->adjust_weight(energy_weight);
 
     train::initialize();
-    size_t max_iteration = 100;
-    if (args.gotArgument("max_iteration")) max_iteration = args.retrieve<size_t>("max_iteration");
     std::string optimizer = "Adam";
     if (args.gotArgument("optimizer")) optimizer = args.retrieve<std::string>("optimizer");
+    size_t max_iteration = 100;
+    if (args.gotArgument("max_iteration")) max_iteration = args.retrieve<size_t>("max_iteration");
     size_t batch_size = 32;
     if (args.gotArgument("batch_size")) batch_size = args.retrieve<size_t>("batch_size");
     std::cout << "Set batch size to " << batch_size << '\n';
