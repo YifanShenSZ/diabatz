@@ -26,10 +26,6 @@ argparse::ArgumentParser parse_args(const size_t & argc, const char ** & argv) {
     parser.add_argument("-g","--guess_diag",  '+', true, "initial guess of Hd diagonal, default = pytorch initialization");
     parser.add_argument("-c","--checkpoint",    1, true, "a trained Hd parameter to continue from");
 
-    // regularization arguments
-    parser.add_argument("-r","--regularization", 1, true, "enable regularization and set strength, can be a scalar or files regularization_state1-state2_layer.txt");
-    parser.add_argument("-p","--prior",          1, true, "prior for regularization are taken from files prior_state1-state2_layer.txt");
-
     // optimizer arguments
     parser.add_argument("-o","--optimizer",     1, true, "Adam, SGD (default = Adam)");
     parser.add_argument("-m","--max_iteration", 1, true, "default = 100");
@@ -223,26 +219,7 @@ int main(size_t argc, const char ** argv) {
     }
     for (const auto & example : regset->examples()) example->adjust_weight(energy_weight, dH_weight);
     // never alter the weight of degenerate examples
-    // never alter the weight of no-gradient examples
-
-    bool regularized = args.gotArgument("regularization");
-    if (regularized) {
-        std::cout << "Got regularization strength, enable regularization\n\n";
-        size_t NPars = 0;
-        for (const at::Tensor & p : Hdnet->elements->parameters()) NPars += p.numel();
-        // Get regularization strength
-        regularization = Hdnet->elements->parameters()[0].new_empty(NPars);
-        std::string reg_prefix = args.retrieve<std::string>("regularization");
-        std::ifstream ifs; ifs.open(reg_prefix + "_1-1_1.txt");
-        if (ifs.good()) read_parameters(reg_prefix, regularization);
-        else regularization.fill_(std::stod(reg_prefix));
-        ifs.close();
-        // Get prior
-        prior = Hdnet->elements->parameters()[0].new_empty(NPars);
-        if (! args.gotArgument("prior")) throw std::invalid_argument("Prior must be provided for regularization");
-        std::string prior_prefix = args.retrieve<std::string>("prior");
-        read_parameters(prior_prefix, prior);
-    }
+    for (const auto & example : energy_set->examples()) example->adjust_weight(energy_weight);
 
     train::initialize();
     size_t max_iteration = 100;

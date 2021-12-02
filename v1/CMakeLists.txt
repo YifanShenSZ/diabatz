@@ -46,7 +46,6 @@ add_executable(diabatz.exe
     source/data.cpp
 
     source/train/common.cpp
-    source/train/initialize.cpp
     source/train/residue.cpp
     source/train/gradient.cpp
     source/train/Adam.cpp

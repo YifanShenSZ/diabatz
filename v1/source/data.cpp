@@ -12,19 +12,25 @@ read_data(const std::vector<std::string> & user_list) {
     std::shared_ptr<abinitio::DataSet<abinitio::DegSAHam>> stddegset;
     std::tie(stdregset, stddegset) = reader.read_SAHamSet();
     // process data
-    std::vector<std::shared_ptr<RegHam>> pregs(stdregset->size_int());
-    #pragma omp parallel for
+    std::vector<std::shared_ptr<RegHam>> pregs;
     for (size_t i = 0; i < pregs.size(); i++) {
-        auto reg = stdregset->get(i);
+        auto stdreg = stdregset->get(i);
+        // duplicate data points based on weight
+        size_t nduplicates = ceil(stdreg->weight());
+        stdreg->set_weight(1.0);
         // precompute the input layers
-        pregs[i] = std::make_shared<RegHam>(reg, int2input);
+        auto reg = std::make_shared<RegHam>(stdreg, int2input);
+        for (size_t j = 0; j < nduplicates; j++) pregs.push_back(reg);
     }
-    std::vector<std::shared_ptr<DegHam>> pdegs(stddegset->size_int());
-    #pragma omp parallel for
+    std::vector<std::shared_ptr<DegHam>> pdegs;
     for (size_t i = 0; i < pdegs.size(); i++) {
-        auto deg = stddegset->get(i);
+        auto stddeg = stddegset->get(i);
+        // duplicate data points based on weight
+        size_t nduplicates = ceil(stddeg->weight());
+        stddeg->set_weight(1.0);
         // precompute the input layers
-        pdegs[i] = std::make_shared<DegHam>(deg, int2input);
+        auto deg = std::make_shared<DegHam>(stddeg, int2input);
+        for (size_t j = 0; j < nduplicates; j++) pdegs.push_back(deg);
     }
     // return
     std::shared_ptr<abinitio::DataSet<RegHam>> regset = std::make_shared<abinitio::DataSet<RegHam>>(pregs);
@@ -38,12 +44,15 @@ std::shared_ptr<abinitio::DataSet<Energy>> read_energy(const std::vector<std::st
     // read the data set in symmetry adapted internal coordinate in standard form
     auto stdset = reader.read_SAEnergySet();
     // process data
-    std::vector<std::shared_ptr<Energy>> penergies(stdset->size_int());
-    #pragma omp parallel for
-    for (size_t i = 0; i < penergies.size(); i++) {
-        auto energy = stdset->get(i);
+    std::vector<std::shared_ptr<Energy>> penergies;
+    for (size_t i = 0; i < stdset->size_int(); i++) {
+        auto stdenergy = stdset->get(i);
+        // duplicate data points based on weight
+        size_t nduplicates = ceil(stdenergy->weight());
+        stdenergy->set_weight(1.0);
         // precompute the input layers
-        penergies[i] = std::make_shared<Energy>(energy, int2input);
+        auto energy = std::make_shared<Energy>(stdenergy, int2input);
+        for (size_t j = 0; j < nduplicates; j++) penergies.push_back(energy);
     }
     // return
     return std::make_shared<abinitio::DataSet<Energy>>(penergies);
