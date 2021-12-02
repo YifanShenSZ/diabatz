@@ -5,8 +5,6 @@
 namespace abinitio {
 
 SAEnergy::SAEnergy() {}
-SAEnergy::SAEnergy(const SAEnergy & source) : SAGeometry(source), energy_(source.energy_),
-weight_E_(source.weight_E_), sqrtweight_E_(source.sqrtweight_E_) {}
 // See the base class constructor for details of `cart2CNPI`
 SAEnergy::SAEnergy(const SAEnergyLoader & loader,
 std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2CNPI)(const at::Tensor &))

@@ -30,7 +30,6 @@ class RegSAHam : public SAEnergy {
         void reconstruct_dH_();
     public:
         RegSAHam();
-        RegSAHam(const RegSAHam & source);
         // See the base class constructor for details of `cart2CNPI`
         RegSAHam(const SAHamLoader & loader,
                  std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2CNPI)(const at::Tensor &));
@@ -60,7 +59,6 @@ class DegSAHam : public RegSAHam {
         CL::utility::matrix<double> weight_H_, sqrtweight_H_;
     public:
         DegSAHam();
-        DegSAHam(const DegSAHam & source);
         // See the base class constructor for details of `cart2CNPI`
         DegSAHam(const SAHamLoader & loader,
                  std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2CNPI)(const at::Tensor &));

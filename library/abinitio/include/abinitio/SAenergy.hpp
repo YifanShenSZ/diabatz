@@ -14,7 +14,6 @@ class SAEnergy : public SAGeometry {
         std::vector<double> weight_E_, sqrtweight_E_;
     public:
         SAEnergy();
-        SAEnergy(const SAEnergy & source);
         // See the base class constructor for details of `cart2CNPI`
         SAEnergy(const SAEnergyLoader & loader,
                  std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2CNPI)(const at::Tensor &));

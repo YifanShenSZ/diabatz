@@ -40,9 +40,6 @@ void RegSAHam::reconstruct_dH_() {
 }
 
 RegSAHam::RegSAHam() {}
-RegSAHam::RegSAHam(const RegSAHam & source) : SAEnergy(source), dH_(source.dH_),
-irreds_(source.irreds_), SAdH_(source.SAdH_),
-weight_dH_(source.weight_dH_), sqrtweight_dH_(source.sqrtweight_dH_) {}
 // See the base class constructor for details of `cart2CNPI`
 RegSAHam::RegSAHam(const SAHamLoader & loader,
 std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2CNPI)(const at::Tensor &))
@@ -102,8 +99,6 @@ void RegSAHam::adjust_weight(const std::vector<std::pair<double, double>> & E_re
 
 
 DegSAHam::DegSAHam() {}
-DegSAHam::DegSAHam(const DegSAHam & source) : RegSAHam(source),
-H_(source.H_), weight_H_(source.weight_H_), sqrtweight_H_(source.sqrtweight_H_) {}
 // See the base class constructor for details of `cart2CNPI`
 DegSAHam::DegSAHam(const SAHamLoader & loader,
 std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2CNPI)(const at::Tensor &))

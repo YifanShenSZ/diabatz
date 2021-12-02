@@ -5,15 +5,6 @@
 namespace abinitio {
 
 SAGeometry::SAGeometry() {}
-
-SAGeometry::SAGeometry(const SAGeometry & source) : Geometry(source),
-CNPI_intdims_(source.CNPI_intdims_),
-qs_(source.qs_), Jqrs_(source.Jqrs_), JqrTs_(source.JqrTs_),
-Jqr_(source.Jqr_), JqrT_(source.JqrT_), Sq_(source.Sq_),
-point_intdims_(source.point_intdims_),
-Qs_(source.Qs_), JQrs_(source.JQrs_), JQrTs_(source.JQrTs_), C2Qs_(source.C2Qs_), SQs_(source.SQs_), sqrtSQs_(source.sqrtSQs_),
-CNPI2point_(source.CNPI2point_), point2CNPI_(source.point2CNPI_) {}
-
 // `cart2CNPI` takes in r, returns q and corresponding J
 SAGeometry::SAGeometry(const double & _weight, const at::Tensor & _geom,
 const std::vector<size_t> & _CNPI2point, const std::vector<std::string> & point_defs,
@@ -59,11 +50,9 @@ std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2CNPI)(const 
     for (size_t j = 0; j < CNPI2point_.size(); j++)
     if (CNPI2point_[j] == i) point2CNPI_[i].push_back(j);
 }
-
 SAGeometry::SAGeometry(const SAGeomLoader & loader,
 std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2CNPI)(const at::Tensor &))
 : SAGeometry(loader.weight, loader.geom, loader.CNPI2point, loader.point_defs, cart2CNPI) {}
-
 SAGeometry::~SAGeometry() {}
 
 const std::vector<size_t> & SAGeometry::CNPI_intdims() const {return CNPI_intdims_;}

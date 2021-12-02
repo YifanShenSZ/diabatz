@@ -11,7 +11,6 @@ class Geometry {
         at::Tensor geom_;
     public:
         Geometry();
-        Geometry(const Geometry & source);
         Geometry(const double & _weight, const at::Tensor & _geom);
         Geometry(const GeomLoader & loader);
         ~Geometry();
