@@ -26,6 +26,7 @@ class SAEnergy : public SAGeometry {
         const double & weight_E(const size_t & state) const;
         const double & sqrtweight_E(const size_t & state) const;
 
+        void set_weight(const double & _weight);
         void to(const c10::DeviceType & device);
 
         // subtract zero point from energy

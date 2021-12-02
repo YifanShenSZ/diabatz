@@ -37,12 +37,13 @@ class RegSAHam : public SAEnergy {
         ~RegSAHam();
 
         const at::Tensor & dH() const;
+
         const size_t & irreds(const size_t & row, const size_t & column) const;
         const at::Tensor & SAdH(const size_t & row, const size_t & column) const;
-
         const double & weight_dH(const size_t & row, const size_t & column) const;
         const double & sqrtweight_dH(const size_t & row, const size_t & column) const;
 
+        void set_weight(const double & _weight);
         void to(const c10::DeviceType & device);
 
         // lower the energy weight for each state who has (energy - E_ref) > E_thresh
@@ -70,6 +71,7 @@ class DegSAHam : public RegSAHam {
         const double & weight_H(const size_t & row, const size_t & column) const;
         const double & sqrtweight_H(const size_t & row, const size_t & column) const;
 
+        void set_weight(const double & _weight);
         void to(const c10::DeviceType & device);
 
         // subtract zero point from energy and H

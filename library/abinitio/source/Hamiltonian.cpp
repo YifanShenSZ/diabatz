@@ -25,6 +25,11 @@ const at::Tensor & RegHam::dH() const {return dH_;}
 const double & RegHam::weight_dH(const size_t & row, const size_t & column) const {return weight_dH_[row][column];}
 const double & RegHam::sqrtweight_dH(const size_t & row, const size_t & column) const {return sqrtweight_dH_[row][column];}
 
+void RegHam::set_weight(const double & _weight) {
+    Energy::set_weight(_weight);
+    weight_dH_ = weight_;
+    sqrtweight_dH_ = sqrtweight_;
+}
 void RegHam::to(const c10::DeviceType & device) {
     Energy::to(device);
     dH_.to(device);
@@ -68,6 +73,11 @@ const at::Tensor & DegHam::H() const {return H_;};
 const double & DegHam::weight_H(const size_t & row, const size_t & column) const {return weight_H_[row][column];}
 const double & DegHam::sqrtweight_H(const size_t & row, const size_t & column) const {return sqrtweight_H_[row][column];}
 
+void DegHam::set_weight(const double & _weight) {
+    RegHam::set_weight(_weight);
+    weight_H_ = weight_;
+    sqrtweight_H_ = sqrtweight_;
+}
 void DegHam::to(const c10::DeviceType & device) {
     RegHam::to(device);
     H_.to(device);

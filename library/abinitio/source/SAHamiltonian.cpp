@@ -40,11 +40,9 @@ void RegSAHam::reconstruct_dH_() {
 }
 
 RegSAHam::RegSAHam() {}
-
 RegSAHam::RegSAHam(const RegSAHam & source) : SAEnergy(source), dH_(source.dH_),
 irreds_(source.irreds_), SAdH_(source.SAdH_),
 weight_dH_(source.weight_dH_), sqrtweight_dH_(source.sqrtweight_dH_) {}
-
 // See the base class constructor for details of `cart2CNPI`
 RegSAHam::RegSAHam(const SAHamLoader & loader,
 std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2CNPI)(const at::Tensor &))
@@ -63,16 +61,20 @@ std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2CNPI)(const 
     sqrtweight_dH_.resize(NStates);
     sqrtweight_dH_ = sqrtweight_;
 }
-
 RegSAHam::~RegSAHam() {}
 
 const at::Tensor & RegSAHam::dH() const {return dH_;}
+
 const size_t & RegSAHam::irreds(const size_t & row, const size_t & column) const {return irreds_[row][column];}
 const at::Tensor & RegSAHam::SAdH(const size_t & row, const size_t & column) const {return SAdH_[row][column];}
-
 const double & RegSAHam::weight_dH(const size_t & row, const size_t & column) const {return weight_dH_[row][column];}
 const double & RegSAHam::sqrtweight_dH(const size_t & row, const size_t & column) const {return sqrtweight_dH_[row][column];}
 
+void RegSAHam::set_weight(const double & _weight) {
+    SAEnergy::set_weight(_weight);
+    weight_dH_ = weight_;
+    sqrtweight_dH_ = sqrtweight_;
+}
 void RegSAHam::to(const c10::DeviceType & device) {
     SAEnergy::to(device);
     dH_.to(device);
@@ -100,10 +102,8 @@ void RegSAHam::adjust_weight(const std::vector<std::pair<double, double>> & E_re
 
 
 DegSAHam::DegSAHam() {}
-
 DegSAHam::DegSAHam(const DegSAHam & source) : RegSAHam(source),
 H_(source.H_), weight_H_(source.weight_H_), sqrtweight_H_(source.sqrtweight_H_) {}
-
 // See the base class constructor for details of `cart2CNPI`
 DegSAHam::DegSAHam(const SAHamLoader & loader,
 std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2CNPI)(const at::Tensor &))
@@ -126,7 +126,6 @@ std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2CNPI)(const 
     sqrtweight_H_.resize(NStates);
     sqrtweight_H_ = sqrtweight_;
 }
-
 DegSAHam::~DegSAHam() {}
 
 const at::Tensor & DegSAHam::H() const {return H_;};
@@ -134,6 +133,11 @@ const at::Tensor & DegSAHam::H() const {return H_;};
 const double & DegSAHam::weight_H(const size_t & row, const size_t & column) const {return weight_H_[row][column];}
 const double & DegSAHam::sqrtweight_H(const size_t & row, const size_t & column) const {return sqrtweight_H_[row][column];}
 
+void DegSAHam::set_weight(const double & _weight) {
+    RegSAHam::set_weight(_weight);
+    weight_H_ = weight_;
+    sqrtweight_H_ = sqrtweight_;
+}
 void DegSAHam::to(const c10::DeviceType & device) {
     RegSAHam::to(device);
     H_.to(device);

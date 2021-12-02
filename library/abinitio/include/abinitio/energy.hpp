@@ -20,9 +20,10 @@ class Energy : public Geometry {
         const at::Tensor & energy() const;
 
         size_t NStates() const;
-        const double & weight_E(const size_t & index) const;
-        const double & sqrtweight_E(const size_t & index) const;
+        const double & weight_E(const size_t & state) const;
+        const double & sqrtweight_E(const size_t & state) const;
 
+        void set_weight(const double & _weight);
         void to(const c10::DeviceType & device);
 
         // subtract zero point from energy

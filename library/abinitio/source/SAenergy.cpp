@@ -4,12 +4,9 @@
 
 namespace abinitio {
 
-
 SAEnergy::SAEnergy() {}
-
 SAEnergy::SAEnergy(const SAEnergy & source) : SAGeometry(source), energy_(source.energy_),
 weight_E_(source.weight_E_), sqrtweight_E_(source.sqrtweight_E_) {}
-
 // See the base class constructor for details of `cart2CNPI`
 SAEnergy::SAEnergy(const SAEnergyLoader & loader,
 std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2CNPI)(const at::Tensor &))
@@ -20,7 +17,6 @@ std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2CNPI)(const 
     sqrtweight_E_.resize(NStates);
     std::fill(sqrtweight_E_.begin(), sqrtweight_E_.end(), sqrtweight_);
 }
-
 SAEnergy::~SAEnergy() {}
 
 const at::Tensor & SAEnergy::energy() const {return energy_;}
@@ -29,6 +25,11 @@ size_t SAEnergy::NStates() const {return energy_.size(0);}
 const double & SAEnergy::weight_E(const size_t & state) const {return weight_E_[state];}
 const double & SAEnergy::sqrtweight_E(const size_t & state) const {return sqrtweight_E_[state];}
 
+void SAEnergy::set_weight(const double & _weight) {
+    SAGeometry::set_weight(_weight);
+    std::fill(weight_E_.begin(), weight_E_.end(), weight_);
+    std::fill(sqrtweight_E_.begin(), sqrtweight_E_.end(), sqrtweight_);
+}
 void SAEnergy::to(const c10::DeviceType & device) {
     SAGeometry::to(device);
     energy_.to(device);

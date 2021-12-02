@@ -16,9 +16,14 @@ Energy::~Energy() {}
 const at::Tensor & Energy::energy() const {return energy_;}
 
 size_t Energy::NStates() const {return energy_.size(0);}
-const double & Energy::weight_E(const size_t & index) const {return weight_E_[index];}
-const double & Energy::sqrtweight_E(const size_t & index) const {return sqrtweight_E_[index];}
+const double & Energy::weight_E(const size_t & state) const {return weight_E_[state];}
+const double & Energy::sqrtweight_E(const size_t & state) const {return sqrtweight_E_[state];}
 
+void Energy::set_weight(const double & _weight) {
+    Geometry::set_weight(_weight);
+    std::fill(weight_E_.begin(), weight_E_.end(), weight_);
+    std::fill(sqrtweight_E_.begin(), sqrtweight_E_.end(), sqrtweight_);
+}
 void Energy::to(const c10::DeviceType & device) {
     Geometry::to(device);
     energy_.to(device);

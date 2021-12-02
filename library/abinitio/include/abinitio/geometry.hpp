@@ -22,6 +22,7 @@ class Geometry {
 
         size_t cartdim() const;
 
+        void set_weight(const double & _weight);
         void to(const c10::DeviceType & device);
 };
 
