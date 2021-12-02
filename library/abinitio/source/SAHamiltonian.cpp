@@ -88,7 +88,7 @@ void RegSAHam::adjust_weight(const std::vector<std::pair<double, double>> & E_re
     for (int64_t j = i; j < NStates; j++) {
         double g = dH_[i][j].abs().max().item<double>();
         if (g > dH_thresh) {
-            sqrtweight_dH_[i][j] *= dH_thresh / g;
+            sqrtweight_dH_[i][j] = sqrtweight_ * dH_thresh / g;
             weight_dH_[i][j] = sqrtweight_dH_[i][j] * sqrtweight_dH_[i][j];
         }
     }
@@ -155,7 +155,7 @@ void DegSAHam::adjust_weight(const std::vector<std::pair<double, double>> & E_re
                      & thresh = E_ref_thresh[i].second;
         double h = H_[i][i].item<double>() - ref;
         if (h > thresh) {
-            sqrtweight_H_[i][i] *= thresh / h;
+            sqrtweight_H_[i][i] = sqrtweight_ * thresh / h;
             weight_H_[i][i] = sqrtweight_H_[i][i] * sqrtweight_H_[i][i];
         }
     }

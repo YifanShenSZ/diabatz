@@ -43,7 +43,7 @@ void Energy::adjust_weight(const std::vector<std::pair<double, double>> & E_ref_
                      & thresh = E_ref_thresh[i].second;
         double e = energy_[i].item<double>() - ref;
         if (e > thresh) {
-            sqrtweight_E_[i] *= thresh / e;
+            sqrtweight_E_[i] = sqrtweight_ * thresh / e;
             weight_E_[i] = sqrtweight_E_[i] * sqrtweight_E_[i];
         }
     }
