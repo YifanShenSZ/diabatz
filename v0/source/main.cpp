@@ -31,11 +31,7 @@ argparse::ArgumentParser parse_args(const size_t & argc, const char ** & argv) {
     parser.add_argument("-p","--prior",          1, true, "prior for regularization are taken from files prior_state1-state2_layer.txt");
 
     // optimizer arguments
-    parser.add_argument("-o","--optimizer",     1, true, "trust_region, Adam, SGD (default = trust_region)");
     parser.add_argument("-m","--max_iteration", 1, true, "default = 100");
-    parser.add_argument("--batch_size",         1, true, "for Adam or SGD, default = 32");
-    parser.add_argument("--learning_rate",      1, true, "for Adam or SGD, default = 1e-3");
-    parser.add_argument("--opt_chk",            1, true, "optimizer checkpoint for Adam or SGD");
 
     parser.parse_args(argc, argv);
     return parser;
@@ -223,7 +219,7 @@ int main(size_t argc, const char ** argv) {
     }
     for (const auto & example : regset->examples()) example->adjust_weight(energy_weight, dH_weight);
     // never alter the weight of degenerate examples
-    // never alter the weight of no-gradient examples
+    for (const auto & example : energy_set->examples()) example->adjust_weight(energy_weight);
 
     bool regularized = args.gotArgument("regularization");
     if (regularized) {
@@ -247,35 +243,8 @@ int main(size_t argc, const char ** argv) {
     train::initialize();
     size_t max_iteration = 100;
     if (args.gotArgument("max_iteration")) max_iteration = args.retrieve<size_t>("max_iteration");
-    std::string optimizer = "trust_region";
-    if (args.gotArgument("optimizer")) optimizer = args.retrieve<std::string>("optimizer");
-    if (optimizer == "trust_region") {
-        std::cout << "Optimizer is trust region\n\n";
-        train::trust_region::initialize(regset, degset, energy_set);
-        train::trust_region::optimize(regularized, max_iteration);
-    }
-    else {
-        size_t batch_size = 32;
-        if (args.gotArgument("batch_size")) batch_size = args.retrieve<size_t>("batch_size");
-        std::cout << "Set batch size to " << batch_size << '\n';
-        double learning_rate = 1e-3;
-        if (args.gotArgument("learning_rate")) learning_rate = args.retrieve<double>("learning_rate");
-        std::cout << "Set learning rate to " << learning_rate << '\n';
-        std::string opt_chk = "";
-        if (args.gotArgument("opt_chk")) {
-            opt_chk = args.retrieve<std::string>("opt_chk");
-            std::cout << "Optimizer will continue from " << opt_chk << '\n';
-        }
-        if (optimizer == "Adam") {
-            std::cout << "Optimizer is adaptive moment estimation (Adam)\n\n";
-            train::torch_optim::Adam(regset, degset, energy_set, max_iteration, batch_size, learning_rate, opt_chk);
-        }
-        else if (optimizer == "SGD") {
-            std::cout << "Optimizer is stochastic gradient descent (SGD)\n\n";
-            train::torch_optim::SGD(regset, degset, energy_set, max_iteration, batch_size, learning_rate, opt_chk);
-        }
-        else throw std::invalid_argument("Unsupported optimizer " + optimizer);
-    }
+    train::trust_region::initialize(regset, degset, energy_set);
+    train::trust_region::optimize(regularized, max_iteration);
 
     std::cout << '\n';
     CL::utility::show_time(std::cout);

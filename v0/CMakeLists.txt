@@ -50,18 +50,9 @@ add_executable(diabatz.exe
     source/data.cpp
 
     source/train/common.cpp
-    source/train/initialize.cpp
-
-    source/train/trust_region/common.cpp
-    source/train/trust_region/residue.cpp
-    source/train/trust_region/Jacobian.cpp
-    source/train/trust_region/initialize.cpp
-    source/train/trust_region/driver.cpp
-
-    source/train/torch_optim/residue.cpp
-    source/train/torch_optim/gradient.cpp
-    source/train/torch_optim/Adam.cpp
-    source/train/torch_optim/SGD.cpp
+    source/train/residue.cpp
+    source/train/Jacobian.cpp
+    source/train/driver.cpp
 
     source/main.cpp
 )
