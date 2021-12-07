@@ -38,6 +38,7 @@ double & loss, at::Tensor & gradient) {
         DcSADQHa[i][j] = data->C2Qs(data->irreds(i, j)).mm(data->JqrT().mm(DcDqHa[i][j]));
     }
     // energy loss and gradient
+    energy = energy.slice(0, 0, NStates_data);
     at::Tensor r_E = unit * (energy - data->energy()),
                J_E = unit * DcHa;
     for (size_t i = 0; i < NStates_data; i++) {
