@@ -1,8 +1,10 @@
 # Version 1
-Version 0 + pytorch optimizers
+Version 0 + dimensionality reduction
 
-Using different weights for different data points deteriorates random optimizers. Gradient would fluctuate more across mini-batchs.
+The geometry is described by CNPI group symmetry adapted and scaled internal coordinate
 
-A workaround is to use only interger weight then treat it as duplicate, i.e. an interger weight is equivalent to how many duplicates of a data point appear in the training set
+The internal coordinates are compressed by dimensionality reduction networks
 
-So this version would ceil all weights
+The input layer of each Hd element is the CNPI group symmetry adapted polynomial of the reduced coordinates
+
+When the Hd network has no hidden layer, i.e. output layer directly follows input layer, it is equivalent to a polynomial

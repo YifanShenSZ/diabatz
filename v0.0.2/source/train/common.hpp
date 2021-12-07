@@ -14,8 +14,8 @@ extern std::vector<std::shared_ptr<tchem::chem::Phaser>> phasers;
 
 extern size_t OMP_NUM_THREADS;
 
-// Each thread owns a copy of Hd network
-// Thread 0 shares the original Hdnet
+// each thread owns a copy of Hd network
+// thread 0 shares the original Hdnet
 extern std::vector<std::shared_ptr<obnet::symat>> Hdnets;
 
 inline void p2c(const size_t & thread, double * c) {
@@ -72,6 +72,25 @@ const at::Tensor & Hc_data, const at::Tensor & DrHc_data) {
     return std::make_tuple(eigval, eigvec);
 }
 
+} // namespace train
+
+#include "../../include/data.hpp"
+
+namespace train { namespace torch_optim {
+
+at::Tensor reg_residue(const std::vector<std::shared_ptr<RegHam>> & batch);
+
+at::Tensor deg_residue(const std::vector<std::shared_ptr<DegHam>> & batch);
+
+at::Tensor energy_residue(const std::vector<std::shared_ptr<Energy>> & batch);
+
+at::Tensor reg_gradient(const std::vector<std::shared_ptr<RegHam>> & batch);
+
+at::Tensor deg_gradient(const std::vector<std::shared_ptr<DegHam>> & batch);
+
+at::Tensor energy_gradient(const std::vector<std::shared_ptr<Energy>> & batch);
+
+} // namespace torch_optim
 } // namespace train
 
 #endif
