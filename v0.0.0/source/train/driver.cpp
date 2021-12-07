@@ -1,4 +1,4 @@
-#include <Foptim/trust_region_verbose.hpp>
+#include <Foptim/Foptim.hpp>
 
 #include <CppLibrary/linalg.hpp>
 
