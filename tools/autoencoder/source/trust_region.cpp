@@ -1,6 +1,6 @@
 #include <omp.h>
 
-#include <Foptim/trust_region.hpp>
+#include <Foptim/least-square/trust_region.hpp>
 
 #include "../include/global.hpp"
 

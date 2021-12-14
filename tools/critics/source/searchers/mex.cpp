@@ -1,4 +1,4 @@
-#include <Foptim/BFGS.hpp>
+#include <Foptim/line-search_2nd/BFGS.hpp>
 
 #include "../include/global.hpp"
 #include "../include/Hd_extension.hpp"

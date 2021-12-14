@@ -1,4 +1,4 @@
-#include <Foptim/Gauss_BFGS.hpp>
+#include <Foptim/least-square/Gauss_BFGS.hpp>
 
 #include "../include/global.hpp"
 #include "../include/Hd_extension.hpp"

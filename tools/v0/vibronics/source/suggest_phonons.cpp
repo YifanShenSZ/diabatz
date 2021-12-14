@@ -1,4 +1,4 @@
-#include <Foptim/Foptim.hpp>
+#include <Foptim/constraint/ALagrangian_NewtonRaphson.hpp>
 
 #include <tchem/chemistry.hpp>
 
@@ -59,7 +59,7 @@ void suggest_phonons(const double & contour,
 const std::vector<at::Tensor> & init_qs, const std::vector<at::Tensor> & final_qs,
 const tchem::chem::SANormalMode & init_vib, const tchem::chem::SANormalMode & final_vib) {
     int64_t intdim = sasicset->intdim();
-    // Set contour, T, b, sigma^-1
+    // set contour, T, b, sigma^-1
     contour_ = contour;
     at::Tensor init_Linv = init_qs[0].new_zeros({intdim, intdim});
     size_t start = 0;
@@ -79,22 +79,22 @@ const tchem::chem::SANormalMode & init_vib, const tchem::chem::SANormalMode & fi
     T_ = init_Linv.mm(final_L);
     b_ = init_Linv.mv(at::cat(final_qs) - at::cat(init_qs));
     sigmainv_ = at::diag(2.0 * at::cat(init_vib.frequencies()));
-    // Get lower and upper bounds
+    // get lower and upper bounds
     std::vector<double> lower_bound(intdim), upper_bound(intdim);
     for (size_t i = 0; i < intdim; i++) {
         // lower bound
         at::Tensor Q = init_qs[0].new_zeros(intdim);
         sign_ = 1.0;
         index_ = i;
-        Foptim::ALagrangian_Newton_Raphson(f, f_fd, fdd, c, c_cd, c_cd_cdd, Q.data_ptr<double>(), intdim, 1);
+        Foptim::ALagrangian_NewtonRaphson(f, f_fd, fdd, c, c_cd, c_cd_cdd, Q.data_ptr<double>(), intdim, 1);
         lower_bound[i] = Q[i].item<double>();
         // upper bound
         Q.fill_(0.0);
         sign_ = -1.0;
-        Foptim::ALagrangian_Newton_Raphson(f, f_fd, fdd, c, c_cd, c_cd_cdd, Q.data_ptr<double>(), intdim, 1);
+        Foptim::ALagrangian_NewtonRaphson(f, f_fd, fdd, c, c_cd, c_cd_cdd, Q.data_ptr<double>(), intdim, 1);
         upper_bound[i] = Q[i].item<double>();
     }
-    // Map the continuum bounds to discrete phonons
+    // map the continuum bounds to discrete phonons
     std::vector<double> dble_phonons(intdim);
     std::vector<size_t> phonons(intdim);
     at::Tensor final_freqs = at::cat(final_vib.frequencies());
@@ -104,7 +104,7 @@ const tchem::chem::SANormalMode & init_vib, const tchem::chem::SANormalMode & fi
         if (dble_phonons[i] < 0.0) phonons[i] = 0;
         else phonons[i] = ceil(dble_phonons[i]);
     }
-    // Output
+    // output
     std::ofstream ofs;
     std::cout << "Please refer to continuum.txt and phonons.txt for vibrational basis phonon suggestions\n";
     ofs.open("continuum.txt"); {

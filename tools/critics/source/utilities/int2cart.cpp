@@ -1,6 +1,6 @@
 #include <tchem/intcoord.hpp>
 
-#include <Foptim/trust_region.hpp>
+#include <Foptim/least-square/trust_region.hpp>
 
 namespace {
 
