@@ -12,7 +12,7 @@ argparse::ArgumentParser parse_args(const size_t & argc, const char ** & argv) {
 
     // required arguments
     parser.add_argument("-d","--diabatz", '+', false, "diabatz definition files");
-    parser.add_argument("-s","--structure", 1, false, "the molecular structre to calculate Hessian");
+    parser.add_argument("-x","--xyz",       1, false, "the xyz geometry to calculate Hessian");
 
     // optional argument
     parser.add_argument("-a","--adiabatz");
@@ -86,16 +86,6 @@ int main(size_t argc, const char ** argv) {
     std::vector<double> coords = geom.coords();
     at::Tensor r = at::from_blob(coords.data(), coords.size(), at::TensorOptions().dtype(torch::kFloat64));
 
-    at::Tensor Hd, dHd;
-    std::tie(Hd, dHd) = Hdkernel.compute_Hd_dHd(r);
-    at::Tensor energy, states;
-    std::tie(energy, states) = Hd.symeig(true);
-    at::Tensor dHa = tchem::linalg::UT_sy_U(dHd, states);
-    at::Tensor ddHa = compute_ddHa(r, Hdkernel);
-    at::Tensor cartgrad =  dHa,
-               carthess = ddHa;
-
-    size_t NStates = Hdkernel.NStates();
     at::Tensor ddH;
     std::string prefix;
     if (args.gotArgument("adiabatz")) {
@@ -106,7 +96,7 @@ int main(size_t argc, const char ** argv) {
         ddH = compute_ddHd(r, Hdkernel);
         prefix = "diabatic-Hessian-";
     }
-
+    size_t NStates = Hdkernel.NStates();
     for (size_t i = 0; i < NStates; i++)
     for (size_t j = i; j < NStates; j++)
     print_matrix(ddH[i][j], prefix + std::to_string(i + 1) + "-" + std::to_string(j + 1) + ".txt");

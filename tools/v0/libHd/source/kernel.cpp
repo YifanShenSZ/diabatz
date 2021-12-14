@@ -17,8 +17,7 @@ const std::vector<std::string> & input_layers) {
     input_generator_ = std::make_shared<InputGenerator>(Hdnet_->NStates(), Hdnet_->irreds(), input_layers, sasicset_->NSASDICs());
 }
 kernel::kernel(const std::vector<std::string> & args) : kernel(
-args[0], args[1], args[2],
-args[3], args[4],
+args[0], args[1], args[2], args[3], args[4],
 std::vector<std::string>(args.begin() + 5, args.end())) {}
 kernel::~kernel() {}
 
@@ -27,7 +26,7 @@ const std::shared_ptr<InputGenerator> & kernel::input_generator() const {return 
 
 size_t kernel::NStates() const {return Hdnet_->NStates();}
 
-// Given Cartesian coordinate r, return Hd
+// given Cartesian coordinate r, return Hd
 at::Tensor kernel::operator()(const at::Tensor & r) const {
     if (r.sizes().size() != 1) throw std::invalid_argument(
     "Hd::kernel::operator(): r must be a vector");
@@ -39,7 +38,7 @@ at::Tensor kernel::operator()(const at::Tensor & r) const {
     // input layer -> Hd
     return (*Hdnet_)(xs);
 }
-// Given CNPI group symmetry adapted and scaled internal coordinate, return Hd
+// given CNPI group symmetry adapted and scaled internal coordinate, return Hd
 at::Tensor kernel::operator()(const std::vector<at::Tensor> & qs) const {
     if (qs.size() != sasicset_->NIrreds()) throw std::invalid_argument(
     "Hd::kernel::operator(): qs has wrong number of irreducibles");
@@ -52,7 +51,7 @@ at::Tensor kernel::operator()(const std::vector<at::Tensor> & qs) const {
     return (*Hdnet_)(xs);
 }
 
-// Given Cartesian coordinate r, return Hd and ▽Hd
+// given Cartesian coordinate r, return Hd and ▽Hd
 std::tuple<at::Tensor, at::Tensor> kernel::compute_Hd_dHd(const at::Tensor & r) const {
     if (r.sizes().size() != 1) throw std::invalid_argument(
     "Hd::kernel::compute_Hd_dHd: r must be a vector");
@@ -90,7 +89,7 @@ std::tuple<at::Tensor, at::Tensor> kernel::compute_Hd_dHd(const at::Tensor & r) 
     DrHd[i][j] = JqrT.mv(DqHd[i][j]);
     return std::make_tuple(Hd, DrHd);
 }
-// Given CNPI group symmetry adapted and scaled internal coordinate, return Hd and ▽Hd
+// given CNPI group symmetry adapted and scaled internal coordinate, return Hd and ▽Hd
 std::tuple<at::Tensor, at::Tensor> kernel::compute_Hd_dHd(const std::vector<at::Tensor> & qs) const {
     // SASDIC -> input layer
     size_t NStates = Hdnet_->NStates();

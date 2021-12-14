@@ -36,10 +36,15 @@ __pycache__/
 build/
 lib/
 tools/eval/v0/
+tools/eval/v1/
 tools/Hessian/v0/
+tools/Hessian/v1/
 tools/RMSD/v0/
+tools/RMSD/v1/
 tools/critics/v0/
+tools/critics/v1/
 tools/vibration/v0/
+tools/vibration/v1/
 
 # Back up
 BAK/
