@@ -21,7 +21,7 @@ argparse::ArgumentParser parse_args(const size_t & argc, const char ** & argv) {
     parser.add_argument("-i","--IC",         1, false, "internal coordinate definition file");
     parser.add_argument("-t","--target",     1, false, "the target electronic state to search for critical geometry");
     parser.add_argument("-d","--diabatz",  '+', false, "diabatz definition files");
-    parser.add_argument("-g","--guess",      1, false, "initial guess geometry file");
+    parser.add_argument("-x","--xyz",        1, false, "initial guess xyz geometry file");
 
     // optional arguments
     parser.add_argument("-c","--fixed_coords", '+', true, "fix these internal coordinates during searching");
@@ -58,8 +58,8 @@ int main(size_t argc, const char ** argv) {
         throw std::invalid_argument("Bad target state");
     }
 
-    std::string guess = args.retrieve<std::string>("guess");
-    CL::chem::xyz<double> init_geom(guess, true);
+    std::string guess_file = args.retrieve<std::string>("xyz");
+    CL::chem::xyz<double> init_geom(guess_file, true);
     std::vector<double> init_coords = init_geom.coords();
     at::Tensor init_r = at::from_blob(init_coords.data(), init_coords.size(), at::TensorOptions().dtype(torch::kFloat64));
     at::Tensor init_q = (*intcoordset)(init_r);

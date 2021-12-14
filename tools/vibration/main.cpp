@@ -17,7 +17,7 @@ argparse::ArgumentParser parse_args(const size_t & argc, const char ** & argv) {
     parser.add_argument("-f","--format",    1, false, "internal coordinate definition format (Columbus7, default)");
     parser.add_argument("-i","--IC",        1, false, "internal coordinate definition file");
     parser.add_argument("-t","--target",    1, false, "the target electronic state to analyze vibration");
-    parser.add_argument("-g","--geometry",  1, false, "the geometry to analyze vibration");
+    parser.add_argument("-x","--xyz",       1, false, "the xyz geometry to analyze vibration");
     parser.add_argument("-m","--mass",      1, false, "the masses of atoms");
     parser.add_argument("-d","--diabatz", '+', false, "diabatz definition files");
 
@@ -66,14 +66,14 @@ int main(size_t argc, const char ** argv) {
     std::cout << "The target electronic state is " << target_state << '\n';
     target_state -= 1;
 
-    std::string geom_file = args.retrieve<std::string>("geometry"),
+    std::string  xyz_file = args.retrieve<std::string>("xyz"),
                 mass_file = args.retrieve<std::string>("mass");
-    CL::chem::xyz_mass<double> geom(geom_file, mass_file, true);
+    CL::chem::xyz_mass<double> xyz(xyz_file, mass_file, true);
 
     std::vector<std::string> diabatz_inputs = args.retrieve<std::vector<std::string>>("diabatz");
     Hd::kernel Hdkernel(diabatz_inputs);
 
-    std::vector<double> coords = geom.coords();
+    std::vector<double> coords = xyz.coords();
     at::Tensor r = at::from_blob(coords.data(), coords.size(), at::TensorOptions().dtype(torch::kFloat64));
     
     at::Tensor Hd, dHd;
@@ -88,14 +88,14 @@ int main(size_t argc, const char ** argv) {
 
     at::Tensor q, J;
     std::tie(q, J) = intcoordset.compute_IC_J(r);
-    tchem::chem::IntNormalMode intvib(geom.masses(), J, inthess);
+    tchem::chem::IntNormalMode intvib(xyz.masses(), J, inthess);
     intvib.kernel();
 
     std::string output = "avogadro.log";
     if (args.gotArgument("output")) output = args.retrieve<std::string>("output");
     auto freqs = tchem::utility::tensor2vector(intvib.frequency());
     auto modes = tchem::utility::tensor2matrix(intvib.cartmode());
-    CL::chem::xyz_vib<double> avogadro(geom.symbols(), geom.coords(), freqs, modes, true);
+    CL::chem::xyz_vib<double> avogadro(xyz.symbols(), xyz.coords(), freqs, modes, true);
     avogadro.print(output);
 
     std::cout << '\n';

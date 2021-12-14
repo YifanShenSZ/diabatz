@@ -12,7 +12,7 @@ argparse::ArgumentParser parse_args(const size_t & argc, const char ** & argv) {
 
     // required arguments
     parser.add_argument("-d","--diabatz", '+', false, "diabatz definition files");
-    parser.add_argument("-s","--structure", 1, false, "the molecular structre to calculate diabatz");
+    parser.add_argument("-x","--xyz", 1, false, "the xyz geometry to calculate diabatz");
 
     // optional argument
     parser.add_argument("-a","--adiabatz");
@@ -57,8 +57,8 @@ int main(size_t argc, const char ** argv) {
     std::vector<std::string> diabatz_inputs = args.retrieve<std::vector<std::string>>("diabatz");
     Hd::kernel Hdkernel(diabatz_inputs);
 
-    CL::chem::xyz<double> geom(args.retrieve<std::string>("structure"), true);
-    std::vector<double> coords = geom.coords();
+    CL::chem::xyz<double> xyz(args.retrieve<std::string>("xyz"), true);
+    std::vector<double> coords = xyz.coords();
     at::Tensor r = at::from_blob(coords.data(), coords.size(), at::TensorOptions().dtype(torch::kFloat64));
 
     if (args.gotArgument("adiabatz")) {
