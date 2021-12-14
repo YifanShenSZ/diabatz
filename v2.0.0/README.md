@@ -1,5 +1,5 @@
-# Version 1
-Version 0 + dimensionality reduction
+# Version 2.0.0
+Version 0.0.0 + dimensionality reduction
 
 The geometry is described by CNPI group symmetry adapted and scaled internal coordinate
 
