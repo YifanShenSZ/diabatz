@@ -13,7 +13,7 @@ class kernel {
     private:
         // generate bond lengthes
         std::shared_ptr<tchem::IC::IntCoordSet> blset_;
-        // `a` in `a * 1/r`
+        // `a` in `a * 1/r^12`
         std::vector<double> as_;
         // generate CNPI group symmetry adapted and scaled internal coordinate from Cartesian coordinate
         std::shared_ptr<SASDIC::SASDICSet> sasicset_;

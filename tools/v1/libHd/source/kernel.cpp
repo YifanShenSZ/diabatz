@@ -10,7 +10,7 @@ const std::string & BLformat, const std::string & BLIC, const std::string & BLpa
 const std::string & format, const std::string & IC, const std::string & SAS,
 const std::string & net, const std::string & checkpoint,
 const std::vector<std::string> & input_layers) {
-    // 1/r repulsion
+    // 1/r^12 repulsion
     blset_ = std::make_shared<tchem::IC::IntCoordSet>(BLformat, BLIC);
     as_ = CL::utility::read_vector(BLparameters);
     // Hd network
@@ -35,10 +35,10 @@ size_t kernel::NStates() const {return Hdnet_->NStates();}
 at::Tensor kernel::operator()(const at::Tensor & r) const {
     if (r.sizes().size() != 1) throw std::invalid_argument(
     "Hd::kernel::operator(): r must be a vector");
-    // 1/r repulsion
+    // 1/r^12 repulsion
     at::Tensor BLs = (*blset_)(r);
-    at::Tensor repulsion = as_[0] / BLs[0];
-    for (size_t i = 1; i < as_.size(); i++) repulsion += as_[i] / BLs[i];
+    at::Tensor repulsion = as_[0] / BLs[0].pow(12.0);
+    for (size_t i = 1; i < as_.size(); i++) repulsion += as_[i] / BLs[i].pow(12.0);
     // Cartesian coordinate -> CNPI group symmetry adaptated and scaled internal coordinate
     at::Tensor q = sasicset_->tchem::IC::IntCoordSet::operator()(r);
     std::vector<at::Tensor> qs = (*sasicset_)(q);
@@ -57,13 +57,13 @@ std::tuple<at::Tensor, at::Tensor> kernel::compute_Hd_dHd(const at::Tensor & r) 
     "Hd::kernel::compute_Hd_dHd: r must be a vector");
     // 1/r repulsion
     at::Tensor BLs = (*blset_)(r);
-    at::Tensor repulsion = as_[0] / BLs[0];
+    at::Tensor repulsion = as_[0] / BLs[0].pow(12.0);
     at::Tensor intrepulse = BLs.new_empty(BLs.sizes());
-    intrepulse[0] = -repulsion / BLs[0];
+    intrepulse[0] = -12.0 * repulsion / BLs[0];
     for (size_t i = 1; i < as_.size(); i++) {
-        at::Tensor temp = as_[i] / BLs[i];
+        at::Tensor temp = as_[i] / BLs[i].pow(12.0);
         repulsion += temp;
-        intrepulse[i] = -temp / BLs[i];
+        intrepulse[i] = -12.0 * temp / BLs[i];
     }
     at::Tensor cartrepulse = blset_->gradient_int2cart(r, intrepulse);
     // Cartesian coordinate -> CNPI group symmetry adaptated and scaled internal coordinate
