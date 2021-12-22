@@ -49,8 +49,7 @@ const int64_t & NStates_data, const at::Tensor & DrHa_data) {
     at::Tensor DrHa = tchem::linalg::UT_sy_U(DrHd, states);
     DrHa = DrHa.slice(0, 0, NStates_data).slice(1, 0, NStates_data);
     size_t iphase = phasers[NStates_data]->iphase_min(DrHa, DrHa_data);
-    at::Tensor states_view = states.slice(1, 0, NStates_data);
-    phasers[NStates_data]->alter_states_(states_view, iphase);
+    phasers[NStates_data]->alter_states_(states, iphase);
     return std::make_tuple(energy, states);
 }
 
