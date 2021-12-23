@@ -49,6 +49,7 @@ const int64_t & NStates_data, const at::Tensor & DrHa_data) {
     at::Tensor DrHa = tchem::linalg::UT_sy_U(DrHd, states);
     size_t ipermutation, iphase;
     std::tie(ipermutation, iphase) = orderer->ipermutation_iphase_min(DrHa, DrHa_data);
+    orderer->alter_eigvals_(energy, ipermutation);
     orderer->alter_states_(states, ipermutation, NStates_data, iphase);
     return std::make_tuple(energy, states);
 }
@@ -68,6 +69,7 @@ const at::Tensor & Hc_data, const at::Tensor & DrHc_data) {
                DrHc = tchem::linalg::UT_sy_U(DrHd, eigvec);
     size_t ipermutation, iphase;
     std::tie(ipermutation, iphase) = orderer->ipermutation_iphase_min(Hc, DrHc, Hc_data, DrHc_data, unit_square);
+    orderer->alter_eigvals_(eigval, ipermutation);
     orderer->alter_states_(eigvec, ipermutation, NStates, iphase);
     return std::make_tuple(eigval, eigvec);
 }
