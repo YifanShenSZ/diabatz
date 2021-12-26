@@ -13,18 +13,18 @@ const std::shared_ptr<abinitio::DataSet<Energy>> & energy_set,
 const size_t & max_iteration, const size_t & batch_size, const double & learning_rate,
 const std::string & opt_chk) {
     auto reg_loader = torch::data::make_data_loader(* regset,
-        torch::data::DataLoaderOptions(batch_size));
+        torch::data::DataLoaderOptions(batch_size).drop_last(true));
     auto deg_loader = torch::data::make_data_loader(* degset,
-        torch::data::DataLoaderOptions(batch_size));
+        torch::data::DataLoaderOptions(batch_size).drop_last(true));
     auto energy_loader = torch::data::make_data_loader(* energy_set,
-        torch::data::DataLoaderOptions(batch_size));
+        torch::data::DataLoaderOptions(batch_size).drop_last(true));
 
     int64_t NPars = 0;
     for (const auto & p : Hdnet->elements->parameters()) NPars += p.numel();
     std::cout << "There are " << NPars << " parameters to train\n\n";
     at::Tensor c = at::empty(NPars, c10::TensorOptions().dtype(torch::kFloat64));
     p2c(0, c.data_ptr<double>());
-    // Display initial residue
+    // display initial residue
     std::cout << "The initial residue = "
               << at::cat({reg_residue(regset->examples()),
                           deg_residue(degset->examples()),
@@ -35,7 +35,7 @@ const std::string & opt_chk) {
     torch::optim::Adam optimizer({c}, learning_rate);
     if (std::experimental::filesystem::exists(opt_chk)) torch::load(optimizer, opt_chk);
 
-    // Create c.grad()
+    // create c.grad()
     c.set_requires_grad(true);
     at::Tensor fake_loss = c.dot(c);
     fake_loss.backward();
