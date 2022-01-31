@@ -32,7 +32,10 @@ at::Tensor Scaler::operator()(const at::Tensor & DICs) const {
         scaling = 1.0 - at::exp(-parameters_[0] * x);
     }
     else if (type_ == "exp(-a*x)*(1+x)^b") {
-        scaling = at::exp(-parameters_[0] * x) * (1.0 + x).pow(parameters_[1]);
+        const double & a = parameters_[0],
+                     & b = parameters_[1];
+        double maximum = exp(a - b) * pow(b / a, b);
+        scaling = at::exp(-a * x) * (1.0 + x).pow(b) / maximum;
     }
     else throw std::invalid_argument("Unimplemented scaling function " + type_);
     if (self_ == other_) return scaling;

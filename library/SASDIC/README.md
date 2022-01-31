@@ -27,5 +27,5 @@ Let scaling function be f:
 * else:             SDICs[self] = f(DICs[other]) * DICs[self]
 
 Available scaling functions:
-* `1-exp(-a*x)`, which will produce Morse potential
-* `exp(-a*x)*(1+x)^b`, which reaches maximum at `x = b/a - 1` and approaches 0 at `-1 <- x` and `x -> infinity`
+* `1-exp(-a*x)`, which produces Morse potential
+* `exp(-a*x)*(1+x)^b`, which resembles the radial distribution of hydrogen orbitals, reaches maximum at `x = b/a - 1` and approaches 0 at `-1 <- x` and `x -> infinity`
