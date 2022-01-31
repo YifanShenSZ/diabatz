@@ -10,9 +10,9 @@ Scale: (self, other, scaling function, parameter(s))
 Coordinates of irreducible 1: (number, coefficient, index of internal coordinate)
      1    1.000000     1
      2    1.000000     2
-     3    0.707107     3
+     3    0.707107     3    # N-H1 + N-H2
           0.707107     4
-     4    0.707107     5
+     4    0.707107     5    # C-N-H1 + C-N-H2
           0.707107     6
      5    0.707107     7
           0.707107     8
@@ -38,9 +38,9 @@ Coordinates of irreducible 1: (number, coefficient, index of internal coordinate
     16    0.707107    47    # symmetric 2nd-scaling
           0.707107    48
 Coordinates of irreducible 2: (number, coefficient, index of internal coordinate)
-     1    0.707107     3
+     1    0.707107     3    # N-H1 - N-H2
          -0.707107     4
-     2    0.707107     5
+     2    0.707107     5    # C-N-H1 - C-N-H2
          -0.707107     6
      3    0.707107    43    # asymmetric Morse
          -0.707107    44
