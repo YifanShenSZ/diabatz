@@ -46,6 +46,7 @@ at::Tensor kernel::operator()(const std::vector<at::Tensor> & qs) const {
     for (size_t i = 0; i < qs.size(); i++)
     if (qs[i].size(0) != NSASDICs[i]) throw std::invalid_argument(
     "Hd::kernel::operator(): qs has wrong number of internal coordinates");
+    // SASDIC -> input layer
     CL::utility::matrix<at::Tensor> xs = (*input_generator_)(qs);
     // input layer -> Hd
     return (*Hdnet_)(xs);

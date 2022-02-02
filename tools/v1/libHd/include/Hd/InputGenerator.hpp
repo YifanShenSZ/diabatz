@@ -5,8 +5,6 @@
 
 #include <tchem/polynomial.hpp>
 
-#include <obnet/symat.hpp>
-
 namespace Hd {
 
 // to generate input layers for Hd network
