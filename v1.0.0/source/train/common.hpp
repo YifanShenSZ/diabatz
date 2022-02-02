@@ -10,7 +10,7 @@ namespace train {
 
 extern int64_t NStates;
 
-extern std::shared_ptr<tchem::chem::Orderer> orderer;
+extern std::vector<std::shared_ptr<tchem::chem::Phaser>> phasers;
 
 extern size_t OMP_NUM_THREADS;
 
@@ -47,10 +47,9 @@ const int64_t & NStates_data, const at::Tensor & DrHa_data) {
     for (size_t j = i; j < NStates; j++)
     DrHd[i][j] = JqrT.mv(DqHd[i][j]);
     at::Tensor DrHa = tchem::linalg::UT_sy_U(DrHd, states);
-    size_t ipermutation, iphase;
-    std::tie(ipermutation, iphase) = orderer->ipermutation_iphase_min(DrHa, DrHa_data);
-    orderer->alter_eigvals_(energy, ipermutation);
-    orderer->alter_states_(states, ipermutation, NStates_data, iphase);
+    DrHa = DrHa.slice(0, 0, NStates_data).slice(1, 0, NStates_data);
+    size_t iphase = phasers[NStates_data]->iphase_min(DrHa, DrHa_data);
+    phasers[NStates_data]->alter_states_(states, iphase);
     return std::make_tuple(energy, states);
 }
 
@@ -67,10 +66,8 @@ const at::Tensor & Hc_data, const at::Tensor & DrHc_data) {
     std::tie(eigval, eigvec) = dHdH.symeig(true);
     at::Tensor   Hc = tchem::linalg::UT_sy_U(  Hd, eigvec),
                DrHc = tchem::linalg::UT_sy_U(DrHd, eigvec);
-    size_t ipermutation, iphase;
-    std::tie(ipermutation, iphase) = orderer->ipermutation_iphase_min(Hc, DrHc, Hc_data, DrHc_data, unit_square);
-    orderer->alter_eigvals_(eigval, ipermutation);
-    orderer->alter_states_(eigvec, ipermutation, NStates, iphase);
+    size_t iphase = phasers[NStates]->iphase_min(Hc, DrHc, Hc_data, DrHc_data, unit_square);
+    phasers[NStates]->alter_states_(eigvec, iphase);
     return std::make_tuple(eigval, eigvec);
 }
 

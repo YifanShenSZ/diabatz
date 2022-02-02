@@ -4,7 +4,7 @@ namespace train {
 
 int64_t NStates;
 
-std::shared_ptr<tchem::chem::Orderer> orderer;
+std::vector<std::shared_ptr<tchem::chem::Phaser>> phasers;
 
 size_t OMP_NUM_THREADS;
 
@@ -15,7 +15,9 @@ std::vector<std::shared_ptr<obnet::symat>> Hdnets;
 void initialize() {
     NStates = Hdnet->NStates();
 
-    orderer = std::make_shared<tchem::chem::Orderer>(NStates);
+    phasers.resize(NStates + 1);
+    for (size_t i = 0; i < phasers.size(); i++)
+    phasers[i] = std::make_shared<tchem::chem::Phaser>(i);
 
     OMP_NUM_THREADS = omp_get_max_threads();
     std::cout << "The number of threads = " << OMP_NUM_THREADS << "\n\n";
