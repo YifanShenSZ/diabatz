@@ -2,7 +2,6 @@
 #define Hd_kernel_hpp
 
 #include <SASDIC/SASDICSet.hpp>
-
 #include <obnet/symat.hpp>
 
 #include <Hd/InputGenerator.hpp>

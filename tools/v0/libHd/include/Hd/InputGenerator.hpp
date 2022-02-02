@@ -5,11 +5,9 @@
 
 #include <tchem/polynomial.hpp>
 
-#include <obnet/symat.hpp>
-
 namespace Hd {
 
-// To generate input layers for Hd network
+// to generate input layers for Hd network
 class InputGenerator {
     private:
         CL::utility::matrix<tchem::polynomial::SAPSet *> polynomials_;
