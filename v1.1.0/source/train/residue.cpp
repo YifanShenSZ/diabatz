@@ -95,8 +95,7 @@ double * r, size_t & start) {
     CL::utility::matrix<at::Tensor> xs = data->xs();
     at::Tensor Hd = Hdnets[thread]->forward(xs);
     Hd.detach_();
-    // add the pretrained part
-    Hd += data->pretrained_Hd();
+    Hd += data->pretrained_Hd(); // add the pretrained part
     at::Tensor energy, states;
     std::tie(energy, states) = Hd.symeig();
     // energy residue

@@ -63,7 +63,7 @@ at::Tensor reg_residue(const std::vector<std::shared_ptr<RegHam>> & batch) {
 
 at::Tensor deg_residue(const std::vector<std::shared_ptr<DegHam>> & batch) {
     size_t batch_size = batch.size();
-    // Return a 0 if empty batch
+    // return a 0 if empty batch
     if (batch_size == 0) return at::zeros(1, c10::TensorOptions().dtype(torch::kFloat64));
     else {
         std::vector<at::Tensor> residues(batch_size);
@@ -116,7 +116,7 @@ at::Tensor deg_residue(const std::vector<std::shared_ptr<DegHam>> & batch) {
 
 at::Tensor energy_residue(const std::vector<std::shared_ptr<Energy>> & batch) {
     size_t batch_size = batch.size();
-    // Return a 0 if empty batch
+    // return a 0 if empty batch
     if (batch_size == 0) return at::zeros(1, c10::TensorOptions().dtype(torch::kFloat64));
     else {
         std::vector<at::Tensor> residues(batch_size);
@@ -128,7 +128,7 @@ at::Tensor energy_residue(const std::vector<std::shared_ptr<Energy>> & batch) {
             CL::utility::matrix<at::Tensor> xs = data->xs();
             at::Tensor Hd = Hdnets[thread]->forward(xs);
             Hd.detach_();
-            Hd += data->pretrained_Hd();
+            Hd += data->pretrained_Hd(); // add the pretrained part
             at::Tensor energy, states;
             std::tie(energy, states) = Hd.symeig();
             // energy residue

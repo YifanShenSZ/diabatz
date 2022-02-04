@@ -14,7 +14,7 @@ namespace train { namespace torch_optim {
 
 at::Tensor reg_residue(const std::vector<std::shared_ptr<RegHam>> & batch) {
     size_t batch_size = batch.size();
-    // Return a 0 if empty batch
+    // return a 0 if empty batch
     if (batch_size == 0) return at::zeros(1, c10::TensorOptions().dtype(torch::kFloat64));
     else {
         std::vector<at::Tensor> residues(batch_size);
@@ -22,20 +22,20 @@ at::Tensor reg_residue(const std::vector<std::shared_ptr<RegHam>> & batch) {
         for (size_t idata = 0; idata < batch_size; idata++) {
             int thread = omp_get_thread_num();
             const auto & data = batch[idata];
-            // Get necessary diabatic quantities
+            // get necessary diabatic quantities
             CL::utility::matrix<at::Tensor> xs = data->xs();
             for (size_t i = 0; i < NStates; i++)
             for (size_t j = i; j < NStates; j++)
             xs[i][j].set_requires_grad(true);
             at::Tensor   Hd = Hdnets[thread]->forward(xs);
             at::Tensor DqHd = Hderiva::DxHd(Hd, xs, data->JxqTs());
-            // Stop autograd tracking
+            // stop autograd tracking
             Hd.detach_();
-            // Get adiabatic representation
+            // get adiabatic representation
             at::Tensor energy, states;
             std::tie(energy, states) = define_adiabatz(Hd, DqHd,
                 data->JqrT(), data->cartdim(), data->NStates(), data->dH());
-            // Make prediction in adiabatic representation
+            // predict in adiabatic representation
             int64_t NStates_data = data->NStates();
             energy = energy.slice(0, 0, NStates_data);
             at::Tensor DqHa = tchem::linalg::UT_sy_U(DqHd, states);
@@ -60,7 +60,7 @@ at::Tensor reg_residue(const std::vector<std::shared_ptr<RegHam>> & batch) {
 
 at::Tensor deg_residue(const std::vector<std::shared_ptr<DegHam>> & batch) {
     size_t batch_size = batch.size();
-    // Return a 0 if empty batch
+    // return a 0 if empty batch
     if (batch_size == 0) return at::zeros(1, c10::TensorOptions().dtype(torch::kFloat64));
     else {
         std::vector<at::Tensor> residues(batch_size);
@@ -68,20 +68,20 @@ at::Tensor deg_residue(const std::vector<std::shared_ptr<DegHam>> & batch) {
         for (size_t idata = 0; idata < batch_size; idata++) {
             int thread = omp_get_thread_num();
             const auto & data = batch[idata];
-            // Get necessary diabatic quantities
+            // get necessary diabatic quantities
             CL::utility::matrix<at::Tensor> xs = data->xs();
             for (size_t i = 0; i < NStates; i++)
             for (size_t j = i; j < NStates; j++)
             xs[i][j].set_requires_grad(true);
             at::Tensor   Hd = Hdnets[thread]->forward(xs);
             at::Tensor DqHd = Hderiva::DxHd(Hd, xs, data->JxqTs());
-            // Stop autograd tracking
+            // stop autograd tracking
             Hd.detach_();
-            // Get composite representation
+            // get composite representation
             at::Tensor eigval, eigvec;
             std::tie(eigval, eigvec) = define_composite(Hd, DqHd,
                 data->JqrT(), data->cartdim(), data->H(), data->dH());
-            // Make prediction in composite representation
+            // predict in composite representation
             at::Tensor   Hc = tchem::linalg::UT_sy_U(  Hd, eigvec);
             at::Tensor DqHc = tchem::linalg::UT_sy_U(DqHd, eigvec);
             CL::utility::matrix<at::Tensor> SADQHc(NStates);
@@ -110,7 +110,7 @@ at::Tensor deg_residue(const std::vector<std::shared_ptr<DegHam>> & batch) {
 
 at::Tensor energy_residue(const std::vector<std::shared_ptr<Energy>> & batch) {
     size_t batch_size = batch.size();
-    // Return a 0 if empty batch
+    // return a 0 if empty batch
     if (batch_size == 0) return at::zeros(1, c10::TensorOptions().dtype(torch::kFloat64));
     else {
         std::vector<at::Tensor> residues(batch_size);

@@ -110,8 +110,7 @@ at::Tensor & J, size_t & start) {
     at::Tensor   Hd = Hdnets[thread]->forward(xs);
     at::Tensor DcHd = Hderiva::DcHd(Hd, Hdnets[thread]->elements->parameters());
     Hd.detach_();
-    // add the pretrained part
-    Hd += data->pretrained_Hd();
+    Hd += data->pretrained_Hd(); // add the pretrained part
     at::Tensor energy, states;
     std::tie(energy, states) = Hd.symeig(true);
     at::Tensor DcHa = tchem::linalg::UT_sy_U(DcHd, states);

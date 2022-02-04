@@ -47,7 +47,7 @@ at::Tensor reg_gradient(const std::vector<std::shared_ptr<RegHam>> & batch) {
         for (size_t i = 0; i < NStates_data; i++)
         for (size_t j = i; j < NStates_data; j++)
         SADQHa[i][j] = data->C2Qs(data->irreds(i, j)).mv(data->JqrT().mv(DqHa[i][j]));
-        // Compute fitting parameter gradient in adiabatic prediction
+        // compute fitting parameter gradient in adiabatic prediction
         at::Tensor DcHa = tchem::linalg::UT_sy_U(DcHd, states);
         at::Tensor DcDqHa = Hderiva::DcDxHa(DqHa, DcHd, DcDqHd, energy, states);
         CL::utility::matrix<at::Tensor> DcSADQHa(NStates_data);
@@ -157,7 +157,7 @@ at::Tensor energy_gradient(const std::vector<std::shared_ptr<Energy>> & batch) {
         at::Tensor   Hd = Hdnets[thread]->forward(xs);
         at::Tensor DcHd = Hderiva::DcHd(Hd, Hdnets[thread]->elements->parameters());
         Hd.detach_();
-        Hd += data->pretrained_Hd();
+        Hd += data->pretrained_Hd(); // add the pretrained part
         at::Tensor energy, states;
         std::tie(energy, states) = Hd.symeig(true);
         at::Tensor DcHa = tchem::linalg::UT_sy_U(DcHd, states);
