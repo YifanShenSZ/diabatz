@@ -6,9 +6,7 @@
 void compare() {
     c10::TensorOptions top = at::TensorOptions().dtype(torch::kFloat64);
     int64_t NStates = Hdkernel->NStates();
-    std::vector<std::shared_ptr<tchem::chem::Phaser>> phasers(NStates + 1);
-    for (size_t i = 2; i < phasers.size(); i++)
-    phasers[i] = std::make_shared<tchem::chem::Phaser>(i);
+    tchem::chem::Orderer orderer(NStates);
     // Data in adiabatic representation
     at::Tensor rmsd_energy = at::zeros(NStates, top),
                rmsd_dHa    = at::zeros({NStates, NStates}, top);
@@ -25,7 +23,7 @@ void compare() {
         energy = energy.slice(0, 0, NStates);
         at::Tensor dHa = tchem::linalg::UT_sy_U(dHd, states);
         dHa = dHa.slice(0, 0, NStates).slice(1, 0, NStates);
-        phasers[NStates]->fix_ob_(dHa, dH);
+        orderer.fix_ob_(dHa, dH);
         // Count deviation
         for (size_t i = 0; i < NStates; i++) state_count[i] += 1;
         at::Tensor view_rmsd_energy = rmsd_energy.slice(0, 0, NStates);
