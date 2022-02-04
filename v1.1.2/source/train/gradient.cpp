@@ -14,8 +14,8 @@ namespace train { namespace torch_optim {
 
 at::Tensor reg_gradient(const std::vector<std::shared_ptr<RegHam>> & batch) {
     size_t batch_size = batch.size();
-    // parallelly compute residue and Jacobian of each data point
-    std::vector<at::Tensor> residues(batch_size), Jacobians(batch_size);
+    // parallelly compute gradient of each data point
+    std::vector<at::Tensor> gradients(batch_size);
     #pragma omp parallel for
     for (size_t idata = 0; idata < batch_size; idata++) {
         int thread = omp_get_thread_num();
@@ -68,21 +68,18 @@ at::Tensor reg_gradient(const std::vector<std::shared_ptr<RegHam>> & batch) {
             r.push_back(data->sqrtweight_dH(i, j) * data->sqrtSQs(data->irreds(i, j)).mv(SADQHa[i][j] - data->SAdH(i, j)));
             J.push_back(data->sqrtweight_dH(i, j) * data->sqrtSQs(data->irreds(i, j)).mm(DcSADQHa[i][j]));
         }
-        // total residue and Jacobian
-        residues[idata] = at::cat(r);
-        Jacobians[idata] = at::cat(J);
+        // total gradient
+        gradients[idata] = at::matmul(at::cat(r), at::cat(J));
     }
-    // concatenate gradients
-    at::Tensor gradient = at::matmul(residues[0], Jacobians[0]);
-    for (size_t idata = 1; idata < batch_size; idata++) gradient += at::matmul(residues[idata], Jacobians[idata]);
-    gradient /= (double)batch_size;
+    // accumulate gradients
+    at::Tensor gradient = std::accumulate(gradients.begin() + 1, gradients.end(), gradients[0]) / (double)batch_size;
     return gradient;
 }
 
 at::Tensor deg_gradient(const std::vector<std::shared_ptr<DegHam>> & batch) {
     size_t batch_size = batch.size();
-    // parallelly compute residue and Jacobian of each data point
-    std::vector<at::Tensor> residues(batch_size), Jacobians(batch_size);
+    // parallelly compute gradient of each data point
+    std::vector<at::Tensor> gradients(batch_size);
     #pragma omp parallel for
     for (size_t idata = 0; idata < batch_size; idata++) {
         int thread = omp_get_thread_num();
@@ -139,21 +136,18 @@ at::Tensor deg_gradient(const std::vector<std::shared_ptr<DegHam>> & batch) {
             r.push_back(data->sqrtweight_dH(i, j) * data->sqrtSQs(data->irreds(i, j)).mv(SADQHc[i][j] - data->SAdH(i, j)));
             J.push_back(data->sqrtweight_dH(i, j) * data->sqrtSQs(data->irreds(i, j)).mm(DcSADQHc[i][j]));
         }
-        // total residue and Jacobian
-        residues[idata] = at::cat(r);
-        Jacobians[idata] = at::cat(J);
+        // total gradient
+        gradients[idata] = at::matmul(at::cat(r), at::cat(J));
     }
-    // concatenate gradients
-    at::Tensor gradient = at::matmul(residues[0], Jacobians[0]);
-    for (size_t idata = 1; idata < batch_size; idata++) gradient += at::matmul(residues[idata], Jacobians[idata]);
-    gradient /= (double)batch_size;
+    // accumulate gradients
+    at::Tensor gradient = std::accumulate(gradients.begin() + 1, gradients.end(), gradients[0]) / (double)batch_size;
     return gradient;
 }
 
 at::Tensor energy_gradient(const std::vector<std::shared_ptr<Energy>> & batch) {
     size_t batch_size = batch.size();
-    // parallelly compute residue and Jacobian of each data point
-    std::vector<at::Tensor> residues(batch_size), Jacobians(batch_size);
+    // parallelly compute gradient of each data point
+    std::vector<at::Tensor> gradients(batch_size);
     #pragma omp parallel for
     for (size_t idata = 0; idata < batch_size; idata++) {
         int thread = omp_get_thread_num();
@@ -177,14 +171,11 @@ at::Tensor energy_gradient(const std::vector<std::shared_ptr<Energy>> & batch) {
             J.push_back(data->sqrtweight_E(i) * unit * DcHa[i][i]);
             J.back().resize_({1, J.back().numel()});
         }
-        // total residue and Jacobian
-        residues[idata] = r;
-        Jacobians[idata] = at::cat(J);
+        // total gradient
+        gradients[idata] = at::matmul(r, at::cat(J));
     }
-    // concatenate gradients
-    at::Tensor gradient = at::matmul(residues[0], Jacobians[0]);
-    for (size_t idata = 1; idata < batch_size; idata++) gradient += at::matmul(residues[idata], Jacobians[idata]);
-    gradient /= (double)batch_size;
+    // accumulate gradients
+    at::Tensor gradient = std::accumulate(gradients.begin() + 1, gradients.end(), gradients[0]) / (double)batch_size;
     return gradient;
 }
 
