@@ -6,7 +6,7 @@
 
 namespace train { namespace torch_optim {
 
-void SGD(
+void NAG(
 const std::shared_ptr<abinitio::DataSet<RegHam>> & regset,
 const std::shared_ptr<abinitio::DataSet<DegHam>> & degset,
 const std::shared_ptr<abinitio::DataSet<Energy>> & energy_set,
@@ -32,7 +32,7 @@ const std::string & opt_chk) {
                  })
                  .norm().item<double>() << std::endl;
 
-    torch::optim::SGD optimizer({c}, torch::optim::SGDOptions(learning_rate));
+    torch::optim::SGD optimizer({c}, torch::optim::SGDOptions(learning_rate).momentum(0.9).dampening(0.9).nesterov(true));
     if (std::experimental::filesystem::exists(opt_chk)) torch::load(optimizer, opt_chk);
 
     // create c.grad()

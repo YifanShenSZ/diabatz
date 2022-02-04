@@ -32,7 +32,7 @@ const std::string & opt_chk) {
                  })
                  .norm().item<double>() << std::endl;
 
-    torch::optim::SGD optimizer({c}, torch::optim::SGDOptions(learning_rate).momentum(0.9).dampening(0.9).nesterov(true));
+    torch::optim::SGD optimizer({c}, torch::optim::SGDOptions(learning_rate));
     if (std::experimental::filesystem::exists(opt_chk)) torch::load(optimizer, opt_chk);
 
     // create c.grad()

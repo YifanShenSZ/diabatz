@@ -8,7 +8,7 @@
 argparse::ArgumentParser parse_args(const size_t & argc, const char ** & argv) {
     CL::utility::echo_command(argc, argv, std::cout);
     std::cout << '\n';
-    argparse::ArgumentParser parser("Diabatz version 0");
+    argparse::ArgumentParser parser("Diabatz version 0.0.2");
 
     // required arguments
     parser.add_argument("-f","--format",         1, false, "internal coordinate definition format (Columbus7, default)");
@@ -27,7 +27,7 @@ argparse::ArgumentParser parse_args(const size_t & argc, const char ** & argv) {
     parser.add_argument("-c","--checkpoint",    1, true, "a trained Hd parameter to continue from");
 
     // optimizer arguments
-    parser.add_argument("-o","--optimizer",     1, true, "Adam, SGD (default = Adam)");
+    parser.add_argument("-o","--optimizer",     1, true, "SGD, NAG, Adam (default = Adam)");
     parser.add_argument("-m","--max_iteration", 1, true, "default = 100");
     parser.add_argument("--batch_size",         1, true, "default = 32");
     parser.add_argument("--learning_rate",      1, true, "default = 1e-3");
@@ -38,7 +38,7 @@ argparse::ArgumentParser parse_args(const size_t & argc, const char ** & argv) {
 }
 
 int main(size_t argc, const char ** argv) {
-    std::cout << "Diabatz version 0\n"
+    std::cout << "Diabatz version 0.0.2\n"
               << "Yifan Shen 2021\n\n";
     argparse::ArgumentParser args = parse_args(argc, argv);
     CL::utility::show_time(std::cout);
@@ -142,13 +142,17 @@ int main(size_t argc, const char ** argv) {
         opt_chk = args.retrieve<std::string>("opt_chk");
         std::cout << "Optimizer will continue from " << opt_chk << '\n';
     }
-    if (optimizer == "Adam") {
-        std::cout << "Optimizer is adaptive moment estimation (Adam)\n\n";
-        train::torch_optim::Adam(regset, degset, energy_set, max_iteration, batch_size, learning_rate, opt_chk);
-    }
-    else if (optimizer == "SGD") {
+    if (optimizer == "SGD") {
         std::cout << "Optimizer is stochastic gradient descent (SGD)\n\n";
         train::torch_optim::SGD(regset, degset, energy_set, max_iteration, batch_size, learning_rate, opt_chk);
+    }
+    else if (optimizer == "NAG") {
+        std::cout << "Optimizer is Nesterov accelerated gradient (NAG)\n\n";
+        train::torch_optim::NAG(regset, degset, energy_set, max_iteration, batch_size, learning_rate, opt_chk);
+    }
+    else if (optimizer == "Adam") {
+        std::cout << "Optimizer is adaptive moment estimation (Adam)\n\n";
+        train::torch_optim::Adam(regset, degset, energy_set, max_iteration, batch_size, learning_rate, opt_chk);
     }
     else throw std::invalid_argument("Unsupported optimizer " + optimizer);
 

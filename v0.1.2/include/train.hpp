@@ -9,7 +9,7 @@ void initialize();
 
 namespace torch_optim {
 
-void Adam(
+void SGD(
 const std::shared_ptr<abinitio::DataSet<RegHam>> & regset,
 const std::shared_ptr<abinitio::DataSet<DegHam>> & degset,
 const std::shared_ptr<abinitio::DataSet<Energy>> & energy_set,
@@ -17,7 +17,15 @@ const size_t & max_iteration, const size_t & batch_size, const double & learning
 const std::string & opt_chk
 );
 
-void SGD(
+void NAG(
+const std::shared_ptr<abinitio::DataSet<RegHam>> & regset,
+const std::shared_ptr<abinitio::DataSet<DegHam>> & degset,
+const std::shared_ptr<abinitio::DataSet<Energy>> & energy_set,
+const size_t & max_iteration, const size_t & batch_size, const double & learning_rate,
+const std::string & opt_chk
+);
+
+void Adam(
 const std::shared_ptr<abinitio::DataSet<RegHam>> & regset,
 const std::shared_ptr<abinitio::DataSet<DegHam>> & degset,
 const std::shared_ptr<abinitio::DataSet<Energy>> & energy_set,

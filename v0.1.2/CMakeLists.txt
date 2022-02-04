@@ -48,8 +48,9 @@ add_executable(diabatz.exe
     source/train/common.cpp
     source/train/residue.cpp
     source/train/gradient.cpp
-    source/train/Adam.cpp
     source/train/SGD.cpp
+    source/train/NAG.cpp
+    source/train/Adam.cpp
 
     source/main.cpp
 )

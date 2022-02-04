@@ -23,8 +23,9 @@ read_data(const std::vector<std::string> & user_list, const double & zero_point)
         size_t nduplicates = ceil(stdreg->weight());
         stdreg->set_weight(1.0);
         // precompute the input layers
+        auto reg = std::make_shared<RegHam>(stdreg, int2input);
         int thread = omp_get_thread_num();
-        for (size_t j = 0; j < nduplicates; j++) pregss[thread].push_back(std::make_shared<RegHam>(stdreg, int2input));
+        for (size_t j = 0; j < nduplicates; j++) pregss[thread].push_back(reg);
     }
     #pragma omp parallel for
     for (size_t i = 0; i < stddegset->size_int(); i++) {
@@ -34,8 +35,9 @@ read_data(const std::vector<std::string> & user_list, const double & zero_point)
         size_t nduplicates = ceil(stddeg->weight());
         stddeg->set_weight(1.0);
         // precompute the input layers
+        auto deg = std::make_shared<DegHam>(stddeg, int2input);
         int thread = omp_get_thread_num();
-        for (size_t j = 0; j < nduplicates; j++) pdegss[thread].push_back(std::make_shared<DegHam>(stddeg, int2input));
+        for (size_t j = 0; j < nduplicates; j++) pdegss[thread].push_back(deg);
     }
     size_t nregs = 0, ndegs = 0;
     for (size_t i = 0; i < OMP_NUM_THREADS; i++) {
