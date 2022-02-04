@@ -8,7 +8,7 @@
 argparse::ArgumentParser parse_args(const size_t & argc, const char ** & argv) {
     CL::utility::echo_command(argc, argv, std::cout);
     std::cout << '\n';
-    argparse::ArgumentParser parser("Diabatz version 0");
+    argparse::ArgumentParser parser("Diabatz version 1.0.0");
 
     // required arguments
     parser.add_argument("--pretrained",        '+', false, "pretrained Hd network definition files");
@@ -131,7 +131,7 @@ void read_parameters(const std::string & prefix, at::Tensor & x) {
 }
 
 int main(size_t argc, const char ** argv) {
-    std::cout << "Diabatz version 0\n"
+    std::cout << "Diabatz version 1.0.0\n"
               << "Yifan Shen 2021\n\n";
     argparse::ArgumentParser args = parse_args(argc, argv);
     CL::utility::show_time(std::cout);
