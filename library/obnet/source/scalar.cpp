@@ -28,8 +28,14 @@ scalar::scalar(const std::vector<size_t> & dimensions, const bool & symmetric) {
                 .bias(symmetric)
             ));
         layer->to(torch::kFloat64);
+        // use Xavier initialization with gain = 5/3 since we adopt tanh activation
+        torch::nn::init::xavier_uniform_(layer->weight, 5.0 / 3.0);
         fcs->push_back(layer);
     }
+    // from chemical experience, a linear regression usually has parameters ~ 0.001,
+    // so we initialize the 1st layer to that range
+    torch::nn::init::uniform_(fcs[0]->as<torch::nn::Linear>()->weight, -0.01, 0.01);
+    // latter layers should maintain the 1st-layer variance, so use Xavier initialization
 }
 scalar::~scalar() {}
 
