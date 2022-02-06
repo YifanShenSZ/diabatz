@@ -31,6 +31,11 @@ at::Tensor Scaler::operator()(const at::Tensor & DICs) const {
     if (type_ == "1-exp(-a*x)") {
         scaling = 1.0 - at::exp(-parameters_[0] * x);
     }
+    else if (type_ == "tanh((x-a)/b)") {
+        const double & a = parameters_[0],
+                     & b = parameters_[1];
+        scaling = at::tanh((x - a) / b);
+    }
     else if (type_ == "exp(-a*x)*(1+x)^b") {
         const double & a = parameters_[0],
                      & b = parameters_[1];
