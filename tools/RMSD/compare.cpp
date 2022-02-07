@@ -7,30 +7,27 @@ void compare() {
     c10::TensorOptions top = at::TensorOptions().dtype(torch::kFloat64);
     int64_t NStates = Hdkernel->NStates();
     tchem::chem::Orderer orderer(NStates);
-    // Data in adiabatic representation
+    // data in adiabatic representation
     at::Tensor rmsd_energy = at::zeros(NStates, top),
                rmsd_dHa    = at::zeros({NStates, NStates}, top);
     std::vector<size_t> state_count(NStates, 0);
     for (auto & data : regset) {
         int64_t NStates = data->NStates();
         at::Tensor dH = data->dH();
-        // Get necessary diabatic quantity
+        // get necessary diabatic quantity
         at::Tensor Hd, dHd;
         std::tie(Hd, dHd) = Hdkernel->compute_Hd_dHd(data->geom());
-        // Make prediction in adiabatic representation
+        // predict in adiabatic representation
         at::Tensor energy, states;
         std::tie(energy, states) = Hd.symeig(true);
-        energy = energy.slice(0, 0, NStates);
         at::Tensor dHa = tchem::linalg::UT_sy_U(dHd, states);
-        dHa = dHa.slice(0, 0, NStates).slice(1, 0, NStates);
         orderer.fix_ob_(dHa, dH);
-        // Count deviation
+        // accumulate deviation
         for (size_t i = 0; i < NStates; i++) state_count[i] += 1;
-        at::Tensor view_rmsd_energy = rmsd_energy.slice(0, 0, NStates);
-        view_rmsd_energy += (energy - data->energy()).pow_(2);
-        at::Tensor view_rmsd_dHa = rmsd_dHa.slice(0, 0, NStates).slice(1, 0, NStates);
-        view_rmsd_dHa += (dHa - dH).pow_(2)
-                         .transpose_(1, 2).transpose_(0, 1).sum_to_size({NStates, NStates});
+        rmsd_energy.slice(0, 0, NStates) += (energy.slice(0, 0, NStates) - data->energy()).pow_(2);
+        rmsd_dHa.slice(0, 0, NStates).slice(1, 0, NStates)
+            += (dHa.slice(0, 0, NStates).slice(1, 0, NStates) - dH).pow_(2)
+                .transpose_(1, 2).transpose_(0, 1).sum_to_size({NStates, NStates});
     }
     for (size_t i = 0; i < NStates; i++) rmsd_energy[i] /= (double)state_count[i];
     rmsd_energy.sqrt_();
