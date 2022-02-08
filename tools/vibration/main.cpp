@@ -16,18 +16,39 @@ argparse::ArgumentParser parse_args(const size_t & argc, const char ** & argv) {
     // required arguments
     parser.add_argument("-f","--format",    1, false, "internal coordinate definition format (Columbus7, default)");
     parser.add_argument("-i","--IC",        1, false, "internal coordinate definition file");
-    parser.add_argument("-t","--target",    1, false, "the target electronic state to analyze vibration");
+    parser.add_argument("-t","--target",    1, false, "the target diabatic electronic state to analyze vibration");
     parser.add_argument("-x","--xyz",       1, false, "the xyz geometry to analyze vibration");
     parser.add_argument("-m","--mass",      1, false, "the masses of atoms");
     parser.add_argument("-d","--diabatz", '+', false, "diabatz definition files");
 
     // optional arguments
     parser.add_argument("-o","--output", 1, true, "output file name (default = avogadro.log)");
+    parser.add_argument("-a","--adiabatz");
 
     parser.parse_args(argc, argv);
     return parser;
 }
 
+// computed by finite difference of (▽H)d
+at::Tensor compute_ddHd(const at::Tensor & r, const Hd::kernel & Hdkernel) {
+    const double dr = 1e-3;
+    std::vector<at::Tensor> plus(r.size(0)), minus(r.size(0));
+    #pragma omp parallel for
+    for (size_t i = 0; i < r.size(0); i++) {
+        at::Tensor Hd, dHd;
+        plus[i] = r.clone();
+        plus[i][i] += dr;
+        std::tie(Hd, plus[i]) = Hdkernel.compute_Hd_dHd(plus[i]);
+        minus[i] = r.clone();
+        minus[i][i] -= dr;
+        std::tie(Hd, minus[i]) = Hdkernel.compute_Hd_dHd(minus[i]);
+    }
+    at::Tensor ddHd = r.new_empty({plus[0].size(0), plus[0].size(1), r.size(0), r.size(0)});
+    for (size_t i = 0; i < r.size(0); i++) ddHd.select(2, i).copy_((plus[i] - minus[i]) / 2.0 / dr);
+    return ddHd;
+}
+
+// here ddHa is ▽[(▽H)a], computed by finite difference of (▽H)a
 at::Tensor compute_ddHa(const at::Tensor & r, const Hd::kernel & Hdkernel) {
     // Here ddHa is ▽[(▽H)a], computed by finite difference of (▽H)a
     const double dr = 1e-3;
@@ -75,15 +96,23 @@ int main(size_t argc, const char ** argv) {
 
     std::vector<double> coords = xyz.coords();
     at::Tensor r = at::from_blob(coords.data(), coords.size(), at::TensorOptions().dtype(torch::kFloat64));
-    
+
     at::Tensor Hd, dHd;
     std::tie(Hd, dHd) = Hdkernel.compute_Hd_dHd(r);
-    at::Tensor energy, states;
-    std::tie(energy, states) = Hd.symeig(true);
-    at::Tensor dHa = tchem::linalg::UT_sy_U(dHd, states);
-    at::Tensor ddHa = compute_ddHa(r, Hdkernel);
-    at::Tensor cartgrad =  dHa[target_state][target_state],
-               carthess = ddHa[target_state][target_state];
+    at::Tensor cartgrad, carthess;
+    if (args.gotArgument("adiabatz")) {
+        at::Tensor energy, states;
+        std::tie(energy, states) = Hd.symeig(true);
+        at::Tensor dHa = tchem::linalg::UT_sy_U(dHd, states);
+        at::Tensor ddHa = compute_ddHa(r, Hdkernel);
+        cartgrad =  dHa[target_state][target_state];
+        carthess = ddHa[target_state][target_state];
+    }
+    else {
+        at::Tensor ddHd = compute_ddHd(r, Hdkernel);
+        cartgrad =  dHd[target_state][target_state];
+        carthess = ddHd[target_state][target_state];
+    }
     at::Tensor inthess = intcoordset.Hessian_cart2int(r, cartgrad, carthess);
 
     at::Tensor q, J;
