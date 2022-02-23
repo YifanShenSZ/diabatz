@@ -28,8 +28,9 @@ argparse::ArgumentParser parse_args(const size_t & argc, const char ** & argv) {
     // optimizer arguments
     parser.add_argument("-o","--optimizer",     1, true, "SGD, NAG, Adam (default = Adam)");
     parser.add_argument("-m","--max_iteration", 1, true, "default = 100");
-    parser.add_argument("--batch_size",         1, true, "default = 32");
+    parser.add_argument("--batch_size",         1, true, "default = 256");
     parser.add_argument("--learning_rate",      1, true, "default = 1e-3");
+    parser.add_argument("--weight_decay",       1, true, "default = 0");
     parser.add_argument("--opt_chk",            1, true, "optimizer checkpoint");
 
     parser.parse_args(argc, argv);
@@ -119,12 +120,15 @@ int main(size_t argc, const char ** argv) {
     if (args.gotArgument("optimizer")) optimizer = args.retrieve<std::string>("optimizer");
     size_t max_iteration = 100;
     if (args.gotArgument("max_iteration")) max_iteration = args.retrieve<size_t>("max_iteration");
-    size_t batch_size = 32;
+    size_t batch_size = 256;
     if (args.gotArgument("batch_size")) batch_size = args.retrieve<size_t>("batch_size");
     std::cout << "Set batch size to " << batch_size << '\n';
     double learning_rate = 1e-3;
     if (args.gotArgument("learning_rate")) learning_rate = args.retrieve<double>("learning_rate");
     std::cout << "Set learning rate to " << learning_rate << '\n';
+    double weight_decay = 0.0;
+    if (args.gotArgument("weight_decay")) weight_decay = std::abs(args.retrieve<double>("weight_decay"));
+    if (weight_decay > 0.0) std::cout << "Set regularization strength to " << weight_decay << '\n';
     std::string opt_chk = "";
     if (args.gotArgument("opt_chk")) {
         opt_chk = args.retrieve<std::string>("opt_chk");
@@ -132,15 +136,15 @@ int main(size_t argc, const char ** argv) {
     }
     if (optimizer == "SGD") {
         std::cout << "Optimizer is stochastic gradient descent (SGD)\n\n";
-        train::torch_optim::SGD(regset, degset, energy_set, max_iteration, batch_size, learning_rate, opt_chk);
+        train::torch_optim::SGD(regset, degset, energy_set, max_iteration, batch_size, learning_rate, weight_decay, opt_chk);
     }
     else if (optimizer == "NAG") {
         std::cout << "Optimizer is Nesterov accelerated gradient (NAG)\n\n";
-        train::torch_optim::NAG(regset, degset, energy_set, max_iteration, batch_size, learning_rate, opt_chk);
+        train::torch_optim::NAG(regset, degset, energy_set, max_iteration, batch_size, learning_rate, weight_decay, opt_chk);
     }
     else if (optimizer == "Adam") {
         std::cout << "Optimizer is adaptive moment estimation (Adam)\n\n";
-        train::torch_optim::Adam(regset, degset, energy_set, max_iteration, batch_size, learning_rate, opt_chk);
+        train::torch_optim::Adam(regset, degset, energy_set, max_iteration, batch_size, learning_rate, weight_decay, opt_chk);
     }
     else throw std::invalid_argument("Unsupported optimizer " + optimizer);
 

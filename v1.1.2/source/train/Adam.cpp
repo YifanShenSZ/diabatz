@@ -10,7 +10,8 @@ void Adam(
 const std::shared_ptr<abinitio::DataSet<RegHam>> & regset,
 const std::shared_ptr<abinitio::DataSet<DegHam>> & degset,
 const std::shared_ptr<abinitio::DataSet<Energy>> & energy_set,
-const size_t & max_iteration, const size_t & batch_size, const double & learning_rate,
+const size_t & max_iteration, const size_t & batch_size,
+const double & learning_rate, const double & weight_decay,
 const std::string & opt_chk) {
     auto reg_loader = torch::data::make_data_loader(* regset,
         torch::data::DataLoaderOptions(batch_size).drop_last(true));
@@ -32,7 +33,7 @@ const std::string & opt_chk) {
                  })
                  .norm().item<double>() << std::endl;
 
-    torch::optim::Adam optimizer({c}, learning_rate);
+    torch::optim::Adam optimizer({c}, torch::optim::AdamOptions(learning_rate).weight_decay(weight_decay));
     if (std::experimental::filesystem::exists(opt_chk)) torch::load(optimizer, opt_chk);
 
     // create c.grad()
