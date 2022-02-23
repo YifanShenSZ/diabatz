@@ -23,12 +23,11 @@ argparse::ArgumentParser parse_args(const size_t & argc, const char ** & argv) {
     parser.add_argument("-z","--zero_point",    1, true, "zero of potential energy, default = 0");
     parser.add_argument("--energy_weight"  ,  '+', true, "energy (reference, threshold) for each state in weight adjustment, default = (0, 1)");
     parser.add_argument("--gradient_weight",    1, true, "gradient threshold in weight adjustment, default = infer from energy threshold");
-    parser.add_argument("-g","--guess_diag",  '+', true, "initial guess of Hd diagonal, default = pytorch initialization");
     parser.add_argument("-c","--checkpoint",    1, true, "a trained Hd parameter to continue from");
 
     // regularization arguments
     parser.add_argument("-r","--regularization", 1, true, "enable regularization and set strength, can be a scalar or files regularization_state1-state2_layer.txt");
-    parser.add_argument("-p","--prior",          1, true, "prior for regularization are taken from files prior_state1-state2_layer.txt");
+    parser.add_argument("-p","--prior",          1, true, "prior for regularization, can be a scalar or files prior_state1-state2_layer.txt, default = 0");
 
     // optimizer arguments
     parser.add_argument("-o","--optimizer",     1, true, "GD, CGDY, CGPR, LBFGS (default = CGDY)");
@@ -146,17 +145,6 @@ int main(size_t argc, const char ** argv) {
 
     Hdnet = std::make_shared<obnet::symat>(args.retrieve<std::string>("net"));
     Hdnet->train();
-    if (args.gotArgument("guess_diag")) {
-        auto guess_diag = args.retrieve<std::vector<double>>("guess_diag");
-        if (guess_diag.size() != Hdnet->NStates()) throw std::invalid_argument(
-        "argument guess_diag: inconsistent number of diagonal elements");
-        auto ps = Hdnet->parameters();
-        torch::NoGradGuard no_grad;
-        for (size_t i = 0; i < Hdnet->NStates(); i++) {
-            for (size_t j = 1; j < ps[i][i].size() - 1; j += 2) ps[i][i][j].fill_(0.0);
-            ps[i][i].back().fill_(guess_diag[i]);
-        }
-    }
     if (args.gotArgument("checkpoint")) torch::load(Hdnet->elements, args.retrieve<std::string>("checkpoint"));
 
     std::vector<std::string> input_layers = args.retrieve<std::vector<std::string>>("input_layers");
@@ -237,10 +225,13 @@ int main(size_t argc, const char ** argv) {
         else regularization.fill_(std::stod(reg_prefix));
         ifs.close();
         // get prior
-        prior = Hdnet->elements->parameters()[0].new_empty(NPars);
-        if (! args.gotArgument("prior")) throw std::invalid_argument("Prior must be provided for regularization");
-        std::string prior_prefix = args.retrieve<std::string>("prior");
-        read_parameters(prior_prefix, prior);
+        prior = Hdnet->elements->parameters()[0].new_zeros(NPars);
+        if (args.gotArgument("prior")) {
+            std::string prior_prefix = args.retrieve<std::string>("prior");
+            std::ifstream ifs; ifs.open(prior_prefix + "_1-1_1.txt");
+            if (ifs.good()) read_parameters(prior_prefix, prior);
+            else prior.fill_(std::stod(prior_prefix));
+        }
     }
 
     train::initialize();
