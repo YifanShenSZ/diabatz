@@ -6,3 +6,9 @@ The core of diabatic representation is its constant basis vectors. The most amaz
 * ▽Ad equals to the diabatic ▽A matrix. In general representations, however, you need another term accounting for the gradient of basis vectors
 
 Usually a representation is defined to diagonalize some operator, e.g. adiabatic representation diagonalizes Hamiltonian operator. That can become problematic, however, when the operator has (near) degenerate eigen values, since the corresponding eigen vectors can arbitrarily mix, introducing <span style="color:red">singularity to the gradient of basis vectors</span>
+
+## Versioning Semantics
+We version *diabatz* with x.y.z format, where:
+* x stands for major version, e.g. model change
+* y stands for minor version, e.g. loss change
+* z stands for patch version, e.g. optimizer change
