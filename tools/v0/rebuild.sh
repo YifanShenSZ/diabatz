@@ -4,7 +4,7 @@ rm lib*
 cmake --build .
 cd ../..
 
-for directory in bin2txt txt2bin vibronics; do
+for directory in bin2txt txt2bin data-stats vibronics; do
     echo
     echo "Entre "$directory
     cd $directory/build
