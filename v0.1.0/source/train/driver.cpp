@@ -75,8 +75,6 @@ void optimize(const bool & regularized, const size_t & max_iteration) {
     residue(r, c, NEqs, NPars);
     std::cout << "The final residue = " << CL::linalg::norm2(r, NEqs) << '\n';
     delete [] r;
- 
-    torch::save(Hdnet->elements, "Hd.net");
     delete [] c;
 }
 

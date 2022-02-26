@@ -59,6 +59,7 @@ add_executable(diabatz.exe
     source/train/Jacobian.cpp
     source/train/driver.cpp
 
+    source/utility.cpp
     source/main.cpp
 )
 

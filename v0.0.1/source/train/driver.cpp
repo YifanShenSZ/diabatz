@@ -103,8 +103,6 @@ void optimize(const bool & regularized, const std::string & optimizer, const dou
 
     loss(l, c, NPars);
     std::cout << "The final loss = " << l << '\n';
- 
-    torch::save(Hdnet->elements, "Hd.net");
     delete [] c;
 }
 

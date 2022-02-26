@@ -54,6 +54,7 @@ add_executable(diabatz.exe
     source/train/gradient.cpp
     source/train/driver.cpp
 
+    source/utility.cpp
     source/main.cpp
 )
 
