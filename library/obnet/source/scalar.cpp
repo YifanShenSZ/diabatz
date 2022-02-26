@@ -32,10 +32,14 @@ scalar::scalar(const std::vector<size_t> & dimensions, const bool & symmetric) {
         torch::nn::init::xavier_uniform_(layer->weight, 5.0 / 3.0);
         fcs->push_back(layer);
     }
-    // from chemical experience, a linear regression usually has parameters ~ 0.001,
-    // so we initialize the 1st layer to that range
-    torch::nn::init::uniform_(fcs[0]->as<torch::nn::Linear>()->weight, -0.01, 0.01);
-    // latter layers should maintain the 1st-layer variance, so use Xavier initialization
+    // Assuming that the input layer has magnitude of ~ 1,
+    // with Xavier or Kaiming initialization the output also has magnitude of ~ 1
+    // From chemical experience, a quantity usually takes ~ 0.01 in atomic unit,
+    // so we additionally shrink the output layer to that range
+    {
+        torch::NoGradGuard no_grad;
+        fcs[fcs->size() - 1]->as<torch::nn::Linear>()->weight *= 0.01;
+    }
 }
 scalar::~scalar() {}
 
