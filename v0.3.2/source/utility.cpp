@@ -8,8 +8,8 @@ void rescale_Hdnet(const CL::utility::matrix<at::Tensor> & avg, const CL::utilit
     for (size_t istate = 0     ; istate < Hdnet->NStates(); istate++)
     for (size_t jstate = istate; jstate < Hdnet->NStates(); jstate++) {
         auto & ps = pmat[istate][jstate];
+        if (Hdnet->irreds()[istate][jstate] == 0) ps[1] += ps[0].mv(avg[istate][jstate]);
         ps[0] *= std[istate][jstate];
-        if (Hdnet->irreds()[istate][jstate] == 0) ps[1] += ps[0].mv(avg[istate][jstate] / std[istate][jstate]);
     }
 }
 
@@ -21,7 +21,7 @@ void unscale_Hdnet(const CL::utility::matrix<at::Tensor> & avg, const CL::utilit
     for (size_t istate = 0     ; istate < Hdnet->NStates(); istate++)
     for (size_t jstate = istate; jstate < Hdnet->NStates(); jstate++) {
         auto & ps = pmat[istate][jstate];
-        if (Hdnet->irreds()[istate][jstate] == 0) ps[1] -= ps[0].mv(avg[istate][jstate] / std[istate][jstate]);
         ps[0] /= std[istate][jstate];
+        if (Hdnet->irreds()[istate][jstate] == 0) ps[1] -= ps[0].mv(avg[istate][jstate]);
     }
 }
