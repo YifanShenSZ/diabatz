@@ -6,8 +6,8 @@
 
 class Energy : public abinitio::SAEnergy {
     private:
-        // input layers and their transposed Jacobians over internal coordinate
-        CL::utility::matrix<at::Tensor> xs_, JxqTs_;
+        // input layers and their transposed Jacobians over Cartesian coordinate
+        CL::utility::matrix<at::Tensor> xs_, JxrTs_;
     public:
         Energy();
         Energy(const std::shared_ptr<abinitio::SAEnergy> & ener,
@@ -15,13 +15,13 @@ class Energy : public abinitio::SAEnergy {
         ~Energy();
 
         const CL::utility::matrix<at::Tensor> & xs() const;
-        const CL::utility::matrix<at::Tensor> & JxqTs() const;
+        const CL::utility::matrix<at::Tensor> & JxrTs() const;
 };
 
 class RegHam : public abinitio::RegSAHam {
     private:
-        // input layers and their transposed Jacobians over internal coordinate
-        CL::utility::matrix<at::Tensor> xs_, JxqTs_;
+        // input layers and their transposed Jacobians over Cartesian coordinate
+        CL::utility::matrix<at::Tensor> xs_, JxrTs_;
     public:
         RegHam();
         RegHam(const std::shared_ptr<abinitio::RegSAHam> & ham,
@@ -29,13 +29,13 @@ class RegHam : public abinitio::RegSAHam {
         ~RegHam();
 
         const CL::utility::matrix<at::Tensor> & xs() const;
-        const CL::utility::matrix<at::Tensor> & JxqTs() const;
+        const CL::utility::matrix<at::Tensor> & JxrTs() const;
 };
 
 class DegHam : public abinitio::DegSAHam {
     private:
-        // input layers and their transposed Jacobians over internal coordinate
-        CL::utility::matrix<at::Tensor> xs_, JxqTs_;
+        // input layers and their transposed Jacobians over Cartesian coordinate
+        CL::utility::matrix<at::Tensor> xs_, JxrTs_;
     public:
         DegHam();
         DegHam(const std::shared_ptr<abinitio::DegSAHam> & ham,
@@ -43,7 +43,7 @@ class DegHam : public abinitio::DegSAHam {
         ~DegHam();
 
         const CL::utility::matrix<at::Tensor> & xs() const;
-        const CL::utility::matrix<at::Tensor> & JxqTs() const;
+        const CL::utility::matrix<at::Tensor> & JxrTs() const;
 };
 
 #endif
