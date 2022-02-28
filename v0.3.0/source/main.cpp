@@ -141,18 +141,18 @@ int main(size_t argc, const char ** argv) {
     }
 
     // define feature scaling by the regular data set
-    CL::utility::matrix<at::Tensor> avg, std;
-    std::tie(avg, std) = statisticize_input(regset);
-    for (const auto & example : regset->examples()) example->scale_features(avg, std);
-    for (const auto & example : degset->examples()) example->scale_features(avg, std);
-    for (const auto & example : energy_set->examples()) example->scale_features(avg, std);
+    CL::utility::matrix<at::Tensor> shift, width;
+    std::tie(shift, width) = statisticize_regset(regset);
+    for (const auto & example : regset->examples()) example->scale_features(shift, width);
+    for (const auto & example : degset->examples()) example->scale_features(shift, width);
+    for (const auto & example : energy_set->examples()) example->scale_features(shift, width);
     // if current parameters come from a checkpoint,
     // rescale Hdnet parameters according to feature scaling
     // so that Hdnet still outputs a same value for a same geometry;
     // else Xavier initialization is good
-    if (args.gotArgument("checkpoint")) rescale_Hdnet(avg, std);
+    if (args.gotArgument("checkpoint")) rescale_Hdnet(shift, width);
     // if enabled regularization, rescale prior
-    if (regularized) rescale_parameters(avg, std, prior);
+    if (regularized) rescale_parameters(shift, width, prior);
 
     train::initialize();
     size_t max_iteration = 100;
@@ -160,7 +160,7 @@ int main(size_t argc, const char ** argv) {
     train::trust_region::initialize(regset, degset, energy_set);
     train::trust_region::optimize(regularized, max_iteration);
 
-    unscale_Hdnet(avg, std);
+    unscale_Hdnet(shift, width);
     torch::save(Hdnet->elements, "Hd.net");
 
     std::cout << '\n';

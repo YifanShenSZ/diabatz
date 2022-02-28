@@ -17,7 +17,7 @@ class Energy : public abinitio::SAEnergy {
         const CL::utility::matrix<at::Tensor> & xs() const;
         const CL::utility::matrix<at::Tensor> & JxrTs() const;
 
-        void scale_features(const CL::utility::matrix<at::Tensor> & avg, const CL::utility::matrix<at::Tensor> & std);
+        void scale_features(const CL::utility::matrix<at::Tensor> & shift, const CL::utility::matrix<at::Tensor> & width);
 };
 
 class RegHam : public abinitio::RegSAHam {
@@ -33,7 +33,7 @@ class RegHam : public abinitio::RegSAHam {
         const CL::utility::matrix<at::Tensor> & xs() const;
         const CL::utility::matrix<at::Tensor> & JxrTs() const;
 
-        void scale_features(const CL::utility::matrix<at::Tensor> & avg, const CL::utility::matrix<at::Tensor> & std);
+        void scale_features(const CL::utility::matrix<at::Tensor> & shift, const CL::utility::matrix<at::Tensor> & width);
 };
 
 class DegHam : public abinitio::DegSAHam {
@@ -49,7 +49,7 @@ class DegHam : public abinitio::DegSAHam {
         const CL::utility::matrix<at::Tensor> & xs() const;
         const CL::utility::matrix<at::Tensor> & JxrTs() const;
 
-        void scale_features(const CL::utility::matrix<at::Tensor> & avg, const CL::utility::matrix<at::Tensor> & std);
+        void scale_features(const CL::utility::matrix<at::Tensor> & shift, const CL::utility::matrix<at::Tensor> & width);
 };
 
 #endif

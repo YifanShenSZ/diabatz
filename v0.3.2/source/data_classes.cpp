@@ -14,11 +14,14 @@ Energy::~Energy() {}
 const CL::utility::matrix<at::Tensor> & Energy::xs() const {return xs_;};
 const CL::utility::matrix<at::Tensor> & Energy::JxrTs() const {return JxrTs_;};
 
-void Energy::scale_features(const CL::utility::matrix<at::Tensor> & avg, const CL::utility::matrix<at::Tensor> & std) {
+void Energy::scale_features(const CL::utility::matrix<at::Tensor> & shift, const CL::utility::matrix<at::Tensor> & width) {
     if (! feature_rescaled_) {
-        xs_ -= avg;
-        xs_ /= std;
-        JxrTs_ /= std;
+        for (size_t i = 0; i < xs_.size(0); i++)
+        for (size_t j = i; j < xs_.size(1); j++) {
+               xs_[i][j] -= shift[i][j];
+               xs_[i][j] /= width[i][j];
+            JxrTs_[i][j] /= width[i][j];
+        }
         feature_rescaled_ = true;
     }
 }
@@ -41,11 +44,14 @@ RegHam::~RegHam() {}
 const CL::utility::matrix<at::Tensor> & RegHam::xs() const {return xs_;};
 const CL::utility::matrix<at::Tensor> & RegHam::JxrTs() const {return JxrTs_;};
 
-void RegHam::scale_features(const CL::utility::matrix<at::Tensor> & avg, const CL::utility::matrix<at::Tensor> & std) {
+void RegHam::scale_features(const CL::utility::matrix<at::Tensor> & shift, const CL::utility::matrix<at::Tensor> & width) {
     if (! feature_rescaled_) {
-        xs_ -= avg;
-        xs_ /= std;
-        JxrTs_ /= std;
+        for (size_t i = 0; i < xs_.size(0); i++)
+        for (size_t j = i; j < xs_.size(1); j++) {
+               xs_[i][j] -= shift[i][j];
+               xs_[i][j] /= width[i][j];
+            JxrTs_[i][j] /= width[i][j];
+        }
         feature_rescaled_ = true;
     }
 }
@@ -68,11 +74,14 @@ DegHam::~DegHam() {}
 const CL::utility::matrix<at::Tensor> & DegHam::xs() const {return xs_;};
 const CL::utility::matrix<at::Tensor> & DegHam::JxrTs() const {return JxrTs_;};
 
-void DegHam::scale_features(const CL::utility::matrix<at::Tensor> & avg, const CL::utility::matrix<at::Tensor> & std) {
+void DegHam::scale_features(const CL::utility::matrix<at::Tensor> & shift, const CL::utility::matrix<at::Tensor> & width) {
     if (! feature_rescaled_) {
-        xs_ -= avg;
-        xs_ /= std;
-        JxrTs_ /= std;
+        for (size_t i = 0; i < xs_.size(0); i++)
+        for (size_t j = i; j < xs_.size(1); j++) {
+               xs_[i][j] -= shift[i][j];
+               xs_[i][j] /= width[i][j];
+            JxrTs_[i][j] /= width[i][j];
+        }
         feature_rescaled_ = true;
     }
 }
