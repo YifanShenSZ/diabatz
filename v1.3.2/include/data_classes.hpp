@@ -9,8 +9,8 @@
 class Energy : public abinitio::SAEnergy {
     private:
         bool feature_rescaled_ = false;
-        // input layers and their transposed Jacobians over internal coordinate
-        CL::utility::matrix<at::Tensor> xs_, JxqTs_;
+        // input layers and their transposed Jacobians over Cartesian coordinate
+        CL::utility::matrix<at::Tensor> xs_, JxrTs_;
         // the pretrained part of Hd
         at::Tensor pretrained_Hd_;
     public:
@@ -21,7 +21,7 @@ class Energy : public abinitio::SAEnergy {
         ~Energy();
 
         const CL::utility::matrix<at::Tensor> & xs() const;
-        const CL::utility::matrix<at::Tensor> & JxqTs() const;
+        const CL::utility::matrix<at::Tensor> & JxrTs() const;
         const at::Tensor & pretrained_Hd() const;
 
         void scale_features(const CL::utility::matrix<at::Tensor> & avg, const CL::utility::matrix<at::Tensor> & std);
@@ -30,10 +30,10 @@ class Energy : public abinitio::SAEnergy {
 class RegHam : public abinitio::RegSAHam {
     private:
         bool feature_rescaled_ = false;
-        // input layers and their transposed Jacobians over internal coordinate
-        CL::utility::matrix<at::Tensor> xs_, JxqTs_;
+        // input layers and their transposed Jacobians over Cartesian coordinate
+        CL::utility::matrix<at::Tensor> xs_, JxrTs_;
         // the pretrained part of Hd and ▽Hd
-        at::Tensor pretrained_Hd_, pretrained_DqHd_;
+        at::Tensor pretrained_Hd_, pretrained_DrHd_;
     public:
         RegHam();
         RegHam(const std::shared_ptr<abinitio::RegSAHam> & ham,
@@ -42,9 +42,9 @@ class RegHam : public abinitio::RegSAHam {
         ~RegHam();
 
         const CL::utility::matrix<at::Tensor> & xs() const;
-        const CL::utility::matrix<at::Tensor> & JxqTs() const;
+        const CL::utility::matrix<at::Tensor> & JxrTs() const;
         const at::Tensor & pretrained_Hd  () const;
-        const at::Tensor & pretrained_DqHd() const;
+        const at::Tensor & pretrained_DrHd() const;
 
         void scale_features(const CL::utility::matrix<at::Tensor> & avg, const CL::utility::matrix<at::Tensor> & std);
 };
@@ -52,10 +52,10 @@ class RegHam : public abinitio::RegSAHam {
 class DegHam : public abinitio::DegSAHam {
     private:
         bool feature_rescaled_ = false;
-        // input layers and their transposed Jacobians over internal coordinate
-        CL::utility::matrix<at::Tensor> xs_, JxqTs_;
+        // input layers and their transposed Jacobians over Cartesian coordinate
+        CL::utility::matrix<at::Tensor> xs_, JxrTs_;
         // the pretrained part of Hd and ▽Hd
-        at::Tensor pretrained_Hd_, pretrained_DqHd_;
+        at::Tensor pretrained_Hd_, pretrained_DrHd_;
     public:
         DegHam();
         DegHam(const std::shared_ptr<abinitio::DegSAHam> & ham,
@@ -64,9 +64,9 @@ class DegHam : public abinitio::DegSAHam {
         ~DegHam();
 
         const CL::utility::matrix<at::Tensor> & xs() const;
-        const CL::utility::matrix<at::Tensor> & JxqTs() const;
+        const CL::utility::matrix<at::Tensor> & JxrTs() const;
         const at::Tensor & pretrained_Hd  () const;
-        const at::Tensor & pretrained_DqHd() const;
+        const at::Tensor & pretrained_DrHd() const;
 
         void scale_features(const CL::utility::matrix<at::Tensor> & avg, const CL::utility::matrix<at::Tensor> & std);
 };

@@ -26,34 +26,33 @@ at::Tensor reg_gradient(const std::vector<std::shared_ptr<RegHam>> & batch) {
         for (size_t j = i; j < NStates; j++)
         xs[i][j].set_requires_grad(true);
         at::Tensor     Hd = Hdnets[thread]->forward(xs);
-        at::Tensor   DqHd = Hderiva::DxHd(Hd, xs, data->JxqTs(), true);
+        at::Tensor   DrHd = Hderiva::DxHd(Hd, xs, data->JxrTs(), true);
         at::Tensor   DcHd = Hderiva::DcHd(Hd, Hdnets[thread]->elements->parameters());
-        at::Tensor DcDqHd = Hderiva::DcDxHd(DqHd, Hdnets[thread]->elements->parameters());
+        at::Tensor DcDrHd = Hderiva::DcDxHd(DrHd, Hdnets[thread]->elements->parameters());
         // stop autograd tracking
           Hd.detach_();
-        DqHd.detach_();
+        DrHd.detach_();
         // add the pretrained part
           Hd += data->pretrained_Hd  ();
-        DqHd += data->pretrained_DqHd();
+        DrHd += data->pretrained_DrHd();
         // get adiabatic representation
         at::Tensor energy, states;
-        std::tie(energy, states) = define_adiabatz(Hd, DqHd,
-            data->JqrT(), data->cartdim(), data->NStates(), data->dH());
+        std::tie(energy, states) = define_adiabatz(Hd, DrHd, data->NStates(), data->dH());
         // predict in adiabatic representation
         int64_t NStates_data = data->NStates();
         energy = energy.slice(0, 0, NStates_data);
-        at::Tensor DqHa = tchem::linalg::UT_sy_U(DqHd, states);
+        at::Tensor DrHa = tchem::linalg::UT_sy_U(DrHd, states);
         CL::utility::matrix<at::Tensor> SADQHa(NStates_data);
         for (size_t i = 0; i < NStates_data; i++)
         for (size_t j = i; j < NStates_data; j++)
-        SADQHa[i][j] = data->C2Qs(data->irreds(i, j)).mv(data->JqrT().mv(DqHa[i][j]));
+        SADQHa[i][j] = data->C2Qs(data->irreds(i, j)).mv(DrHa[i][j]);
         // compute fitting parameter gradient in adiabatic prediction
         at::Tensor DcHa = tchem::linalg::UT_sy_U(DcHd, states);
-        at::Tensor DcDqHa = Hderiva::DcDxHa(DqHa, DcHd, DcDqHd, energy, states);
+        at::Tensor DcDrHa = Hderiva::DcDxHa(DrHa, DcHd, DcDrHd, energy, states);
         CL::utility::matrix<at::Tensor> DcSADQHa(NStates_data);
         for (size_t i = 0; i < NStates_data; i++)
         for (size_t j = i; j < NStates_data; j++)
-        DcSADQHa[i][j] = data->C2Qs(data->irreds(i, j)).mm(data->JqrT().mm(DcDqHa[i][j]));
+        DcSADQHa[i][j] = data->C2Qs(data->irreds(i, j)).mm(DcDrHa[i][j]);
         // energy residue and Jacobian
         std::vector<at::Tensor> r, J;
         r.push_back(unit * (energy - data->energy()));
@@ -90,34 +89,33 @@ at::Tensor deg_gradient(const std::vector<std::shared_ptr<DegHam>> & batch) {
         for (size_t j = i; j < NStates; j++)
         xs[i][j].set_requires_grad(true);
         at::Tensor     Hd = Hdnets[thread]->forward(xs);
-        at::Tensor   DqHd = Hderiva::DxHd(Hd, xs, data->JxqTs(), true);
+        at::Tensor   DrHd = Hderiva::DxHd(Hd, xs, data->JxrTs(), true);
         at::Tensor   DcHd = Hderiva::DcHd(Hd, Hdnets[thread]->elements->parameters());
-        at::Tensor DcDqHd = Hderiva::DcDxHd(DqHd, Hdnets[thread]->elements->parameters());
+        at::Tensor DcDrHd = Hderiva::DcDxHd(DrHd, Hdnets[thread]->elements->parameters());
         // stop autograd tracking
           Hd.detach_();
-        DqHd.detach_();
+        DrHd.detach_();
         // add the pretrained part
           Hd += data->pretrained_Hd  ();
-        DqHd += data->pretrained_DqHd();
+        DrHd += data->pretrained_DrHd();
         // get composite representation
         at::Tensor eigval, eigvec;
-        std::tie(eigval, eigvec) = define_composite(Hd, DqHd,
-            data->JqrT(), data->cartdim(), data->H(), data->dH());
+        std::tie(eigval, eigvec) = define_composite(Hd, DrHd, data->H(), data->dH());
         // predict in composite representation
         at::Tensor   Hc = tchem::linalg::UT_sy_U(  Hd, eigvec);
-        at::Tensor DqHc = tchem::linalg::UT_sy_U(DqHd, eigvec);
+        at::Tensor DrHc = tchem::linalg::UT_sy_U(DrHd, eigvec);
         CL::utility::matrix<at::Tensor> SADQHc(NStates);
         for (size_t i = 0; i < NStates; i++)
         for (size_t j = i; j < NStates; j++)
-        SADQHc[i][j] = data->C2Qs(data->irreds(i, j)).mv(data->JqrT().mv(DqHc[i][j]));
+        SADQHc[i][j] = data->C2Qs(data->irreds(i, j)).mv(DrHc[i][j]);
         // compute fitting parameter gradient in composite prediction
-        at::Tensor DcHc, DcDqHc;
-        std::tie(DcHc, DcDqHc) = Hderiva::DcHc_DcDxHc(Hc, DqHc,
-            DqHd, DcHd, DcDqHd, eigval, eigvec, data->Sq());
+        at::Tensor DcHc, DcDrHc;
+        std::tie(DcHc, DcDrHc) = Hderiva::DcHc_DcDxHc(Hc, DrHc,
+            DrHd, DcHd, DcDrHd, eigval, eigvec, data->Sq());
         CL::utility::matrix<at::Tensor> DcSADQHc(NStates);
         for (size_t i = 0; i < NStates; i++)
         for (size_t j = i; j < NStates; j++)
-        DcSADQHc[i][j] = data->C2Qs(data->irreds(i, j)).mm(data->JqrT().mm(DcDqHc[i][j]));
+        DcSADQHc[i][j] = data->C2Qs(data->irreds(i, j)).mm(DcDrHc[i][j]);
         // Hc residue and Jacobian
         std::vector<at::Tensor> r, J;
         at::Tensor r_H = unit * (Hc - data->H()),

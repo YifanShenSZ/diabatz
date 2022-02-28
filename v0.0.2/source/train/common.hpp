@@ -37,15 +37,10 @@ inline void c2p(const double * c, const size_t & thread) {
 }
 
 inline std::tuple<at::Tensor, at::Tensor> define_adiabatz(
-const at::Tensor & Hd, const at::Tensor & DqHd,
-const at::Tensor & JqrT, const int64_t & cartdim,
+const at::Tensor & Hd, const at::Tensor & DrHd,
 const int64_t & NStates_data, const at::Tensor & DrHa_data) {
     at::Tensor energy, states;
     std::tie(energy, states) = Hd.symeig(true);
-    at::Tensor DrHd = DqHd.new_empty({NStates, NStates, cartdim});
-    for (size_t i = 0; i < NStates; i++)
-    for (size_t j = i; j < NStates; j++)
-    DrHd[i][j] = JqrT.mv(DqHd[i][j]);
     at::Tensor DrHa = tchem::linalg::UT_sy_U(DrHd, states);
     DrHa = DrHa.slice(0, 0, NStates_data).slice(1, 0, NStates_data);
     size_t iphase = phasers[NStates_data]->iphase_min(DrHa, DrHa_data);
@@ -54,13 +49,8 @@ const int64_t & NStates_data, const at::Tensor & DrHa_data) {
 }
 
 inline std::tuple<at::Tensor, at::Tensor> define_composite(
-const at::Tensor & Hd, const at::Tensor & DqHd,
-const at::Tensor & JqrT, const int64_t & cartdim,
+const at::Tensor & Hd, const at::Tensor & DrHd,
 const at::Tensor & Hc_data, const at::Tensor & DrHc_data) {
-    at::Tensor DrHd = DqHd.new_empty({NStates, NStates, cartdim});
-    for (size_t i = 0; i < NStates; i++)
-    for (size_t j = i; j < NStates; j++)
-    DrHd[i][j] = JqrT.mv(DqHd[i][j]);
     at::Tensor dHdH = tchem::linalg::sy3matdotmul(DrHd, DrHd);
     at::Tensor eigval, eigvec;
     std::tie(eigval, eigvec) = dHdH.symeig(true);
