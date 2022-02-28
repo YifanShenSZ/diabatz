@@ -1,0 +1,95 @@
+Diabatz version 0.2.0
+Yifan Shen 2021
+
+Echo of user command line input:
+/home/yshen/Software/Mine/diabatz/v0.2.0/diabatz.exe -f default -i IntCoordDef -s SAS.in -n Hd.in -l 11.in 12.in 13.in 14.in 22.in 23.in 24.in 33.in 34.in 44.in -d data/list.txt -z -286.1075216397 -m 10
+
+Mon Feb 28 11:43:13 2022
+
+The data set will be read from: 
+    data/sad-A1/, data/min-B1/, data/sad-B2/, data/min-A2/, 
+There are 200 data points in adiabatic representation
+          0 data points in composite representation
+
+maximum ground state energy = 0.0142374
+maximum ||ground state energy gradient||_infinity = 0.0887975
+so we suggest to set gradient / energy scaling to around 6.23693
+
+The number of threads = 4
+
+Thread 1:
+* owns 50 adiabatic data points
+* owns 0 composite data points
+* owns 0 energy-only data points
+* starts with Jacobian row 0
+Thread 2:
+* owns 50 adiabatic data points
+* owns 0 composite data points
+* owns 0 energy-only data points
+* starts with Jacobian row 7174
+Thread 3:
+* owns 50 adiabatic data points
+* owns 0 composite data points
+* owns 0 energy-only data points
+* starts with Jacobian row 14348
+Thread 4:
+* owns 50 adiabatic data points
+* owns 0 composite data points
+* owns 0 energy-only data points
+* starts with Jacobian row 21522
+
+The data set corresponds to 28696 least square equations
+There are 3720 parameters to train
+
+The initial residue = 60.1761
+ 
+2022 year  2 month 28 day 11:45:10
+ Iteration           1 , residue   60.1760537991644     
+ 
+2022 year  2 month 28 day 11:45:20
+ Iteration           2 , residue   60.1760537991644     
+ 
+2022 year  2 month 28 day 11:45:31
+ Iteration           3 , residue   6.87527103346322     
+ 
+2022 year  2 month 28 day 11:46:21
+ Iteration           4 , residue   6.87527103346322     
+ 
+2022 year  2 month 28 day 11:46:31
+ Iteration           5 , residue   5.41178925354402     
+ 
+2022 year  2 month 28 day 11:47:20
+ Iteration           6 , residue   5.41178925354402     
+ 
+2022 year  2 month 28 day 11:47:30
+ Iteration           7 , residue   4.35920313625343     
+ 
+2022 year  2 month 28 day 11:48:20
+ Iteration           8 , residue   4.35920313625343     
+ 
+2022 year  2 month 28 day 11:48:29
+ Iteration           9 , residue   4.11343826591926     
+ 
+2022 year  2 month 28 day 11:49:20
+ Iteration          10 , residue   4.08548419450585     
+ 
+2022 year  2 month 28 day 11:50:10
+ Iteration          11 , residue   4.05523161230608     
+ 
+2022 year  2 month 28 day 11:51: 4
+ Iteration          12 , residue   4.04605623200615     
+ 
+2022 year  2 month 28 day 11:51:54
+ Iteration          13 , residue   4.04050384549686     
+ 
+2022 year  2 month 28 day 11:52:44
+ Iteration          14 , residue   4.03593793077297     
+ 
+2022 year  2 month 28 day 11:53:34
+ Iteration          15 , residue   4.03330655408552     
+ Failed trust region: max iteration exceeded!
+ Final residual =    4.03330655408552     
+The final residue = 4.03331
+
+Mon Feb 28 11:53:34 2022
+Mission success

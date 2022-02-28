@@ -1,0 +1,60 @@
+Diabatz version 0.0.2
+Yifan Shen 2021
+
+Echo of user command line input:
+/home/yshen/Software/Mine/diabatz/v0.0.2/diabatz.exe -f default -i IntCoordDef -s SAS.in -n Hd.in -l 11.in 12.in 13.in 14.in 22.in 23.in 24.in 33.in 34.in 44.in -d data/list.txt -z -286.1075216397 --learning_rate 0.01 -m 10 -c Hd.net --opt_chk opt.chk
+
+Mon Feb 28 15:48:20 2022
+
+The data set will be read from: 
+    data/sad-A1/, data/min-B1/, data/sad-B2/, data/min-A2/, 
+There are 292 data points in adiabatic representation
+          0 data points in composite representation
+
+maximum ground state energy = 0.0142374
+maximum ||ground state energy gradient||_infinity = 0.0887975
+so we suggest to set gradient / energy scaling to around 6.23693
+
+The number of threads = 4
+
+Set batch size to 256
+Set learning rate to 0.01
+Optimizer will continue from opt.chk
+Optimizer is adaptive moment estimation (Adam)
+
+There are 3720 parameters to train
+
+The initial residue = 13.9191
+
+Mon Feb 28 15:49:30 2022
+epoch 1 | residue = 12.8138
+
+Mon Feb 28 15:50:21 2022
+epoch 2 | residue = 12.1998
+
+Mon Feb 28 15:51:13 2022
+epoch 3 | residue = 12.0518
+
+Mon Feb 28 15:52:05 2022
+epoch 4 | residue = 12.2933
+
+Mon Feb 28 15:52:57 2022
+epoch 5 | residue = 12.7785
+
+Mon Feb 28 15:53:48 2022
+epoch 6 | residue = 13.3668
+
+Mon Feb 28 15:54:40 2022
+epoch 7 | residue = 13.9959
+
+Mon Feb 28 15:55:31 2022
+epoch 8 | residue = 14.3219
+
+Mon Feb 28 15:56:23 2022
+epoch 9 | residue = 14.5806
+
+Mon Feb 28 15:57:14 2022
+epoch 10 | residue = 14.8201
+
+Mon Feb 28 15:57:15 2022
+Mission success
