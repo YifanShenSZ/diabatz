@@ -121,6 +121,6 @@ void print_statistics(const std::shared_ptr<abinitio::DataSet<RegHam>> & regset)
               << std::setw(25) << std::scientific << std::setprecision(15) << S_max[i][j][k].item<double>()
               << std::setw(25) << std::scientific << std::setprecision(15) << S_std[i][j][k].item<double>() << '\n';
     }
-    std::cout << "Details can be found in regset_x.txt and regset_S.txt\n\n";
+    std::cout << "Details can be found in regset_x.txt and regset_S.txt\n";
     ofs_x.close(); ofs_S.close();
 }
