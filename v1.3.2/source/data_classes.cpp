@@ -6,6 +6,9 @@ std::tuple<CL::utility::matrix<at::Tensor>, CL::utility::matrix<at::Tensor>> (*q
 const std::shared_ptr<Hd::kernel> & pretrained_Hdkernel)
 : abinitio::SAEnergy(*ham) {
     std::tie(xs_, JxrTs_) = q2x(qs_);
+    for (size_t i = 0; i < JxrTs_.size(0); i++)
+    for (size_t j = i; j < JxrTs_.size(1); j++)
+    JxrTs_[i][j] = JqrT_.mm(JxrTs_[i][j]);
     pretrained_Hd_ = (*pretrained_Hdkernel)(geom_);
 }
 Energy::~Energy() {}
@@ -36,6 +39,9 @@ std::tuple<CL::utility::matrix<at::Tensor>, CL::utility::matrix<at::Tensor>> (*q
 const std::shared_ptr<Hd::kernel> & pretrained_Hdkernel)
 : abinitio::RegSAHam(*ham) {
     std::tie(xs_, JxrTs_) = q2x(qs_);
+    for (size_t i = 0; i < JxrTs_.size(0); i++)
+    for (size_t j = i; j < JxrTs_.size(1); j++)
+    JxrTs_[i][j] = JqrT_.mm(JxrTs_[i][j]);
     std::tie(pretrained_Hd_, pretrained_DrHd_) = pretrained_Hdkernel->compute_Hd_dHd(geom_);
 }
 RegHam::~RegHam() {}
@@ -67,6 +73,9 @@ std::tuple<CL::utility::matrix<at::Tensor>, CL::utility::matrix<at::Tensor>> (*q
 const std::shared_ptr<Hd::kernel> & pretrained_Hdkernel)
 : abinitio::DegSAHam(*ham) {
     std::tie(xs_, JxrTs_) = q2x(qs_);
+    for (size_t i = 0; i < JxrTs_.size(0); i++)
+    for (size_t j = i; j < JxrTs_.size(1); j++)
+    JxrTs_[i][j] = JqrT_.mm(JxrTs_[i][j]);
     std::tie(pretrained_Hd_, pretrained_DrHd_) = pretrained_Hdkernel->compute_Hd_dHd(geom_);
 }
 DegHam::~DegHam() {}

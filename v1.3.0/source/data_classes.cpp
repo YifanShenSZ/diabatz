@@ -9,7 +9,7 @@ const std::shared_ptr<Hd::kernel> & pretrained_Hdkernel)
     for (size_t i = 0; i < JxrTs_.size(0); i++)
     for (size_t j = i; j < JxrTs_.size(1); j++)
     JxrTs_[i][j] = JqrT_.mm(JxrTs_[i][j]);
-    pretrained_Hd_ = (*pretrained_Hdkernel)(qs_);
+    pretrained_Hd_ = (*pretrained_Hdkernel)(geom_);
 }
 Energy::~Energy() {}
 
