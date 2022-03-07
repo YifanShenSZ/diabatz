@@ -23,6 +23,7 @@ include_directories(include)
 
 add_library(SASDIC STATIC
     source/scaler.cpp
+    source/scaler2.cpp
     source/SASDIC.cpp
     source/SASDICSet.cpp
 )

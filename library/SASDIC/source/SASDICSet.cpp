@@ -35,9 +35,19 @@ SASDICSet::SASDICSet(const std::string & format, const std::string & IC_file, co
             if (! std::regex_match(strs[0], std::regex("\\d+"))) break;
             scalers_.push_back(Scaler(line));
         }
+        while (true) {
+            std::getline(ifs, line);
+            std::vector<std::string> strs = CL::utility::split(line);
+            if (! std::regex_match(strs[0], std::regex("\\d+"))) break;
+            scaler2s_.push_back(Scaler2(line));
+        }
         scaling_complete_ = at::eye(intdim, top);
         for (const Scaler & scaler : scalers_) {
             const size_t & self = scaler.self();
+            scaling_complete_[self][self].fill_(0.0);
+        }
+        for (const Scaler2 & scaler2 : scaler2s_) {
+            const size_t & self = scaler2.self();
             scaling_complete_[self][self].fill_(0.0);
         }
         // symmetry adapted linear combinations of each irreducible
@@ -97,6 +107,10 @@ std::vector<at::Tensor> SASDICSet::operator()(const at::Tensor & q) const {
     // scale
     at::Tensor sdics = scaling_complete_.mv(dics);
     for (const Scaler & scaler : scalers_) {
+        const size_t & self = scaler.self();
+        sdics[self] = scaler(dics);
+    }
+    for (const Scaler2 & scaler : scaler2s_) {
         const size_t & self = scaler.self();
         sdics[self] = scaler(dics);
     }

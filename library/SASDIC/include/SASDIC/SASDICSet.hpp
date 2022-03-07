@@ -5,6 +5,7 @@
 
 #include <SASDIC/SASDIC.hpp>
 #include <SASDIC/scaler.hpp>
+#include <SASDIC/scaler2.hpp>
 
 namespace SASDIC {
 
@@ -17,8 +18,9 @@ class SASDICSet : public tchem::IC::IntCoordSet {
         // The scaled dimensionless internal coordinates vector is
         //     SDICs = scaling_complete_.mv(DICs)
         //           + pass DICs to scalers
-        std::vector<Scaler> scalers_;
         at::Tensor scaling_complete_;
+        std::vector<Scaler> scalers_;
+        std::vector<Scaler2> scaler2s_;
         // sasdicss_[i][j] contains the definition of
         // j-th symmetry adapted internal coordinate in i-th irreducible
         std::vector<std::vector<SASDIC>> sasdicss_;
