@@ -38,7 +38,8 @@ struct symat : torch::nn::Module {
 
         void copy_(const std::shared_ptr<symat> & source);
 
-        void freeze(const size_t & NLayers = -1);
+        void freeze();
+        void freeze(const std::vector<size_t> & indices);
 
         at::Tensor forward(const CL::utility::matrix<at::Tensor> & xs);
         at::Tensor operator()(const CL::utility::matrix<at::Tensor> & xs);

@@ -78,9 +78,17 @@ void symat::copy_(const std::shared_ptr<symat> & source) {
     }
 }
 
-void symat::freeze(const size_t & NLayers) {
-    for (size_t i = 0; i < elements->size(); i++)
-    elements[i]->as<scalar>()->freeze(NLayers);
+void symat::freeze() {
+    size_t count = 0;
+    for (int64_t i = 0; i < NStates_; i++)
+    for (int64_t j = i; j < NStates_; j++) {
+        elements[count]->as<scalar>()->freeze();
+        count++;
+    }
+}
+void symat::freeze(const std::vector<size_t> & indices) {
+    for (const size_t & index : indices)
+    elements[index]->as<scalar>()->freeze();
 }
 
 at::Tensor symat::forward(const CL::utility::matrix<at::Tensor> & xs) {
