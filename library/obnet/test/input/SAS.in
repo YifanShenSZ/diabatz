@@ -1,6 +1,7 @@
 Internal coordinate origin file:
     origin.int
-Scale: (self, scaling function, parameter(s))
+Scale: (self, other, scaling function, parameter(s))
+Scale2: (self, other1, other2, scaling function, parameter(s))
 Coordinates of irreducible 1: (number, coefficient, index of internal coordinate)
      1    1.000000     1
           1.000000     2
