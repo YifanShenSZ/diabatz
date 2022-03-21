@@ -45,7 +45,7 @@ void read_parameters(const std::string & prefix, at::Tensor & x) {
             std::getline(ifs, line);
             if (! ifs.good()) throw CL::utility::file_error(file);
             auto strs = CL::utility::split(line);
-            if (strs.size() != A.size(0)) throw std::invalid_argument("inconsisten line");
+            if (strs.size() != A.size(0)) throw std::invalid_argument("inconsistent line");
             for (size_t j = 0; j < A.size(0); j++) A[j][i].fill_(std::stod(strs[j]));
         }
         size_t stop = start + A.numel();
@@ -59,7 +59,7 @@ void read_parameters(const std::string & prefix, at::Tensor & x) {
             std::getline(ifs, line);
             if (! ifs.good()) throw CL::utility::file_error(file);
             auto strs = CL::utility::split(line);
-            if (strs.size() != b.size(0)) throw std::invalid_argument("inconsisten line");
+            if (strs.size() != b.size(0)) throw std::invalid_argument("inconsistent line");
             for (size_t j = 0; j < A.size(0); j++) b[j].fill_(std::stod(strs[j]));
             size_t stop = start + b.numel();
             x.slice(0, start, stop).copy_(b);
