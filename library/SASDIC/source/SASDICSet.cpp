@@ -102,7 +102,7 @@ std::vector<at::Tensor> SASDICSet::operator()(const at::Tensor & q) const {
     // nondimensionalize
     at::Tensor dics = q - origin_;
     for (size_t i = 0; i < this->size(); i++)
-    if ((*this)[i][0].second.type() == "stretching")
+    if ((*this)[i][0].second.type() == tchem::IC::InvDisp_type::stretching)
     dics[i] = dics[i] / origin_[i];
     // scale
     at::Tensor sdics = scaling_complete_.mv(dics);

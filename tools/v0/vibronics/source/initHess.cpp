@@ -36,7 +36,7 @@ at::Tensor read_Columbus(const at::Tensor & r, const std::string & hessian_file)
     // So we need to convert Columbus Hessian to atomic unit
     inthess /= 4.35974417; // 1 Hatree = 4.35974417 * 10^-18 J
     for (size_t i = 0; i < intdim; i++)
-    if (intcoordset[i][0].second.type() == "stretching") {
+    if (intcoordset[i][0].second.type() == tchem::IC::InvDisp_type::stretching) {
         inthess.select(0, i) /= 1.8897261339212517;
         inthess.select(1, i) /= 1.8897261339212517;
     }
