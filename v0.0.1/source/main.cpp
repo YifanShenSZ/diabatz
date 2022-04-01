@@ -133,6 +133,7 @@ int main(size_t argc, const char ** argv) {
         if (ifs.good()) read_parameters(reg_prefix, regularization);
         else regularization.fill_(std::stod(reg_prefix));
         ifs.close();
+        regularization.sqrt_(); // regularized residue = at::cat(residue, sqrt(stength) * weights)
         // get prior
         prior = Hdnet->elements->parameters()[0].new_zeros(NPars);
         if (args.gotArgument("prior")) {

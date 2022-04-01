@@ -111,7 +111,7 @@ at::Tensor deg_gradient(const std::vector<std::shared_ptr<DegHam>> & batch) {
         // compute fitting parameter gradient in composite prediction
         at::Tensor DcHc, DcDrHc;
         std::tie(DcHc, DcDrHc) = Hderiva::DcHc_DcDxHc(Hc, DrHc,
-            DrHd, DcHd, DcDrHd, eigval, eigvec, data->Sq());
+            DrHd, DcHd, DcDrHd, eigval, eigvec);
         CL::utility::matrix<at::Tensor> DcSADQHc(NStates);
         for (size_t i = 0; i < NStates; i++)
         for (size_t j = i; j < NStates; j++)

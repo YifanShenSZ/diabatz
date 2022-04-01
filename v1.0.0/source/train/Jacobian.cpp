@@ -78,7 +78,7 @@ at::Tensor & J, size_t & start) {
     at::Tensor DrHc = tchem::linalg::UT_sy_U(DrHd, eigvec);
     at::Tensor DcHc, DcDrHc;
     std::tie(DcHc, DcDrHc) = Hderiva::DcHc_DcDxHc(Hc, DrHc,
-        DrHd, DcHd, DcDrHd, eigval, eigvec, data->Sq());
+        DrHd, DcHd, DcDrHd, eigval, eigvec);
     CL::utility::matrix<at::Tensor> DcSADQHc(NStates);
     for (size_t i = 0; i < NStates; i++)
     for (size_t j = i; j < NStates; j++)
