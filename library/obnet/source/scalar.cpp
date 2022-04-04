@@ -64,16 +64,27 @@ at::Tensor scalar::forward(const at::Tensor & x) {
 }
 at::Tensor scalar::operator()(const at::Tensor & x) {return this->forward(x);}
 
-// output hidden layer values before activation to `os`
+// output weighed features and hidden layer values before activation to `os`
 void scalar::diagnostic(const at::Tensor & x, std::ostream & os) {
     if (x.sizes().size() != 1) throw std::invalid_argument(
     "obnet::scalar::forward: x must be a vector");
+    torch::NoGradGuard no_grad;
     at::Tensor y = x;
     for (size_t i = 0; i < fcs->size() - 1; i++) {
+        os << "hidden layer " << i + 1 << ":\n";
+        at::Tensor weight = fcs[i]->as<torch::nn::Linear>()->weight;
+        at::Tensor weighed_features = (weight * y).transpose(0, 1);
+        os << "transposed weighed features:\n" << weighed_features << '\n';
         y = fcs[i]->as<torch::nn::Linear>()->forward(y);
-        os << "hidden layer " << i + 1 << ":\n" << y << '\n';
+        os << "hidden layer before activation:\n" << y << '\n';
         y = torch::tanh(y);
     }
+    os << "output layer:\n";
+    at::Tensor weight = fcs[fcs->size() - 1]->as<torch::nn::Linear>()->weight;
+    at::Tensor weighed_features = (weight * y).transpose(0, 1);
+    os << "transposed weighed features:\n" << weighed_features << '\n';
+    y = fcs[fcs->size() - 1]->as<torch::nn::Linear>()->forward(y);
+    os << "final output:\n" << y << '\n';
 }
 
 } // namespace obnet
