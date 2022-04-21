@@ -50,7 +50,7 @@ at::Tensor search_minimum(const at::Tensor & _init_guess) {
     at::Tensor q_free = fixed_intcoord->vector_total2free(q);
     Foptim::BFGS(energy, energy_grad, Hessian,
                  q_free.data_ptr<double>(), q_free.size(0),
-                 20, 100, 1e-6, 1e-15);
+                 20, 100, 1e-4, 1e-4);
     q = fixed_intcoord->vector_free2total(q_free);
     at::Tensor r = int2cart(q, _init_guess, intcoordset);
     return r;

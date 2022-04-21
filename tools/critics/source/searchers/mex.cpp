@@ -105,7 +105,7 @@ at::Tensor search_mex(const at::Tensor & _init_guess) {
         // Minimize current augmented Lagrangian
         Foptim::BFGS(L, L_Ld, Ldd,
                      q_free.data_ptr<double>(), q_free.size(0),
-                     20, 100, 1e-6, 1e-15);
+                     20, 100, 1e-4, 1e-4);
         // Compute energy gap
         at::Tensor q = fixed_intcoord->vector_free2total(q_free);
         at::Tensor r = int2cart(q, init_guess_, intcoordset);

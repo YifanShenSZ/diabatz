@@ -40,7 +40,7 @@ at::Tensor search_saddle(const at::Tensor & _init_guess) {
     at::Tensor q_free = fixed_intcoord->vector_total2free(q);
     Foptim::Gauss_BFGS(residue, Jacobian,
                  q_free.data_ptr<double>(), q_free.size(0), q_free.size(0),
-                 100, 1e-6, 1e-15);
+                 100, 1e-4, 1e-4);
     q = fixed_intcoord->vector_free2total(q_free);
     at::Tensor r = int2cart(q, _init_guess, intcoordset);
     return r;
