@@ -28,8 +28,8 @@ const size_t & Scaler::other() const {return other_;}
 at::Tensor Scaler::operator()(const at::Tensor & DICs) const {
     at::Tensor scaling;
     at::Tensor x = DICs[other_];
-    if (type_ == "1-exp(-a*x)") {
-        scaling = 1.0 - at::exp(-parameters_[0] * x);
+    if (type_ == "exp(-a*x)") {
+        scaling = at::exp(-parameters_[0] * x);
     }
     else if (type_ == "tanh((x-a)/b)") {
         const double & a = parameters_[0],
