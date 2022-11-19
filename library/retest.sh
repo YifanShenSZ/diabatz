@@ -1,13 +1,7 @@
-for directory in C1 Cs C2v; do
-    echo
-    echo "Entre abinitio/test/"$directory
-    cd abinitio/test/$directory/build
-    rm test.exe
-    cmake --build .
-    cd ../input
-    ../build/test.exe
-    cd ../../../..
-done
+echo "Entre abinitio/test/"
+cd abinitio/test/
+bash retest.sh
+cd ../..
 
 for directory in SASDIC DimRed obnet Hderiva; do
     echo

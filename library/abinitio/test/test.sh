@@ -1,12 +1,7 @@
-echo "Entre abinitio/test/"
-cd abinitio/test/
-bash test.sh
-cd ../..
-
-for directory in SASDIC DimRed obnet Hderiva; do
+for directory in C1 Cs C2v; do
     echo
-    echo "Entre "$directory"/test"
-    cd $directory/test
+    echo "Entre "$directory
+    cd $directory
     # build
     if [ -d build ]; then rm -r build; fi
     mkdir build
@@ -18,9 +13,9 @@ for directory in SASDIC DimRed obnet Hderiva; do
     if [ -d input ]; then
         cd input
         ../build/test.exe
-        cd ../../..
+        cd ../..
     else
        ./build/test.exe
-       cd ../..
+       cd ..
     fi
 done
