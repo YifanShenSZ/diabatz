@@ -10,7 +10,7 @@ Scaler2::Scaler2(const size_t & _self, const size_t & _other1, const size_t & _o
 // construct from an input line of "self    other    type    parameter(s)"
 Scaler2::Scaler2(const std::string & line) {
     auto strs = CL::utility::split(line);
-    if (strs.size() < 4) throw(
+    if (strs.size() < 4) throw std::invalid_argument(
     "SASDIC::Scaler2::Scaler2: wrong input line");
     self_   = std::stoul(strs[0]) - 1;
     other1_ = std::stoul(strs[1]) - 1;

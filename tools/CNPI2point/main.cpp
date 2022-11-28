@@ -38,10 +38,10 @@ int main(size_t argc, const char ** argv) {
     std::string SAS    = args.retrieve<std::string>("SAS");
     sasicset = std::make_shared<SASDIC::SASDICSet>(format, IC, SAS);
     if (sasicset->NIrreds() == 0) {
-        throw "Number of irreducibles is 0? Please check your symmetry adapted internal coordinate input";
+        throw std::invalid_argument("Number of irreducibles is 0? Please check your symmetry adapted internal coordinate input");
     }
     else if (sasicset->NIrreds() == 1) {
-        throw "No need to tag since there is no symmetry";
+        throw std::invalid_argument("No need to tag since there is no symmetry");
     }
 
     std::vector<std::string> data = args.retrieve<std::vector<std::string>>("data");
