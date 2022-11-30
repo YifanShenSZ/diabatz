@@ -62,6 +62,14 @@ int main(size_t argc, const char ** argv) {
 
     Hdnet2 = std::make_shared<obnet::symat>(args.retrieve<std::string>("net2"));
     Hdnet2->train();
+    // since Hdnet1 should already have bias, set all output biases in Hdnet2 to 0
+    for (int64_t istate = 0     ; istate < Hdnet2->NStates(); istate++)
+    for (int64_t jstate = istate; jstate < Hdnet2->NStates(); jstate++)
+    if (Hdnet2->irreds()[istate][jstate] == 0) {
+        torch::NoGradGuard no_grad;
+        auto ps = Hdnet2->parameters()[istate][jstate];
+        ps[ps.size() - 1].fill_(0.0);
+    }
     if (args.gotArgument("checkpoint2")) torch::load(Hdnet2->elements, args.retrieve<std::string>("checkpoint2"));
 
     std::vector<std::string> input_layers1 = args.retrieve<std::vector<std::string>>("input_layers1");
