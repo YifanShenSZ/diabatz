@@ -19,7 +19,7 @@ double * r, size_t & start) {
     for (size_t i = 0; i < NStates; i++)
     for (size_t j = i; j < NStates; j++)
     x2s[i][j].set_requires_grad(true);
-    at::Tensor   Hd2 = Hdnet1s[thread]->forward(x2s);
+    at::Tensor   Hd2 = Hdnet2s[thread]->forward(x2s);
     at::Tensor DrHd2 = Hderiva::DxHd(Hd2, x2s, data->Jx2rTs());
     // stop autograd tracking
     Hd1.detach_();
@@ -66,7 +66,7 @@ double * r, size_t & start) {
     for (size_t i = 0; i < NStates; i++)
     for (size_t j = i; j < NStates; j++)
     x2s[i][j].set_requires_grad(true);
-    at::Tensor   Hd2 = Hdnet1s[thread]->forward(x2s);
+    at::Tensor   Hd2 = Hdnet2s[thread]->forward(x2s);
     at::Tensor DrHd2 = Hderiva::DxHd(Hd2, x2s, data->Jx2rTs());
     // stop autograd tracking
     Hd1.detach_();

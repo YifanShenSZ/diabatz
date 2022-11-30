@@ -169,7 +169,7 @@ int main(size_t argc, const char ** argv) {
         at::Tensor prior2 = prior.slice(0, NPars1, NPars1 + NPars2);
         std::string prior_prefix = args.retrieve<std::string>("prior2");
         std::ifstream ifs; ifs.open(prior_prefix + "_1-1_1.txt");
-        if (ifs.good()) read_parameters(Hdnet1, prior_prefix, prior2);
+        if (ifs.good()) read_parameters(Hdnet2, prior_prefix, prior2);
         else prior.fill_(std::stod(prior_prefix));
     }
 
