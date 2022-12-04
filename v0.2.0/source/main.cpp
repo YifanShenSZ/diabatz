@@ -31,7 +31,7 @@ argparse::ArgumentParser parse_args(const size_t & argc, const char ** & argv) {
     parser.add_argument("-p","--prior",          1, true, "prior for regularization, can be a scalar or files prior_state1-state2_layer.txt, default = 0");
 
     // optimizer arguments
-    parser.add_argument("-m","--max_iteration", 1, true, "default = 100");
+    parser.add_argument("-m","--max_iteration", 1, true, "default = 20");
 
     parser.parse_args(argc, argv);
     return parser;
@@ -156,7 +156,7 @@ int main(size_t argc, const char ** argv) {
     if (regularized) rescale_parameters(shift, width, prior);
 
     train::initialize();
-    size_t max_iteration = 100;
+    size_t max_iteration = 20;
     if (args.gotArgument("max_iteration")) max_iteration = args.retrieve<size_t>("max_iteration");
     train::trust_region::initialize(regset, degset, energy_set);
     train::trust_region::optimize(regularized, max_iteration);
