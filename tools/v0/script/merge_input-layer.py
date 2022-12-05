@@ -9,6 +9,8 @@ from pathlib import Path
 from typing import Dict
 import numpy as np
 
+from utility import hash_polynomial
+
 def parse_args() -> argparse.Namespace: # command line input
     parser = argparse.ArgumentParser(__doc__)
     parser.add_argument("parameters", type=Path, nargs='+', help="parameter files")
@@ -16,29 +18,6 @@ def parse_args() -> argparse.Namespace: # command line input
     parser.add_argument("-po","--parameter_output", type=Path, default=Path("parameter.out"), help="parameter output file (default = parameter.out)")
     args = parser.parse_args()
     return args
-
-# assume less than 100 irreducibles and less than 100 coordinates per irreducible
-def hash_polynomial(line: str) -> int:
-    # edge case: bias
-    if line.strip() == "bias": return 0
-    # normal case
-    strs = line.split()
-    # remove comment
-    i = 0
-    while i < strs.__len__():
-        if strs[i] == '#': break
-        i += 1
-    strs = strs[: i]
-    # sort coordinates so that all permutations become the same
-    strs.sort()
-    # hash coordinates
-    hash_value = 0
-    weight = 100
-    for irred_index in strs:
-        irred, index = irred_index.split(',')
-        hash_value += int(irred) * weight + int(index) * weight * 100
-        weight *= 10000
-    return hash_value
 
 def read_parameter(parameter_file: Path) -> Dict:
     hashvalue2PolynomialParameter = {}

@@ -4,7 +4,8 @@ check if the even-order pure terms have a positive coefficient
 
 import argparse
 from pathlib import Path
-from typing import List, Tuple
+
+from utility import line2coords
 
 # Command line input
 def parse_args() -> argparse.Namespace:
@@ -12,21 +13,6 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("input", type=Path, help="interpretable parameter file")
     args = parser.parse_args()
     return args
-
-def line2coords(line:str) -> List[Tuple[int]]:
-    strs = line.split()
-    # remove comment
-    i = 0
-    while i < strs.__len__():
-        if strs[i] == '#': break
-        i += 1
-    strs = strs[: i]
-    # string -> coordinate tuple
-    coords = []
-    for str in strs:
-        irred, index = str.split(',')
-        coords.append((int(irred), int(index)))
-    return coords
 
 if __name__ == "__main__":
     args = parse_args()
