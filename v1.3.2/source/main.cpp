@@ -56,6 +56,14 @@ int main(size_t argc, const char ** argv) {
 
     Hdnet = std::make_shared<obnet::symat>(args.retrieve<std::string>("net"));
     Hdnet->train();
+    // since pretrained Hd should already have bias, set all output biases in Hd to 0
+    for (int64_t istate = 0     ; istate < Hdnet->NStates(); istate++)
+    for (int64_t jstate = istate; jstate < Hdnet->NStates(); jstate++)
+    if (Hdnet->irreds()[istate][jstate] == 0) {
+        torch::NoGradGuard no_grad;
+        auto ps = Hdnet->parameters()[istate][jstate];
+        ps[ps.size() - 1].fill_(0.0);
+    }
     if (args.gotArgument("checkpoint")) torch::load(Hdnet->elements, args.retrieve<std::string>("checkpoint"));
 
     std::vector<std::string> input_layers = args.retrieve<std::vector<std::string>>("input_layers");
