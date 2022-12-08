@@ -16,14 +16,14 @@ argparse::ArgumentParser parse_args(const size_t & argc, const char ** & argv) {
     // required arguments
     parser.add_argument("-f","--format",    1, false, "internal coordinate definition format (Columbus7, default)");
     parser.add_argument("-i","--IC",        1, false, "internal coordinate definition file");
-    parser.add_argument("-t","--target",    1, false, "the target diabatic electronic state to analyze vibration");
+    parser.add_argument("-t","--target",    1, false, "the target diabatic electronic state to analyze vibration, index starts from 1");
     parser.add_argument("-x","--xyz",       1, false, "the xyz geometry to analyze vibration");
     parser.add_argument("-m","--mass",      1, false, "the masses of atoms");
     parser.add_argument("-d","--diabatz", '+', false, "diabatz definition files");
 
     // optional arguments
-    parser.add_argument("-o","--output", 1, true, "output file name (default = avogadro.log)");
-    parser.add_argument("-a","--adiabatz");
+    parser.add_argument("-a","--adiabatz", (char)0, true, "use adiabatic rather than diabatic representation");
+    parser.add_argument("-o","--output",         1, true, "output file name (default = avogadro.log)");
 
     parser.parse_args(argc, argv);
     return parser;

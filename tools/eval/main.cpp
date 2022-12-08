@@ -15,8 +15,8 @@ argparse::ArgumentParser parse_args(const size_t & argc, const char ** & argv) {
     parser.add_argument("-x","--xyz", 1, false, "the xyz geometry to calculate diabatz");
 
     // optional argument
-    parser.add_argument("-a","--adiabatz");
-    parser.add_argument("-g","--gradient");
+    parser.add_argument("-a","--adiabatz", (char)0, true, "use adiabatic rather than diabatic representation");
+    parser.add_argument("-g","--gradient", (char)0, true, "additionally output gradient");
     parser.add_argument("--diagnostic");
 
     parser.parse_args(argc, argv);
