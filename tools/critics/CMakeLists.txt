@@ -34,9 +34,12 @@ add_executable(critics.exe
     source/utilities/int2cart.cpp
     source/utilities/Hd_extension.cpp
     source/utilities/global.cpp
-    source/searchers/minimum.cpp
-    source/searchers/saddle.cpp
-    source/searchers/mex.cpp
+    source/searchers/minimum_adiabatic.cpp
+    source/searchers/minimum_diabatic.cpp
+    source/searchers/saddle_adiabatic.cpp
+    source/searchers/saddle_diabatic.cpp
+    source/searchers/mex_adiabatic.cpp
+    source/searchers/mex_diabatic.cpp
     source/main.cpp
 )
 

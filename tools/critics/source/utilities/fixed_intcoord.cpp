@@ -1,4 +1,4 @@
-#include "../include/fixed_intcoord.hpp"
+#include "../../include/fixed_intcoord.hpp"
 
 Fixed_intcoord::Fixed_intcoord() {}
 Fixed_intcoord::Fixed_intcoord(const int64_t & _intdim, const std::vector<size_t> & _fixed_coords, const at::Tensor & init_q)

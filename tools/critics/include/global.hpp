@@ -9,8 +9,6 @@
 
 extern std::shared_ptr<tchem::IC::IntCoordSet> intcoordset;
 
-extern size_t target_state;
-
 extern std::shared_ptr<Hd::kernel> Hdkernel;
 
 extern std::shared_ptr<Fixed_intcoord> fixed_intcoord;

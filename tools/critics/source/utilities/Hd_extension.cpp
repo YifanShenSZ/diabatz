@@ -1,6 +1,6 @@
 #include <tchem/linalg.hpp>
 
-#include "../include/global.hpp"
+#include "../../include/global.hpp"
 
 at::Tensor compute_ddHd(const at::Tensor & r) {
     const double dr = 1e-3;

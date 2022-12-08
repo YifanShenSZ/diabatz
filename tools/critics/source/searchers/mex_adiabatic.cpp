@@ -1,11 +1,12 @@
 #include <Foptim/line-search_2nd/BFGS.hpp>
 
-#include "../include/global.hpp"
-#include "../include/Hd_extension.hpp"
+#include "../../include/global.hpp"
+#include "../../include/Hd_extension.hpp"
 
 namespace {
 
 at::Tensor init_guess_;
+int64_t target_state_, target_state2_;
 
 double lambda, miu;
 
@@ -17,8 +18,8 @@ void L(double & L, const double * free_intgeom, const int32_t & free_intdim) {
     at::Tensor r = int2cart(q, init_guess_, intcoordset);
     at::Tensor energy = compute_energy(r);
     // L
-    double T = (energy[target_state + 1] + energy[target_state]).item<double>(),
-           C = (energy[target_state + 1] - energy[target_state]).item<double>();
+    double T = (energy[target_state2_] + energy[target_state_]).item<double>(),
+           C = (energy[target_state2_] - energy[target_state_]).item<double>();
     C = 0.5 * C * C;
     L = T - lambda * C + 0.5 * miu * C * C;
 }
@@ -32,17 +33,17 @@ void L_Ld(double & L, double * Ld, const double * free_intgeom, const int32_t & 
     at::Tensor energy, dH;
     std::tie(energy, dH) = compute_energy_dHa(r);
     // L
-    double T = (energy[target_state + 1] + energy[target_state]).item<double>(),
-           C = (energy[target_state + 1] - energy[target_state]).item<double>();
+    double T = (energy[target_state2_] + energy[target_state_]).item<double>(),
+           C = (energy[target_state2_] - energy[target_state_]).item<double>();
     C = 0.5 * C * C;
     L = T - lambda * C + 0.5 * miu * C * C;
     // ▽T
-    at::Tensor cartdT = dH[target_state + 1][target_state + 1] + dH[target_state][target_state];
+    at::Tensor cartdT = dH[target_state2_][target_state2_] + dH[target_state_][target_state_];
     at::Tensor  intdT = intcoordset->gradient_cart2int(r, cartdT);
     at::Tensor free_intdT = fixed_intcoord->vector_total2free(intdT);
     // ▽C
-    at::Tensor cartdC = (energy[target_state + 1] - energy[target_state])
-                      * (dH[target_state + 1][target_state + 1] - dH[target_state][target_state]);
+    at::Tensor cartdC = (energy[target_state2_] - energy[target_state_])
+                      * (dH[target_state2_][target_state2_] - dH[target_state_][target_state_]);
     at::Tensor  intdC = intcoordset->gradient_cart2int(r, cartdC);
     at::Tensor free_intdC = fixed_intcoord->vector_total2free(intdC);
     // ▽L
@@ -60,16 +61,16 @@ void Ldd(double * Ldd, const double * free_intgeom, const int32_t & free_intdim)
     std::tie(energy, dH) = compute_energy_dHa(r);
     at::Tensor ddH = compute_ddHa(r);
     // ▽▽T
-    at::Tensor cartdT  = dH[target_state + 1][target_state + 1] + dH[target_state][target_state];
-    at::Tensor cartddT = ddH[target_state + 1][target_state + 1] + ddH[target_state][target_state];
+    at::Tensor cartdT  = dH[target_state2_][target_state2_] + dH[target_state_][target_state_];
+    at::Tensor cartddT = ddH[target_state2_][target_state2_] + ddH[target_state_][target_state_];
     at::Tensor  intddT = intcoordset->Hessian_cart2int(r, cartdT, cartddT);
     at::Tensor free_intddT = fixed_intcoord->matrix_total2free(intddT);
     // ▽▽C
-    double C = (energy[target_state + 1] - energy[target_state]).item<double>();
+    double C = (energy[target_state2_] - energy[target_state_]).item<double>();
     C = 0.5 * C * C;
-    at::Tensor   Ediff = energy[target_state + 1] - energy[target_state],
-                dEdiff =  dH[target_state + 1][target_state + 1] -  dH[target_state][target_state],
-               ddEdiff = ddH[target_state + 1][target_state + 1] - ddH[target_state][target_state];
+    at::Tensor   Ediff = energy[target_state2_] - energy[target_state_],
+                dEdiff =  dH[target_state2_][target_state2_] -  dH[target_state_][target_state_],
+               ddEdiff = ddH[target_state2_][target_state2_] - ddH[target_state_][target_state_];
     at::Tensor cartdC = Ediff * dEdiff;
     at::Tensor  intdC = intcoordset->gradient_cart2int(r, cartdC);
     at::Tensor free_intdC = fixed_intcoord->vector_total2free(intdC);
@@ -83,19 +84,20 @@ void Ldd(double * Ldd, const double * free_intgeom, const int32_t & free_intdim)
 
 }
 
-at::Tensor search_mex(const at::Tensor & _init_guess) {
+at::Tensor search_mex_adiabatic(const at::Tensor & _init_guess, const int64_t& _target_state, const int64_t& _target_state2) {
     init_guess_ = _init_guess;
+    target_state_ = _target_state;
+    target_state2_ = _target_state2;
     at::Tensor q = (*intcoordset)(_init_guess);
     at::Tensor q_free = fixed_intcoord->vector_total2free(q);
     // Compute energy gap
     at::Tensor r = int2cart(q, init_guess_, intcoordset);
     at::Tensor energy = compute_energy(r);
-    double avg = (energy[target_state + 1] + energy[target_state]).item<double>(),
-           gap = (energy[target_state + 1] - energy[target_state]).item<double>();
+    double avg = (energy[target_state2_] + energy[target_state_]).item<double>(),
+           gap = (energy[target_state2_] - energy[target_state_]).item<double>();
     // Augmented Lagrangian
-    double init_gap = std::max(gap, 1e-4);
-    double init_C   = 0.5 * init_gap * init_gap;
-    double init_miu = avg / pow(init_gap, 4.0);
+    double init_C   = 0.5 * gap * gap;
+    double init_miu = avg / pow(gap, 4.0);
     lambda = -init_miu * init_C;
     miu    =  init_miu;
     double switcher = sqrt(avg / miu);
@@ -110,16 +112,16 @@ at::Tensor search_mex(const at::Tensor & _init_guess) {
         at::Tensor q = fixed_intcoord->vector_free2total(q_free);
         at::Tensor r = int2cart(q, init_guess_, intcoordset);
         at::Tensor energy = compute_energy(r);
-        double gap = (energy[target_state + 1] - energy[target_state]).item<double>();
+        double gap = (energy[target_state2_] - energy[target_state_]).item<double>();
         // Check convergence
-        if (gap < 1e-6) break;
+        if (gap < 1e-4) break;
         iIteration++;
         if (iIteration > 100) {
             std::cout << "Max iteration exceeds\n";
             break;
         }
         std::cout << "Iteration " << iIteration << ":\n"
-                  << "lower state energy = " << energy[target_state].item<double>() << '\n'
+                  << "lower state energy = " << energy[target_state_].item<double>() << '\n'
                   << "gap = " << gap << '\n'
                   << "lamda = " << lambda << '\n'
                   << "miu = " << miu << '\n';
