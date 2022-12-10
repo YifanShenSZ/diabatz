@@ -1,13 +1,1 @@
-#ifndef data_hpp
-#define data_hpp
-
-#include <abinitio/DataSet.hpp>
-
-#include "data_classes.hpp"
-
-std::tuple<std::shared_ptr<abinitio::DataSet<RegHam>>, std::shared_ptr<abinitio::DataSet<DegHam>>>
-read_data(const std::vector<std::string> & user_list);
-
-std::shared_ptr<abinitio::DataSet<Energy>> read_energy(const std::vector<std::string> & user_list);
-
-#endif
+../../v0.0.0/include/data.hpp
