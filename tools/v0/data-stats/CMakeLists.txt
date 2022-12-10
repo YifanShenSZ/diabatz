@@ -40,7 +40,8 @@ add_executable(data-stats.exe
     source/global.cpp
     source/data.cpp
 
-    source/statisticize.cpp
+    source/statisticize_regset.cpp
+    source/statisticize_degset.cpp
     source/main.cpp
 )
 

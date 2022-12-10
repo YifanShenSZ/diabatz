@@ -89,7 +89,7 @@ statisticize_regset(const std::shared_ptr<abinitio::DataSet<RegHam>> & regset) {
                            S_avg, S_min, S_max, S_std);
 }
 
-void print_statistics(const std::shared_ptr<abinitio::DataSet<RegHam>> & regset) {
+void print_regset_statistics(const std::shared_ptr<abinitio::DataSet<RegHam>> & regset) {
     size_t NStates = Hdnet->NStates();
     CL::utility::matrix<at::Tensor> x_avg, x_min, x_max, x_std,
                                     S_avg, S_min, S_max, S_std;

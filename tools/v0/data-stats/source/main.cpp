@@ -25,7 +25,9 @@ argparse::ArgumentParser parse_args(const size_t & argc, const char ** & argv) {
     return parser;
 }
 
-void print_statistics(const std::shared_ptr<abinitio::DataSet<RegHam>> & regset);
+void print_regset_statistics(const std::shared_ptr<abinitio::DataSet<RegHam>> & regset);
+
+void print_degset_statistics(const std::shared_ptr<abinitio::DataSet<DegHam>> & degset);
 
 int main(size_t argc, const char ** argv) {
     std::cout << "Statisticize data set for diabatz version 0\n"
@@ -68,7 +70,10 @@ int main(size_t argc, const char ** argv) {
     for (const auto & example : degset->examples()) example->subtract_ZeroPoint(zero_point);
     for (const auto & example : energy_set->examples()) example->subtract_ZeroPoint(zero_point);
 
-    print_statistics(regset);
+    print_regset_statistics(regset);
+
+    std::cout << '\n';
+    print_degset_statistics(degset);
 
     std::cout << '\n';
     CL::utility::show_time(std::cout);
