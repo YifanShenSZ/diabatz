@@ -67,9 +67,13 @@ SAReader::read_SAHamSet() const {
         load_pointDefs (loaders, data_directory);
         load_energy    (loaders, data_directory);
         load_dH        (loaders, data_directory);
-        for (auto & loader : loaders) {
-            if (tchem::chem::check_degeneracy(loader.energy, deg_thresh_)) pdegs.push_back(std::make_shared<DegSAHam>(loader, cart2CNPI_));
-            else                                                           pregs.push_back(std::make_shared<RegSAHam>(loader, cart2CNPI_));
+        for (const auto & loader : loaders) {
+            if (tchem::chem::check_degeneracy(loader.energy, deg_thresh_)) {
+                pdegs.push_back(std::make_shared<DegSAHam>(loader, cart2CNPI_));
+            }
+            else {
+                pregs.push_back(std::make_shared<RegSAHam>(loader, cart2CNPI_));
+            }
         }
     }
     std::shared_ptr<DataSet<RegSAHam>> RegSet = std::make_shared<DataSet<RegSAHam>>(pregs);
