@@ -1,0 +1,69 @@
+Statisticize data set for diabatz version 0
+Yifan Shen 2022
+
+Echo of user command line input:
+/home/yshen/Software/Mine/diabatz/tools/v0/data-stats/data-stats.exe -f default -i IntCoordDef -s SAS.in -n Hd.in -l 11.in 12.in 13.in 14.in 22.in 23.in 24.in 33.in 34.in 44.in -d data/list.txt -z -286.1075216397
+
+Sat Dec 10 18:27:31 2022
+
+The data set will be read from: 
+    data/mex-A1-B1/, data/mex-B1-B2/, data/mex-B2-A2/, 
+There are 73 data points in adiabatic representation
+          108 data points in composite representation
+
+state 1 - state 1
+* x      average       range [-0.0259012, 0.26876]
+* x standard deviation range [1.4951e-17, 0.329345]
+* S      average       range [5.88642e-17, 1.82745]
+* S standard deviation range [nan, nan]
+state 1 - state 2
+* x      average       range [0, 0]
+* x standard deviation range [4.91224e-13, 0.47261]
+* S      average       range [5.9624e-08, 3.46998]
+* S standard deviation range [6.531e-08, 0.958366]
+state 1 - state 3
+* x      average       range [0, 0]
+* x standard deviation range [8.83545e-13, 0.699706]
+* S      average       range [3.1909e-07, 3.54579]
+* S standard deviation range [nan, nan]
+state 1 - state 4
+* x      average       range [0, 0]
+* x standard deviation range [6.96479e-13, 0.00468146]
+* S      average       range [1.49969e-07, 3.61342]
+* S standard deviation range [9.41858e-08, 1.68531]
+state 2 - state 2
+* x      average       range [-0.0259012, 0.26876]
+* x standard deviation range [1.4951e-17, 0.329345]
+* S      average       range [5.88642e-17, 1.82745]
+* S standard deviation range [nan, nan]
+state 2 - state 3
+* x      average       range [0, 0]
+* x standard deviation range [6.96479e-13, 0.00468146]
+* S      average       range [1.49969e-07, 3.61342]
+* S standard deviation range [9.41858e-08, 1.68531]
+state 2 - state 4
+* x      average       range [0, 0]
+* x standard deviation range [8.83545e-13, 0.699706]
+* S      average       range [3.1909e-07, 3.54579]
+* S standard deviation range [nan, nan]
+state 3 - state 3
+* x      average       range [-0.0259012, 0.26876]
+* x standard deviation range [1.4951e-17, 0.329345]
+* S      average       range [5.88642e-17, 1.82745]
+* S standard deviation range [nan, nan]
+state 3 - state 4
+* x      average       range [0, 0]
+* x standard deviation range [4.91224e-13, 0.47261]
+* S      average       range [5.9624e-08, 3.46998]
+* S standard deviation range [6.531e-08, 0.958366]
+state 4 - state 4
+* x      average       range [-0.0259012, 0.26876]
+* x standard deviation range [1.4951e-17, 0.329345]
+* S      average       range [5.88642e-17, 1.82745]
+* S standard deviation range [nan, nan]
+Details can be found in regset_x.txt and regset_S.txt
+
+Details can be found in degset.txt
+
+Sat Dec 10 18:27:49 2022
+Mission success

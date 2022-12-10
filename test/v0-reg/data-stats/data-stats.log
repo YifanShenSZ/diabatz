@@ -2,7 +2,7 @@ Statisticize data set for diabatz version 0
 Yifan Shen 2022
 
 Echo of user command line input:
-/home/yshen/Software/Mine/diabatz/tools/v0/data-stats/data-stats.exe -f default -i IntCoordDef -s SAS.in -n Hd.in -l 11.in 12.in 13.in 14.in 22.in 23.in 24.in 33.in 34.in 44.in -d sad-A1/ min-B1/ sad-B2/ min-A2/ -z -286.1075216397
+/home/yshen/Software/Mine/diabatz/tools/v0/data-stats/data-stats.exe -f default -i IntCoordDef -s SAS.in -n Hd.in -l 11.in 12.in 13.in 14.in 22.in 23.in 24.in 33.in 34.in 44.in -d data/list.txt -z -286.1075216397
 
 Sun Feb 27 23:53:43 2022
 
