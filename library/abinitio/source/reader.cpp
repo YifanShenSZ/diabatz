@@ -13,7 +13,7 @@ Reader::Reader() {}
 //     A directory is who truely holds a data set
 // This constructor verifies if user inputs are directories (end with /),
 // otherwise files then read them for directories
-Reader::Reader(const std::vector<std::string> & user_list) {
+Reader::Reader(const std::vector<std::string> & user_list, const double& _deg_thresh) : deg_thresh_(_deg_thresh) {
     if (user_list.empty()) throw std::invalid_argument(
     "abinitio::Reader::Reader: User should specify files or directories");
     for (const std::string & item : user_list) {

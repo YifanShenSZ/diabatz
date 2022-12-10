@@ -23,6 +23,7 @@ argparse::ArgumentParser parse_args(const size_t & argc, const char ** & argv) {
     // optional arguments
     parser.add_argument("--energy_data",      '+', true, "data set list files or directories without gradient");
     parser.add_argument("-z","--zero_point",    1, true, "zero of potential energy, default = 0");
+    parser.add_argument("--deg_thresh",         1, true, "threshold to be considered as degenerate, default = 0.0001");
     parser.add_argument("--energy_weight"  ,  '+', true, "energy (reference, threshold) for each state in weight adjustment, default = (0, 1)");
     parser.add_argument("--gradient_weight",    1, true, "gradient threshold in weight adjustment, default = infer from energy threshold");
     parser.add_argument("-c","--checkpoint",    1, true, "a trained Hd parameter to continue from");
@@ -71,9 +72,11 @@ int main(size_t argc, const char ** argv) {
     input_generator = std::make_shared<InputGenerator>(Hdnet->NStates(), Hdnet->irreds(), input_layers, sasicset->NSASDICs());
 
     std::vector<std::string> data = args.retrieve<std::vector<std::string>>("data");
+    double deg_thresh = 0.0001;
+    if (args.gotArgument("deg_thresh")) deg_thresh = args.retrieve<double>("deg_thresh");
     std::shared_ptr<abinitio::DataSet<RegHam>> regset;
     std::shared_ptr<abinitio::DataSet<DegHam>> degset;
-    std::tie(regset, degset) = read_data(data);
+    std::tie(regset, degset) = read_data(data, deg_thresh);
     std::cout << "There are " << regset->size_int() << " data points in adiabatic representation\n"
               << "          " << degset->size_int() << " data points in composite representation\n\n";
 

@@ -10,7 +10,7 @@ namespace abinitio {
 
 class Reader {
     protected:
-        double deg_thresh_ = 0.0001;
+        double deg_thresh_;
         std::vector<std::string> data_directories_;
     public:
         Reader();
@@ -20,7 +20,7 @@ class Reader {
         //     A directory is who truely holds a data set
         // This constructor verifies if user inputs are directories (end with /),
         // otherwise files then read them for directories
-        Reader(const std::vector<std::string> & user_list);
+        Reader(const std::vector<std::string> & user_list, const double& _deg_thresh=0.0001);
         ~Reader();
 
         const std::vector<std::string> & data_directories() const;

@@ -10,8 +10,9 @@ SAReader::SAReader() {}
 // see the base class constructor for details of `user_list`
 // `cart2CNPI` takes in Cartesian coordinate r, returns CNPI group symmetry adapted internal coordinates and their Jacobians over r
 SAReader::SAReader(const std::vector<std::string> & user_list,
-std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*_cart2CNPI)(const at::Tensor &))
-: Reader(user_list), cart2CNPI_(_cart2CNPI) {}
+std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*_cart2CNPI)(const at::Tensor &),
+const double& _deg_thresh)
+: Reader(user_list, _deg_thresh), cart2CNPI_(_cart2CNPI) {}
 SAReader::~SAReader() {}
 
 // read geometries in symmetry adapted internal coordinates
