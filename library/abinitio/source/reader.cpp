@@ -84,7 +84,10 @@ std::shared_ptr<DataSet<Geometry>> Reader::read_GeomSet() const {
     for (const std::string & data_directory : data_directories_) {
         std::vector<GeomLoader> loaders(NData(data_directory));
         size_t cartdim = 3 * NAtoms();
-        for (auto & loader : loaders) loader.reset(cartdim);
+        for (auto & loader : loaders) {
+            loader.path = data_directory;
+            loader.reset(cartdim);
+        }
         load_weight(loaders, data_directory);
         load_geom  (loaders, data_directory);
         for (const auto & loader : loaders) pgeoms.push_back(std::make_shared<Geometry>(loader));
@@ -100,7 +103,10 @@ std::shared_ptr<DataSet<Energy>> Reader::read_EnergySet() const {
         std::vector<EnergyLoader> loaders(NData(data_directory));
         size_t cartdim = 3 * NAtoms(),
                nstates = NStates(data_directory);
-        for (auto & loader : loaders) loader.reset(cartdim, nstates);
+        for (auto & loader : loaders) {
+            loader.path = data_directory;
+            loader.reset(cartdim, nstates);
+        }
         load_weight(loaders, data_directory);
         load_geom  (loaders, data_directory);
         load_energy(loaders, data_directory);
@@ -119,7 +125,10 @@ Reader::read_HamSet() const {
         std::vector<HamLoader> loaders(NData(data_directory));
         size_t cartdim = 3 * NAtoms(),
                nstates = NStates(data_directory);
-        for (auto & loader : loaders) loader.reset(cartdim, nstates);
+        for (auto & loader : loaders) {
+            loader.path = data_directory;
+            loader.reset(cartdim, nstates);
+        }
         load_weight(loaders, data_directory);
         load_geom(loaders, data_directory);
         load_energy(loaders, data_directory);

@@ -7,14 +7,16 @@ namespace abinitio {
 
 class Geometry {
     protected:
+        std::string path_;
         double sqrtweight_ = 1.0, weight_ = 1.0;
         at::Tensor geom_;
     public:
         Geometry();
-        Geometry(const double & _weight, const at::Tensor & _geom);
+        Geometry(const std::string & _path, const double & _weight, const at::Tensor & _geom);
         Geometry(const GeomLoader & loader);
         ~Geometry();
 
+        const std::string & path() const;
         const double & sqrtweight() const;
         const double & weight() const;
         const at::Tensor & geom() const;

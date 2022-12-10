@@ -6,10 +6,10 @@ namespace abinitio {
 
 SAGeometry::SAGeometry() {}
 // `cart2CNPI` takes in r, returns q and corresponding J
-SAGeometry::SAGeometry(const double & _weight, const at::Tensor & _geom,
+SAGeometry::SAGeometry(const std::string & _path, const double & _weight, const at::Tensor & _geom,
 const std::vector<size_t> & _CNPI2point, const std::vector<std::string> & point_defs,
 std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2CNPI)(const at::Tensor &))
-: Geometry(_weight, _geom), CNPI2point_(_CNPI2point) {
+: Geometry(_path, _weight, _geom), CNPI2point_(_CNPI2point) {
     // CNPI group symmetry adapted internal coordinate
     std::tie(qs_, Jqrs_) = cart2CNPI(_geom);
     size_t n_CNPI_irreds = qs_.size();
@@ -52,7 +52,7 @@ std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2CNPI)(const 
 }
 SAGeometry::SAGeometry(const SAGeomLoader & loader,
 std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2CNPI)(const at::Tensor &))
-: SAGeometry(loader.weight, loader.geom, loader.CNPI2point, loader.point_defs, cart2CNPI) {}
+: SAGeometry(loader.path, loader.weight, loader.geom, loader.CNPI2point, loader.point_defs, cart2CNPI) {}
 SAGeometry::~SAGeometry() {}
 
 const std::vector<size_t> & SAGeometry::CNPI_intdims() const {return CNPI_intdims_;}

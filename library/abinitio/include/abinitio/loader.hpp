@@ -7,6 +7,7 @@ namespace abinitio {
 
 // store geometry
 struct GeomLoader {
+    std::string path;
     double weight = 1.0;
     at::Tensor geom;
 

@@ -36,7 +36,7 @@ class SAGeometry : public Geometry {
     public:
         SAGeometry();
         // `cart2CNPI` takes in r, returns q and corresponding J
-        SAGeometry(const double & _weight, const at::Tensor & _geom,
+        SAGeometry(const std::string & _path, const double & _weight, const at::Tensor & _geom,
                    const std::vector<size_t> & _CNPI2point, const std::vector<std::string> & point_defs,
                    std::tuple<std::vector<at::Tensor>, std::vector<at::Tensor>> (*cart2CNPI)(const at::Tensor &));
         SAGeometry(const SAGeomLoader & loader,

@@ -21,7 +21,10 @@ std::shared_ptr<DataSet<SAGeometry>> SAReader::read_SAGeomSet() const {
     for (const std::string & data_directory : data_directories_) {
         std::vector<SAGeomLoader> loaders(NData(data_directory));
         size_t cartdim = 3 * NAtoms();
-        for (auto & loader : loaders) loader.reset(cartdim);
+        for (auto & loader : loaders) {
+            loader.path = data_directory;
+            loader.reset(cartdim);
+        }
         load_weight    (loaders, data_directory);
         load_geom      (loaders, data_directory);
         load_CNPI2point(loaders, data_directory);
@@ -39,7 +42,10 @@ std::shared_ptr<DataSet<SAEnergy>> SAReader::read_SAEnergySet() const {
         std::vector<SAEnergyLoader> loaders(NData(data_directory));
         size_t cartdim = 3 * NAtoms(),
                nstates = NStates(data_directory);
-        for (auto & loader : loaders) loader.reset(cartdim, nstates);
+        for (auto & loader : loaders) {
+            loader.path = data_directory;
+            loader.reset(cartdim, nstates);
+        }
         load_weight    (loaders, data_directory);
         load_geom      (loaders, data_directory);
         load_CNPI2point(loaders, data_directory);
@@ -60,7 +66,10 @@ SAReader::read_SAHamSet() const {
         std::vector<SAHamLoader> loaders(NData(data_directory));
         size_t cartdim = 3 * NAtoms(),
                nstates = NStates(data_directory);
-        for (auto & loader : loaders) loader.reset(cartdim, nstates);
+        for (auto & loader : loaders) {
+            loader.path = data_directory;
+            loader.reset(cartdim, nstates);
+        }
         load_weight    (loaders, data_directory);
         load_geom      (loaders, data_directory);
         load_CNPI2point(loaders, data_directory);
