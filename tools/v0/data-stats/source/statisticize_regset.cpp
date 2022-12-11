@@ -108,18 +108,18 @@ void print_regset_statistics(const std::shared_ptr<abinitio::DataSet<RegHam>> & 
         ofs_x << "state " << i + 1 << " - state " << j + 1 << ", average, minimum, maximum, standard deviation\n";
         for (size_t k = 0; k < x_avg[i][j].numel(); k++)
         ofs_x << std::setw(10) << k + 1
-              << std::setw(25) << std::scientific << std::setprecision(15) << x_avg[i][j][k].item<double>()
-              << std::setw(25) << std::scientific << std::setprecision(15) << x_min[i][j][k].item<double>()
-              << std::setw(25) << std::scientific << std::setprecision(15) << x_max[i][j][k].item<double>()
-              << std::setw(25) << std::scientific << std::setprecision(15) << x_std[i][j][k].item<double>() << '\n';
+              << std::setw(13) << std::scientific << std::setprecision(3) << x_avg[i][j][k].item<double>()
+              << std::setw(13) << std::scientific << std::setprecision(3) << x_min[i][j][k].item<double>()
+              << std::setw(13) << std::scientific << std::setprecision(3) << x_max[i][j][k].item<double>()
+              << std::setw(13) << std::scientific << std::setprecision(3) << x_std[i][j][k].item<double>() << '\n';
         // input layer gradient metric details
         ofs_S << "state " << i + 1 << " - state " << j + 1 << ", average, minimum, maximum, standard deviation\n";
         for (size_t k = 0; k < S_avg[i][j].size(0); k++)
         ofs_S << std::setw(10) << k + 1
-              << std::setw(25) << std::scientific << std::setprecision(15) << S_avg[i][j][k].item<double>()
-              << std::setw(25) << std::scientific << std::setprecision(15) << S_min[i][j][k].item<double>()
-              << std::setw(25) << std::scientific << std::setprecision(15) << S_max[i][j][k].item<double>()
-              << std::setw(25) << std::scientific << std::setprecision(15) << S_std[i][j][k].item<double>() << '\n';
+              << std::setw(13) << std::scientific << std::setprecision(3) << S_avg[i][j][k].item<double>()
+              << std::setw(13) << std::scientific << std::setprecision(3) << S_min[i][j][k].item<double>()
+              << std::setw(13) << std::scientific << std::setprecision(3) << S_max[i][j][k].item<double>()
+              << std::setw(13) << std::scientific << std::setprecision(3) << S_std[i][j][k].item<double>() << '\n';
     }
     std::cout << "Details can be found in regset_x.txt and regset_S.txt\n";
     ofs_x.close(); ofs_S.close();

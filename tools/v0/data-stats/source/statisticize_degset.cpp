@@ -15,12 +15,12 @@ void print_degset_statistics(const std::shared_ptr<abinitio::DataSet<DegHam>> & 
         // standard output
         if (tchem::chem::check_degeneracy(eigval, 0.0001)) {
             std::cout << data->path() << " has degenerate composite representation: ";
-            for (int64_t i = 0; i < eigval.size(0); i++) std::cout << std::setw(25) << std::scientific << std::setprecision(15) << eigval[i].item<double>();
+            for (int64_t i = 0; i < eigval.size(0); i++) std::cout << std::setw(13) << std::scientific << std::setprecision(3) << eigval[i].item<double>();
             std::cout << '\n';
         }
         // composite eigenvalue details
         ofs << data->path() << ": ";
-        for (int64_t i = 0; i < eigval.size(0); i++) ofs << std::setw(25) << std::scientific << std::setprecision(15) << eigval[i].item<double>();
+        for (int64_t i = 0; i < eigval.size(0); i++) ofs << std::setw(13) << std::scientific << std::setprecision(3) << eigval[i].item<double>();
         ofs << '\n';
     }
     std::cout << "Details can be found in degset.txt\n";
