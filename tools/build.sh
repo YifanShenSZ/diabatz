@@ -6,7 +6,7 @@ cd v1
 bash build.sh
 cd ..
 
-for directory in CNPI2point autoencoder cart2SASDIC; do
+for directory in CNPI2point cart2SASDIC; do
     echo
     echo "Entre "$directory
     cd $directory
