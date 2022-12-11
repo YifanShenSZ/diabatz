@@ -4,8 +4,8 @@
 #include "../include/data.hpp"
 
 std::tuple<std::shared_ptr<abinitio::DataSet<RegHam>>, std::shared_ptr<abinitio::DataSet<DegHam>>>
-read_data(const std::vector<std::string> & user_list) {
-    abinitio::SAReader reader(user_list, cart2CNPI);
+read_data(const std::vector<std::string> & user_list, const double& deg_thresh) {
+    abinitio::SAReader reader(user_list, cart2CNPI, deg_thresh);
     reader.pretty_print(std::cout);
     // read the data set in symmetry adapted internal coordinate in standard form
     std::shared_ptr<abinitio::DataSet<abinitio::RegSAHam>> stdregset;

@@ -6,7 +6,7 @@
 #include "data_classes.hpp"
 
 std::tuple<std::shared_ptr<abinitio::DataSet<RegHam>>, std::shared_ptr<abinitio::DataSet<DegHam>>>
-read_data(const std::vector<std::string> & user_list);
+read_data(const std::vector<std::string> & user_list, const double& deg_thresh);
 
 std::shared_ptr<abinitio::DataSet<Energy>> read_energy(const std::vector<std::string> & user_list);
 
