@@ -20,6 +20,7 @@ argparse::ArgumentParser parse_args(const size_t & argc, const char ** & argv) {
     // optional arguments
     parser.add_argument("--energy_data",      '+', true, "data set list files or directories without gradient");
     parser.add_argument("-z","--zero_point",    1, true, "zero of potential energy, default = 0");
+    parser.add_argument("--deg_thresh",         1, true, "threshold to be considered as degenerate, default = 0.0001");
 
     parser.parse_args(argc, argv);
     return parser;
@@ -51,9 +52,11 @@ int main(size_t argc, const char ** argv) {
     input_generator = std::make_shared<InputGenerator>(Hdnet->NStates(), Hdnet->irreds(), input_layers, sasicset->NSASDICs());
 
     std::vector<std::string> data = args.retrieve<std::vector<std::string>>("data");
+    double deg_thresh = 0.0001;
+    if (args.gotArgument("deg_thresh")) deg_thresh = args.retrieve<double>("deg_thresh");
     std::shared_ptr<abinitio::DataSet<RegHam>> regset;
     std::shared_ptr<abinitio::DataSet<DegHam>> degset;
-    std::tie(regset, degset) = read_data(data);
+    std::tie(regset, degset) = read_data(data, deg_thresh);
     std::cout << "There are " << regset->size_int() << " data points in adiabatic representation\n"
               << "          " << degset->size_int() << " data points in composite representation\n\n";
 
@@ -70,12 +73,18 @@ int main(size_t argc, const char ** argv) {
     for (const auto & example : degset->examples()) example->subtract_ZeroPoint(zero_point);
     for (const auto & example : energy_set->examples()) example->subtract_ZeroPoint(zero_point);
 
-    print_regset_statistics(regset);
+    if (! regset->examples().empty()) {
+        std::cout << "regular Hamiltonian set statistics:\n";
+        print_regset_statistics(regset);
+        std::cout << '\n';
+    }
 
-    std::cout << '\n';
-    print_degset_statistics(degset);
+    if (! degset->examples().empty()) {
+        std::cout << "degenerate Hamiltonian set statistics:\n";
+        print_degset_statistics(degset);
+        std::cout << '\n';
+    }
 
-    std::cout << '\n';
     CL::utility::show_time(std::cout);
     std::cout << "Mission success\n";
 }
