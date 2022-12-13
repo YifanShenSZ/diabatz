@@ -3,7 +3,7 @@
 
 #include <tchem/linalg.hpp>
 
-#include <Hd/kernel.hpp>
+#include <Hd/Kernel.hpp>
 
 argparse::ArgumentParser parse_args(const size_t & argc, const char ** & argv) {
     CL::utility::echo_command(argc, argv, std::cout);
@@ -55,7 +55,7 @@ int main(size_t argc, const char ** argv) {
     std::cout << '\n';
 
     std::vector<std::string> diabatz_inputs = args.retrieve<std::vector<std::string>>("diabatz");
-    Hd::kernel Hdkernel(diabatz_inputs);
+    Hd::Kernel HdKernel(diabatz_inputs);
 
     CL::chem::xyz<double> xyz(args.retrieve<std::string>("xyz"), true);
     std::vector<double> coords = xyz.coords();
@@ -64,7 +64,7 @@ int main(size_t argc, const char ** argv) {
     if (args.gotArgument("adiabatz")) {
         if (args.gotArgument("gradient")) {
             at::Tensor Hd, dHd;
-            std::tie(Hd, dHd) = Hdkernel.compute_Hd_dHd(r);
+            std::tie(Hd, dHd) = HdKernel.compute_Hd_dHd(r);
             at::Tensor energy, states;
             std::tie(energy, states) = Hd.symeig(true);
             // energy
@@ -92,7 +92,7 @@ int main(size_t argc, const char ** argv) {
             }
         }
         else {
-            at::Tensor Hd = Hdkernel(r);
+            at::Tensor Hd = HdKernel(r);
             at::Tensor energy, states;
             std::tie(energy, states) = Hd.symeig(true);
             // energy
@@ -109,7 +109,7 @@ int main(size_t argc, const char ** argv) {
     else {
         if (args.gotArgument("gradient")) {
             at::Tensor Hd, dHd;
-            std::tie(Hd, dHd) = Hdkernel.compute_Hd_dHd(r);
+            std::tie(Hd, dHd) = HdKernel.compute_Hd_dHd(r);
             // Hd
             std::cout << "Hd =\n";
             print_symat(Hd, std::cout);
@@ -123,7 +123,7 @@ int main(size_t argc, const char ** argv) {
             }
         }
         else {
-            at::Tensor Hd = Hdkernel(r);
+            at::Tensor Hd = HdKernel(r);
             // Hd
             std::cout << "Hd =\n";
             print_symat(Hd, std::cout);
@@ -131,7 +131,7 @@ int main(size_t argc, const char ** argv) {
         }
     }
 
-    if (args.gotArgument("diagnostic")) Hdkernel.diagnostic(r, std::cout);
+    if (args.gotArgument("diagnostic")) HdKernel.diagnostic(r, std::cout);
 
     CL::utility::show_time(std::cout);
     std::cout << "Mission success\n";

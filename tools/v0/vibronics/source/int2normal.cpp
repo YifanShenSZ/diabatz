@@ -1,16 +1,16 @@
 #include <tchem/chemistry.hpp>
 
-#include <Hd/kernel.hpp>
+#include <Hd/Kernel.hpp>
 
-void int2normal(const Hd::kernel & Hdkernel, const tchem::chem::SANormalMode & final_vib, const at::Tensor & shift) {
-    auto para_mat = Hdkernel.Hdnet()->parameters();
+void int2normal(const Hd::Kernel & HdKernel, const tchem::chem::SANormalMode & final_vib, const at::Tensor & shift) {
+    auto para_mat = HdKernel.Hdnet()->parameters();
     auto LTs = final_vib.intmodes();
     std::vector<at::Tensor> Ls(LTs.size());
     for (size_t i = 0; i < LTs.size(); i++) Ls[i] = LTs[i].transpose(0, 1).clone();
     // Loop over each independent matrix element
-    for (size_t i = 0; i < Hdkernel.NStates(); i++)
-    for (size_t j = i; j < Hdkernel.NStates(); j++) {
-        const auto & original_sapset = (*Hdkernel.input_generator())[{i, j}];
+    for (size_t i = 0; i < HdKernel.NStates(); i++)
+    for (size_t j = i; j < HdKernel.NStates(); j++) {
+        const auto & original_sapset = (*HdKernel.input_generator())[{i, j}];
         auto sapset = * original_sapset;
         // Add the bias (const term) to sap set for rotation and translation
         if (para_mat[i][j].size() > 1) sapset.insert_const();

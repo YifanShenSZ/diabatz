@@ -6,7 +6,7 @@
 #include <tchem/linalg.hpp>
 #include <tchem/chemistry.hpp>
 
-#include <Hd/kernel.hpp>
+#include <Hd/Kernel.hpp>
 
 argparse::ArgumentParser parse_args(const size_t & argc, const char ** & argv) {
     CL::utility::echo_command(argc, argv, std::cout);
@@ -30,7 +30,7 @@ argparse::ArgumentParser parse_args(const size_t & argc, const char ** & argv) {
 }
 
 // computed by finite difference of (▽H)d
-at::Tensor compute_ddHd(const at::Tensor & r, const Hd::kernel & Hdkernel) {
+at::Tensor compute_ddHd(const at::Tensor & r, const Hd::Kernel & HdKernel) {
     const double dr = 1e-3;
     std::vector<at::Tensor> plus(r.size(0)), minus(r.size(0));
     #pragma omp parallel for
@@ -38,10 +38,10 @@ at::Tensor compute_ddHd(const at::Tensor & r, const Hd::kernel & Hdkernel) {
         at::Tensor Hd, dHd;
         plus[i] = r.clone();
         plus[i][i] += dr;
-        std::tie(Hd, plus[i]) = Hdkernel.compute_Hd_dHd(plus[i]);
+        std::tie(Hd, plus[i]) = HdKernel.compute_Hd_dHd(plus[i]);
         minus[i] = r.clone();
         minus[i][i] -= dr;
-        std::tie(Hd, minus[i]) = Hdkernel.compute_Hd_dHd(minus[i]);
+        std::tie(Hd, minus[i]) = HdKernel.compute_Hd_dHd(minus[i]);
     }
     at::Tensor ddHd = r.new_empty({plus[0].size(0), plus[0].size(1), r.size(0), r.size(0)});
     for (size_t i = 0; i < r.size(0); i++) ddHd.select(2, i).copy_((plus[i] - minus[i]) / 2.0 / dr);
@@ -49,7 +49,7 @@ at::Tensor compute_ddHd(const at::Tensor & r, const Hd::kernel & Hdkernel) {
 }
 
 // here ddHa is ▽[(▽H)a], computed by finite difference of (▽H)a
-at::Tensor compute_ddHa(const at::Tensor & r, const Hd::kernel & Hdkernel) {
+at::Tensor compute_ddHa(const at::Tensor & r, const Hd::Kernel & HdKernel) {
     // Here ddHa is ▽[(▽H)a], computed by finite difference of (▽H)a
     const double dr = 1e-3;
     std::vector<at::Tensor> plus(r.size(0)), minus(r.size(0));
@@ -58,12 +58,12 @@ at::Tensor compute_ddHa(const at::Tensor & r, const Hd::kernel & Hdkernel) {
         at::Tensor Hd, dHd, energy, states;
         plus[i] = r.clone();
         plus[i][i] += dr;
-        std::tie(Hd, dHd) = Hdkernel.compute_Hd_dHd(plus[i]);
+        std::tie(Hd, dHd) = HdKernel.compute_Hd_dHd(plus[i]);
         std::tie(energy, states) = Hd.symeig(true);
         plus[i] = tchem::linalg::UT_sy_U(dHd, states);
         minus[i] = r.clone();
         minus[i][i] -= dr;
-        std::tie(Hd, dHd) = Hdkernel.compute_Hd_dHd(minus[i]);
+        std::tie(Hd, dHd) = HdKernel.compute_Hd_dHd(minus[i]);
         std::tie(energy, states) = Hd.symeig(true);
         minus[i] = tchem::linalg::UT_sy_U(dHd, states);
     }
@@ -92,24 +92,24 @@ int main(size_t argc, const char ** argv) {
     CL::chem::xyz_mass<double> xyz(xyz_file, mass_file, true);
 
     std::vector<std::string> diabatz_inputs = args.retrieve<std::vector<std::string>>("diabatz");
-    Hd::kernel Hdkernel(diabatz_inputs);
+    Hd::Kernel HdKernel(diabatz_inputs);
 
     std::vector<double> coords = xyz.coords();
     at::Tensor r = at::from_blob(coords.data(), coords.size(), at::TensorOptions().dtype(torch::kFloat64));
 
     at::Tensor Hd, dHd;
-    std::tie(Hd, dHd) = Hdkernel.compute_Hd_dHd(r);
+    std::tie(Hd, dHd) = HdKernel.compute_Hd_dHd(r);
     at::Tensor cartgrad, carthess;
     if (args.gotArgument("adiabatz")) {
         at::Tensor energy, states;
         std::tie(energy, states) = Hd.symeig(true);
         at::Tensor dHa = tchem::linalg::UT_sy_U(dHd, states);
-        at::Tensor ddHa = compute_ddHa(r, Hdkernel);
+        at::Tensor ddHa = compute_ddHa(r, HdKernel);
         cartgrad =  dHa[target_state][target_state];
         carthess = ddHa[target_state][target_state];
     }
     else {
-        at::Tensor ddHd = compute_ddHd(r, Hdkernel);
+        at::Tensor ddHd = compute_ddHd(r, HdKernel);
         cartgrad =  dHd[target_state][target_state];
         carthess = ddHd[target_state][target_state];
     }

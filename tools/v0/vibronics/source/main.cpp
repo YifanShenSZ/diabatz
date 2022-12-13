@@ -7,7 +7,7 @@
 
 #include <abinitio/SAgeometry.hpp>
 
-#include <Hd/kernel.hpp>
+#include <Hd/Kernel.hpp>
 
 #include "../include/CNPI.hpp"
 #include "../include/routines.hpp"
@@ -58,7 +58,7 @@ int main(size_t argc, const char ** argv) {
     std::string net = args.retrieve<std::string>("net"),
                 chk = args.retrieve<std::string>("checkpoint");
     std::vector<std::string> input_layers = args.retrieve<std::vector<std::string>>("input_layers");
-    Hd::kernel Hdkernel(format, IC, SAS, net, chk, input_layers);
+    Hd::Kernel HdKernel(format, IC, SAS, net, chk, input_layers);
 
     std::string mass_file = args.retrieve<std::string>("mass"),
                 final_geom_file = args.retrieve<std::string>("final_geom"),
@@ -110,11 +110,11 @@ int main(size_t argc, const char ** argv) {
     tchem::chem::SANormalMode init_vib(init_geom.masses(), init_Js, init_Hs);
     init_vib.kernel();
 
-    at::Tensor final_intddHd = compute_intddHd(final_r, Hdkernel);
+    at::Tensor final_intddHd = compute_intddHd(final_r, HdKernel);
     at::Tensor final_inthess;
     // Determine representation
     at::Tensor final_Hd, final_dHd;
-    std::tie(final_Hd, final_dHd) = Hdkernel.compute_Hd_dHd(final_r);
+    std::tie(final_Hd, final_dHd) = HdKernel.compute_Hd_dHd(final_r);
     at::Tensor final_energy, final_state;
     std::tie(final_energy, final_state) = final_Hd.symeig(true);
     if ((final_energy[1] - final_energy[0]).item<double>() < 1e-4) {
@@ -194,7 +194,7 @@ int main(size_t argc, const char ** argv) {
     suggest_phonons(contour, init_qs, final_qs, init_vib, final_vib);
 
     std::cout << '\n';
-    int2normal(Hdkernel, final_vib, final_qs[0]);
+    int2normal(HdKernel, final_vib, final_qs[0]);
 
     std::cout << '\n';
     CL::utility::show_time(std::cout);

@@ -5,7 +5,7 @@
 
 void compare() {
     c10::TensorOptions top = at::TensorOptions().dtype(torch::kFloat64);
-    int64_t NStates = Hdkernel->NStates();
+    int64_t NStates = HdKernel->NStates();
     tchem::chem::Orderer orderer(NStates);
     // data in adiabatic representation
     at::Tensor rmsd_energy = at::zeros(NStates, top),
@@ -16,7 +16,7 @@ void compare() {
         at::Tensor dH = data->dH();
         // get necessary diabatic quantity
         at::Tensor Hd, dHd;
-        std::tie(Hd, dHd) = Hdkernel->compute_Hd_dHd(data->geom());
+        std::tie(Hd, dHd) = HdKernel->compute_Hd_dHd(data->geom());
         // predict in adiabatic representation
         at::Tensor energy, states;
         std::tie(energy, states) = Hd.symeig(true);

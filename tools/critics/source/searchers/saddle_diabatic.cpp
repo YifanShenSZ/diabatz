@@ -14,7 +14,7 @@ void residue(double * residue, const double * free_intgeom, const int32_t & free
     at::Tensor q = fixed_intcoord->vector_free2total(q_free);
     at::Tensor r = int2cart(q, init_guess_, intcoordset);
     at::Tensor Hd, dHd;
-    std::tie(Hd, dHd) = Hdkernel->compute_Hd_dHd(r);
+    std::tie(Hd, dHd) = HdKernel->compute_Hd_dHd(r);
     at::Tensor intgrad = intcoordset->gradient_cart2int(r, dHd[target_state_][target_state_]);
     at::Tensor free_intgrad = fixed_intcoord->vector_total2free(intgrad);
     std::memcpy(residue, free_intgrad.data_ptr<double>(), free_intdim * sizeof(double));
@@ -26,7 +26,7 @@ void Jacobian(double * JT, const double * free_intgeom, const int32_t & free_int
     at::Tensor q = fixed_intcoord->vector_free2total(q_free);
     at::Tensor r = int2cart(q, init_guess_, intcoordset);
     at::Tensor Hd, dHd;
-    std::tie(Hd, dHd) = Hdkernel->compute_Hd_dHd(r);
+    std::tie(Hd, dHd) = HdKernel->compute_Hd_dHd(r);
     at::Tensor cartHess = compute_ddHd(r)[target_state_][target_state_];
     at::Tensor intHess = intcoordset->Hessian_cart2int(r, dHd[target_state_][target_state_], cartHess);
     at::Tensor free_intHess = fixed_intcoord->matrix_total2free(intHess);

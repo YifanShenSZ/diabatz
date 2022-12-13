@@ -31,7 +31,7 @@ include_directories(include)
 
 add_library(Hd STATIC
     source/InputGenerator.cpp
-    source/kernel.cpp
+    source/Kernel.cpp
 )
 
 target_link_libraries(Hd

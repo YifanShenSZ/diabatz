@@ -31,7 +31,7 @@ int main(size_t argc, const char ** argv) {
     std::cout << '\n';
 
     std::vector<std::string> diabatz_inputs = args.retrieve<std::vector<std::string>>("diabatz");
-    Hdkernel = std::make_shared<Hd::kernel>(diabatz_inputs);
+    HdKernel = std::make_shared<Hd::Kernel>(diabatz_inputs);
 
     std::vector<std::string> data = args.retrieve<std::vector<std::string>>("data_set");
     abinitio::Reader reader(data);

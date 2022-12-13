@@ -1,11 +1,11 @@
 #include <Hderiva/diabatic.hpp>
 
-#include <Hd/kernel.hpp>
+#include <Hd/Kernel.hpp>
 
 namespace Hd {
 
-kernel::kernel() {}
-kernel::kernel(
+Kernel::Kernel() {}
+Kernel::Kernel(
 const std::string & format1, const std::string & IC1, const std::string & SAS1,
 const std::string & net1, const std::string & checkpoint1,
 const std::vector<std::string> & input_layers1,
@@ -27,7 +27,7 @@ const std::vector<std::string> & input_layers2) {
     Hdnet2_->eval();
     input_generator2_ = std::make_shared<InputGenerator>(Hdnet2_->NStates(), Hdnet2_->irreds(), input_layers2, sasicset2_->NSASDICs());
 }
-kernel::kernel(const std::vector<std::string> & args) {
+Kernel::Kernel(const std::vector<std::string> & args) {
     size_t half = args.size() / 2;
     std::vector<std::string> arg1s = std::vector<std::string>(args.begin(), args.begin() + half),
                              arg2s = std::vector<std::string>(args.begin() + half, args.end());
@@ -50,14 +50,14 @@ kernel::kernel(const std::vector<std::string> & args) {
     Hdnet2_->eval();
     input_generator2_ = std::make_shared<InputGenerator>(Hdnet2_->NStates(), Hdnet2_->irreds(), input_layers2, sasicset2_->NSASDICs());
 }
-kernel::~kernel() {}
+Kernel::~Kernel() {}
 
-size_t kernel::NStates() const {return Hdnet1_->NStates();}
+size_t Kernel::NStates() const {return Hdnet1_->NStates();}
 
 // given Cartesian coordinate r, return Hd
-at::Tensor kernel::operator()(const at::Tensor & r) const {
+at::Tensor Kernel::operator()(const at::Tensor & r) const {
     if (r.sizes().size() != 1) throw std::invalid_argument(
-    "Hd::kernel::operator(): r must be a vector");
+    "Hd::Kernel::operator(): r must be a vector");
     // Cartesian coordinate -> CNPI group symmetry adaptated and scaled internal coordinate
     at::Tensor q1 = sasicset1_->tchem::IC::IntCoordSet::operator()(r),
                q2 = sasicset2_->tchem::IC::IntCoordSet::operator()(r);
@@ -71,9 +71,9 @@ at::Tensor kernel::operator()(const at::Tensor & r) const {
 }
 
 // given Cartesian coordinate r, return Hd and ▽Hd
-std::tuple<at::Tensor, at::Tensor> kernel::compute_Hd_dHd(const at::Tensor & r) const {
+std::tuple<at::Tensor, at::Tensor> Kernel::compute_Hd_dHd(const at::Tensor & r) const {
     if (r.sizes().size() != 1) throw std::invalid_argument(
-    "Hd::kernel::compute_Hd_dHd: r must be a vector");
+    "Hd::Kernel::compute_Hd_dHd: r must be a vector");
     // Cartesian coordinate -> CNPI group symmetry adaptated and scaled internal coordinate
     at::Tensor q1, J1, q2, J2;
     std::tie(q1, J1) = sasicset1_->compute_IC_J(r);
@@ -131,9 +131,9 @@ std::tuple<at::Tensor, at::Tensor> kernel::compute_Hd_dHd(const at::Tensor & r) 
 }
 
 // output hidden layer values before activation to `os`
-void kernel::diagnostic(const at::Tensor & r, std::ostream & os) {
+void Kernel::diagnostic(const at::Tensor & r, std::ostream & os) {
     if (r.sizes().size() != 1) throw std::invalid_argument(
-    "Hd::kernel::operator(): r must be a vector");
+    "Hd::Kernel::operator(): r must be a vector");
     // Cartesian coordinate -> CNPI group symmetry adaptated and scaled internal coordinate
     at::Tensor q1 = sasicset1_->tchem::IC::IntCoordSet::operator()(r),
                q2 = sasicset2_->tchem::IC::IntCoordSet::operator()(r);

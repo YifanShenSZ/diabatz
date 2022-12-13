@@ -52,23 +52,27 @@ int main(size_t argc, const char ** argv) {
 
     int64_t target_state = args.retrieve<int64_t>("target");
     std::cout << "The target electronic state is " << target_state << '\n';
+    if (target_state < 1 || HdKernel->NStates() < target_state) {
+        std::cerr << "Error: There are " << HdKernel->NStates() << " electronic states, "
+                  << "so the target state should reside in [1, " << HdKernel->NStates() << "]\n";
+        throw std::invalid_argument("target state out of range");
+    }
     target_state -= 1;
 
     int64_t target_state2;
     if (job == "mex") {
         target_state2 = args.retrieve<int64_t>("target2");
         std::cout << "2nd target electronic state is " << target_state2 << '\n';
+        if (target_state2 < 1 || HdKernel->NStates() < target_state2) {
+            std::cerr << "Error: There are " << HdKernel->NStates() << " electronic states, "
+                      << "so the 2nd target state should reside in [1, " << HdKernel->NStates() << "]\n";
+            throw std::invalid_argument("target state out of range");
+        }
         target_state2 -= 1;
     }
 
     std::vector<std::string> diabatz_inputs = args.retrieve<std::vector<std::string>>("diabatz");
-    Hdkernel = std::make_shared<Hd::kernel>(diabatz_inputs);
-
-    if (target_state >= Hdkernel->NStates()) {
-        std::cerr << "Error: There are only " << Hdkernel->NStates() << " electronic states, "
-                  << "so the target state should not exceed that\n";
-        throw std::invalid_argument("Bad target state");
-    }
+    HdKernel = std::make_shared<Hd::Kernel>(diabatz_inputs);
 
     std::string guess_file = args.retrieve<std::string>("xyz");
     CL::chem::xyz<double> init_geom(guess_file, true);

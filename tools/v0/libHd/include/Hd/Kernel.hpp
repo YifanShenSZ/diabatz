@@ -8,7 +8,7 @@
 
 namespace Hd {
 
-class kernel {
+class Kernel {
     private:
         // generate CNPI group symmetry adapted and scaled internal coordinate from Cartesian coordinate
         std::shared_ptr<SASDIC::SASDICSet> sasicset_;
@@ -17,12 +17,12 @@ class kernel {
         // generate Hd network input layer from SASDIC
         std::shared_ptr<InputGenerator> input_generator_;
     public:
-        kernel();
-        kernel(const std::string & format, const std::string & IC, const std::string & SAS,
+        Kernel();
+        Kernel(const std::string & format, const std::string & IC, const std::string & SAS,
                const std::string & net, const std::string & checkpoint,
                const std::vector<std::string> & input_layers);
-        kernel(const std::vector<std::string> & args);
-        ~kernel();
+        Kernel(const std::vector<std::string> & args);
+        ~Kernel();
 
         const std::shared_ptr<obnet::symat> & Hdnet() const;
         const std::shared_ptr<InputGenerator> & input_generator() const;

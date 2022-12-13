@@ -3,13 +3,13 @@
 
 #include <tchem/intcoord.hpp>
 
-#include <Hd/kernel.hpp>
+#include <Hd/Kernel.hpp>
 
 #include "fixed_intcoord.hpp"
 
 extern std::shared_ptr<tchem::IC::IntCoordSet> intcoordset;
 
-extern std::shared_ptr<Hd::kernel> Hdkernel;
+extern std::shared_ptr<Hd::Kernel> HdKernel;
 
 extern std::shared_ptr<Fixed_intcoord> fixed_intcoord;
 

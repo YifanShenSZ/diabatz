@@ -3,14 +3,14 @@
 
 #include <tchem/chemistry.hpp>
 
-#include <Hd/kernel.hpp>
+#include <Hd/Kernel.hpp>
 
 at::Tensor read_Columbus(const at::Tensor & r, const std::string & hessian_file);
 
 std::vector<at::Tensor> Hessian_cart2int(
 const at::Tensor & r, const std::vector<size_t> & CNPI2point, const at::Tensor & carthess);
 
-at::Tensor compute_intddHd(const at::Tensor & r, const Hd::kernel & Hdkernel);
+at::Tensor compute_intddHd(const at::Tensor & r, const Hd::Kernel & HdKernel);
 
 void final2init(
 const std::vector<at::Tensor> & init_qs, const std::vector<at::Tensor> & final_qs,
@@ -20,6 +20,6 @@ void suggest_phonons(const double & contour,
 const std::vector<at::Tensor> & init_qs, const std::vector<at::Tensor> & final_qs,
 const tchem::chem::SANormalMode & init_vib, const tchem::chem::SANormalMode & final_vib);
 
-void int2normal(const Hd::kernel & Hdkernel, const tchem::chem::SANormalMode & final_vib, const at::Tensor & shift);
+void int2normal(const Hd::Kernel & HdKernel, const tchem::chem::SANormalMode & final_vib, const at::Tensor & shift);
 
 #endif
